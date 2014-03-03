@@ -85,37 +85,24 @@ class EditUser(PermissionRequiredMixin, UpdateView):
     def __init__(self, **kwargs):
         super(EditUser, self).__init__(**kwargs)
         self.template_name = 'users/new.html'
-        self.object = User
+        self.model = User
         self.form_class = EditUserProfileForm
         self.success_url = reverse('list_users_page')
+        self.pk_url_kwarg = 'user_id'
 
-    def get(self, *args, **kwargs):
-        user = User.objects.get(id=kwargs['pk'])
-        context = {'btn_label': "SAVE",
-                   'title': "Edit User",
-                   'request': self.request,
-                   'form': EditUserProfileForm(instance=user),
-                   'cancel_url': reverse("list_users_page")}
-        return self.render_to_response(context)
+    def get_context_data(self, **kwargs):
+        context = super(EditUser, self).get_context_data(**kwargs)
+        context['btn_label'] = "SAVE"
+        context['cancel_url'] = reverse("list_users_page")
+        context['title'] = "Edit User"
+        return context
 
-    def post(self, request, *args, **kwargs):
-        user = User.objects.get(id=kwargs['pk'])
-        self.form =  EditUserProfileForm(instance=user, data=request.POST)
-        if self.form.is_valid():
-            return self._form_valid()
-        return self._form_invalid()
-
-    def _form_valid(self):
-        self.form.save()
-        message = "%s was successfully updated" % self.form.cleaned_data['username']
+    def form_valid(self, form):
+        message = "%s was successfully updated" % form.cleaned_data['username']
         messages.success(self.request, message)
-        return HttpResponseRedirect(reverse("list_users_page"))
+        return super(EditUser, self).form_valid(form)
 
-    def _form_invalid(self):
+    def form_invalid(self, form):
         message = "User was not updated, see errors below"
-        messages.error(self.request, message )
-        context = {'btn_label': "SAVE",
-                   'title': "Edit User",
-                   'request': self.request,
-                   'form': self.form}
-        return self.render_to_response(context)
+        messages.error(self.request, message)
+        return super(EditUser, self).form_invalid(form)

@@ -47,5 +47,5 @@ urlpatterns = patterns('',
     url(r'^subsection/(?P<subsection_id>\d+)/edit/$', EditSubSection.as_view(), name="edit_subsection_page"),
     url(r'^users/$', UsersList.as_view(), name="list_users_page"),
     url(r'^users/new/$', CreateUser.as_view(), name="create_user_page"),
-    url(r'^users/(?P<pk>\d+)/edit/$', EditUser.as_view(), name="edit_user"),
+    url(r'^users/(?P<user_id>\d+)/edit/$', EditUser.as_view(), name="edit_user"),
 )
