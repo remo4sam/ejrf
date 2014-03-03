@@ -64,3 +64,15 @@ class AssignQuestionFormTest(BaseTest):
         question_group = self.question1.question_group.all()
         self.assertEqual(some_arbitrary_order + 1, self.question1.orders.get(question_group=question_group[0]).order)
         self.assertEqual(some_arbitrary_order + 2, self.question2.orders.get(question_group=question_group[0]).order)
+
+    def test_adding_question_to_subsection_with_two_groups_adds_to_the_last_group(self):
+        existing_group1 = QuestionGroup.objects.create(subsection=self.subsection, order=1)
+        existing_group2 = QuestionGroup.objects.create(subsection=self.subsection, order=2)
+
+        assign_question_form = AssignQuestionForm(self.form_data, subsection=self.subsection)
+        self.assertTrue(assign_question_form.is_valid())
+        assign_question_form.save()
+        question_group = self.question1.question_group.all()[0]
+        self.assertEqual(existing_group2, question_group)
+        self.assertEqual(2, existing_group2.all_questions().count())
+
