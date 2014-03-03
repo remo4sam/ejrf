@@ -2,14 +2,14 @@ from braces.views import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.views.generic import CreateView
+from django.views.generic import CreateView, View, UpdateView
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.models import Section, SubSection
 
 
 class NewSection(PermissionRequiredMixin, CreateView):
-    permission_required = 'auth.can_view_users'
+    permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, **kwargs):
         super(NewSection, self).__init__(**kwargs)
@@ -35,6 +35,29 @@ class NewSection(PermissionRequiredMixin, CreateView):
                    'form': form, 'btn_label': "CREATE", }
         return self.render_to_response(context)
 
+
+class EditSection(PermissionRequiredMixin, UpdateView):
+    permission_required = 'auth.can_edit_questionnaire'
+
+    def __init__(self, *args, **kwargs):
+        super(EditSection, self).__init__(*args, **kwargs)
+        self.form_class = SectionForm
+        self.model = Section
+        self.template_name = "sections/subsections/new.html"
+        self.pk_url_kwarg = 'section_id'
+
+    def get_context_data(self, **kwargs):
+        context = super(EditSection, self).get_context_data(**kwargs)
+        context['btn_label'] = "SAVE"
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "Section updated successfully.")
+        return super(EditSection, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request,"Section NOT updated. See errors below." )
+        return super(EditSection, self).form_invalid(form)
 
 class NewSubSection(PermissionRequiredMixin, CreateView):
     permission_required = 'auth.can_edit_questionnaire'

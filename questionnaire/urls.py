@@ -5,7 +5,7 @@ from questionnaire.views.home import Home
 from questionnaire.views.locations import ListRegions, ListCountries, RegionsForOrganization
 from questionnaire.views.manage import ManageJRF
 from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
-from questionnaire.views.sections import NewSection, NewSubSection
+from questionnaire.views.sections import NewSection, NewSubSection, EditSection
 from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion
 from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire
 from questionnaire.views.upload_document import UploadDocument, DownloadDocument, DeleteDocument
@@ -43,6 +43,7 @@ urlpatterns = patterns('',
     url(r'^submit/$', SubmitQuestionnaire.as_view(), name="submit_questionnaire_page"),
     url(r'^subsection/(?P<subsection_id>\d+)/assign_questions/$', AssignQuestion.as_view(), name="assign_question_to_subsection_page"),
     url(r'^subsection/(?P<subsection_id>\d+)/question/(?P<question_id>\d+)/unassign/$', UnAssignQuestion.as_view(), name="unassign_question_page"),
+    url(r'^section/(?P<section_id>\d+)/edit/$', EditSection.as_view(), name="edit_section_page"),
     url(r'^users/$', UsersList.as_view(), name="list_users_page"),
     url(r'^users/new/$', CreateUser.as_view(), name="create_user_page"),
     url(r'^users/(?P<pk>\d+)/edit/$', EditUser.as_view(), name="edit_user"),
