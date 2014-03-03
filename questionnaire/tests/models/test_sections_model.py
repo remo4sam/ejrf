@@ -184,3 +184,7 @@ class SubSectionTest(BaseTest):
     def test_next_order_starts_from_0_if_no_sections_exists_in_a_questionnaire(self):
         SubSection.objects.filter(section=self.section).delete()
         self.assertEqual(0, SubSection.get_next_order(self.section.id))
+
+    def test_absolute_url(self):
+        absolute_url = '/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id, self.sub_section.section.id)
+        self.assertEqual(absolute_url, self.sub_section.get_absolute_url())

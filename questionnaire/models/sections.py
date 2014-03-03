@@ -52,6 +52,13 @@ class SubSection(BaseModel):
     section = models.ForeignKey(Section, blank=False, null=False, related_name="sub_sections")
     description = models.TextField(blank=True, null=True)
 
+    class Meta:
+        ordering = ('order',)
+        app_label = 'questionnaire'
+
+    def get_absolute_url(self):
+        return self.section.get_absolute_url()
+
     def all_question_groups(self):
         return self.question_group.all()
 
@@ -63,10 +70,6 @@ class SubSection(BaseModel):
 
     def parent_question_groups(self):
         return self.question_group.filter(parent=None).exclude(question=None)
-
-    class Meta:
-        ordering = ('order',)
-        app_label = 'questionnaire'
 
     def has_at_least_two_groups(self):
         return self.parent_question_groups().count() > 1

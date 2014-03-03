@@ -56,8 +56,9 @@ class EditSection(PermissionRequiredMixin, UpdateView):
         return super(EditSection, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request,"Section NOT updated. See errors below." )
+        messages.error(self.request, "Section NOT updated. See errors below." )
         return super(EditSection, self).form_invalid(form)
+
 
 class NewSubSection(PermissionRequiredMixin, CreateView):
     permission_required = 'auth.can_edit_questionnaire'
@@ -93,3 +94,27 @@ class NewSubSection(PermissionRequiredMixin, CreateView):
         context = {'id':  "new-subsection-modal",
                    'form': self.form, 'btn_label': "CREATE", }
         return self.render_to_response(context)
+
+
+class EditSubSection(PermissionRequiredMixin, UpdateView):
+    permission_required = 'auth.can_edit_questionnaire'
+
+    def __init__(self, *args, **kwargs):
+        super(EditSubSection, self).__init__(*args, **kwargs)
+        self.form_class = SubSectionForm
+        self.model = SubSection
+        self.template_name = "sections/subsections/new.html"
+        self.pk_url_kwarg = 'subsection_id'
+
+    def get_context_data(self, **kwargs):
+        context = super(EditSubSection, self).get_context_data(**kwargs)
+        context['btn_label'] = "SAVE"
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "SubSection updated successfully.")
+        return super(EditSubSection, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "SubSection NOT updated. See errors below.")
+        return super(EditSubSection, self).form_invalid(form)

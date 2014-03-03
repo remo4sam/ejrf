@@ -106,7 +106,6 @@ class EditSectionsViewTest(BaseTest):
         self.assertRedirects(response, expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id ,section.id))
         self.assertIn('Section updated successfully.', response.cookies['messages'].value)
 
-
     def test_permission_required_for_edit_section(self):
         self.assert_login_required(self.url)
         self.assert_permission_required(self.url)
@@ -121,7 +120,6 @@ class EditSectionsViewTest(BaseTest):
         self.assertIn('Section NOT updated. See errors below.', response.content)
         self.assertIsInstance(response.context['form'], SectionForm)
         self.assertEqual("SAVE", response.context['btn_label'])
-
 
 
 class SubSectionsViewTest(BaseTest):
@@ -186,3 +184,60 @@ class SubSectionsViewTest(BaseTest):
         self.assertIsInstance(response.context['form'], SubSectionForm)
         self.assertEqual("new-subsection-modal", response.context['id'])
         self.assertEqual("CREATE", response.context['btn_label'])
+
+
+class EditSubSectionsViewTest(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country = self.create_user_with_no_permissions()
+
+        self.assign('can_edit_questionnaire', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        self.section = Section.objects.create(questionnaire=self.questionnaire, name="section", order=1)
+        self.form_data = {'description': 'funny section',
+                          'title': 'some title',
+                          'order': 1,
+                          'section': self.section.id}
+        self.create_form_data = self.form_data.copy()
+        del self.create_form_data['section']
+        self.subsection = SubSection.objects.create(section=self.section, **self.create_form_data)
+        self.url = '/subsection/%d/edit/' % self.subsection.id
+
+    def test_get_edit_section(self):
+        response = self.client.get(self.url)
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn("sections/subsections/new.html", templates)
+        self.assertIsNotNone(response.context['form'])
+        self.assertIsInstance(response.context['form'], SubSectionForm)
+        self.assertEqual(self.subsection, response.context['form'].instance)
+        self.assertEqual("SAVE", response.context['btn_label'])
+
+    def test_post_create_section(self):
+        data = self.form_data.copy()
+        data['title'] = 'Edited subsection name'
+        del data['order']
+        self.failIf(SubSection.objects.filter(**data))
+        response = self.client.post(self.url, data=data)
+        subsection = SubSection.objects.get(**data)
+        self.assertRedirects(response, expected_url=self.subsection.get_absolute_url())
+        self.failUnless(subsection)
+        self.assertIn('SubSection updated successfully.', response.cookies['messages'].value)
+
+    def test_permission_required_for_edit_section(self):
+        self.assert_login_required(self.url)
+        self.assert_permission_required(self.url)
+
+    def test_post_invalid(self):
+        form_data = self.form_data.copy()
+        form_data['title'] = ''
+        self.failIf(SubSection.objects.filter(**form_data))
+        response = self.client.post(self.url, data=form_data)
+        section = SubSection.objects.filter(**form_data)
+        self.failIf(section)
+        self.assertIn('SubSection NOT updated. See errors below.', response.content)
+        self.assertIsInstance(response.context['form'], SubSectionForm)
+        self.assertEqual("SAVE", response.context['btn_label'])
