@@ -6,7 +6,7 @@
                    href="{% url 'questionnaire_entry_page' questionnaire.id section_.id %}{% if preview %}?preview=1{% endif %}"
                    id="section-{{ section_.id }}"> {{ section_.name }}</a>
                 <a href="#" class="{% if section_.id == section.id %}current {% endif %} col-md-1"
-                        data-toggle="modal" data-target="#new-section-modal"> <span class="glyphicon glyphicon-pencil"></span> </a>
+                        data-toggle="modal" data-target="#edit_section_{{section_.id}}"> <span class="glyphicon glyphicon-pencil"></span> </a>
             </li>
         {% endfor %}
         {% if perms.auth.can_view_users %}
@@ -16,3 +16,7 @@
         {% endif %}
     </ul>
 </div>
+{% load generic_tags %}
+{% for section_ in ordered_sections %}
+    {% include 'base/modals/ajax_modal.html' with action_url=section_.id|get_url_with_ids:"edit_section_page" object=section_  action="edit_section" modal_title="Edit Section"  btn_label="SAVE" class="edit_section"%}
+{% endfor %}

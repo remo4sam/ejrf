@@ -1,4 +1,6 @@
 {% extends 'base/form.html' %}
 {% block display_form_fields %}
-    {% include 'base/naked_form.html' with a_form=form %}
+    <div id="form-content">
+        {% include 'base/naked_form.html' with a_form=form %}
+    </div>
 {% endblock %}

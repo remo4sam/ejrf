@@ -16,6 +16,7 @@
 {% endblock %}
 {% block content %}
     {% load questionnaire_entry_tags %}
+    {% load generic_tags %}
 
     <div class="section-buttons">
         <button class="btn btn-default button-section pull-right" id="preview_modal_btn" data-toggle="modal"
@@ -157,7 +158,6 @@
     {% endif %}
     </form>
     {% if perms.auth.can_edit_questionnaire %}
-        {% load generic_tags %}
         {% for subsection in section.sub_sections.all %}
             {% include 'questionnaires/assign_questions_modal.html' with subsection=subsection %}
             {% for group in subsection.parent_question_groups %}
