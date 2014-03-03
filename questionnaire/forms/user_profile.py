@@ -18,6 +18,7 @@ class UserProfileForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
         self.fields['password2'].label = 'Confirm Password'
+        self.fields['email'].required = True
 
     class Meta:
         model = User
@@ -75,3 +76,22 @@ class EditUserProfileForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EditUserProfileForm, self).__init__(*args, **kwargs)
+        self.fields['email'].required = True
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        return self._clean_attribute(User, email=email)
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        return self._clean_attribute(User, username=username)
+
+    def _clean_attribute(self, _class, **kwargs):
+        attribute_name = kwargs.keys()[0]
+        data_attr = kwargs[attribute_name]
+        users_with_same_attr = _class.objects.filter(**kwargs)
+        if users_with_same_attr and self.initial.get(attribute_name, None) != str(data_attr):
+            message = "%s is already associated to a different user." % data_attr
+            self._errors[attribute_name] = self.error_class([message])
+            del self.cleaned_data[attribute_name]
+        return data_attr

@@ -120,6 +120,23 @@ class UsersViewTest(BaseTest):
         self.assertIn('SAVE', response.context['btn_label'])
         self.assertIn('Edit User', response.context['title'])
 
+    def test_post_update_with_no_email_shows_errors(self):
+        saved_user = User.objects.create(username='user1', email= 'testuser@unicef.org')
+        user_profile = UserProfile.objects.create(user=saved_user, region=self.afro, country=self.uganda,
+                                                  organization=self.organization)
+        self.global_admin.user_set.add(saved_user)
+        self.form_data = {
+            'username': 'user1tom'}
+        response = self.client.post('/users/%d/edit/' % saved_user.pk, data=self.form_data)
+        self.assertEqual(200, response.status_code)
+        self.failUnless(User.objects.filter(username='user1', email='testuser@unicef.org'))
+        self.failIf(User.objects.filter(**self.form_data))
+        message = "User was not updated, see errors below"
+        self.assertIn(message, response.content)
+        self.assertIsInstance(response.context['form'], EditUserProfileForm)
+        self.assertIn('SAVE', response.context['btn_label'])
+        self.assertIn('Edit User', response.context['title'])
+
 
 
 class FilterUsersViewTest(BaseTest):

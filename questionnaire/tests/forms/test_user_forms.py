@@ -99,27 +99,55 @@ class EditUserProfileFormTest(BaseTest):
         self.global_admin = Group.objects.create(name='Global Admin')
         self.organization = Organization.objects.create(name="UNICEF")
 
+        self.saved_user = User.objects.create(username='user1', email='test@unicef.com')
+        self.user_profile = UserProfile.objects.create(user=self.saved_user, region=self.region, country=self.uganda,
+                                                  organization=self.organization)
+        self.global_admin.user_set.add(self.saved_user)
+
         self.region.countries.add(self.uganda)
         self.form_data = {
             'username': 'user',
             'email': 'raj@ni.kant', }
 
     def test_valid(self):
-        saved_user = User.objects.create(username='user1', email='emily@gmail.com')
-        user_profile = UserProfile.objects.create(user=saved_user, region=self.region, country=self.uganda,
-                                                  organization=self.organization)
-        self.global_admin.user_set.add(saved_user)
-
-        edit_user_profile_form = EditUserProfileForm(instance=saved_user, data=self.form_data)
+        edit_user_profile_form = EditUserProfileForm(instance=self.saved_user, data=self.form_data)
         user = edit_user_profile_form.save()
 
         self.assertTrue(edit_user_profile_form.is_valid())
-        self.failUnless(saved_user.id)
-        self.assertEqual(1, len(saved_user.groups.all()))
-        self.assertIn(self.global_admin, saved_user.groups.all())
+        self.failUnless(self.saved_user.id)
+        self.assertEqual(1, len(self.saved_user.groups.all()))
+        self.assertIn(self.global_admin, self.saved_user.groups.all())
 
         user_profile = UserProfile.objects.get(user=user)
         self.failUnless(user_profile)
         self.assertEqual(self.organization, user_profile.organization)
         self.assertEqual(self.region, user_profile.region)
         self.assertEqual(self.uganda, user_profile.country)
+
+    def test_username_already_used(self):
+        another_user = User.objects.create(username='another_user', email='another_user@unicef.com')
+        user_profile = UserProfile.objects.create(user=another_user, region=self.region, country=self.uganda,
+                                                  organization=self.organization)
+        self.global_admin.user_set.add(another_user)
+
+        form_data = {
+            'username': 'another_user',
+            'email': 'test@unicef.com' }
+        edit_user_profile_form = EditUserProfileForm(instance=self.saved_user, data=form_data)
+        self.assertFalse(edit_user_profile_form.is_valid())
+        message = "%s is already associated to a different user." % form_data['username']
+        self.assertEquals(edit_user_profile_form.errors['username'], [message])
+
+    def test_email_already_used(self):
+        another_user = User.objects.create(username='another_user', email='another_user@unicef.com')
+        user_profile = UserProfile.objects.create(user=another_user, region=self.region, country=self.uganda,
+                                                  organization=self.organization)
+        self.global_admin.user_set.add(another_user)
+
+        form_data = {
+            'username': 'user1',
+            'email': 'another_user@unicef.com' }
+        edit_user_profile_form = EditUserProfileForm(instance=self.saved_user, data=form_data)
+        self.assertFalse(edit_user_profile_form.is_valid())
+        message = "%s is already associated to a different user." % form_data['email']
+        self.assertEquals(edit_user_profile_form.errors['email'], [message])
