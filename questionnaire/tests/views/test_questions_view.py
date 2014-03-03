@@ -81,7 +81,7 @@ class SectionsViewTest(BaseTest):
     def test_post_multichoice_question_with_options(self):
         form_data = self.form_data.copy()
         form_data['answer_type'] = 'MultiChoice'
-        question_options = ['yes', 'No', 'Maybe', 'Nr', 'Chill']
+        question_options = ['yes, No, Maybe, Nr, Chill']
         self.assertRaises(Question.DoesNotExist, Question.objects.get, **form_data)
         form_data['options'] = question_options
         response = self.client.post(self.url + 'new/', data=form_data)
@@ -92,7 +92,7 @@ class SectionsViewTest(BaseTest):
         options = questions[0].options.all()
 
         self.assertEqual(5, options.count())
-        [self.assertIn(option.text, question_options) for option in options]
+        [self.assertIn(option.text, question_options[0].split(',')) for option in options]
 
     def test_post_multichoice_question_with_options_with_form_errors(self):
         form_data = self.form_data.copy()

@@ -56,6 +56,7 @@ class QuestionForm(ModelForm):
     def _save_options_if_multichoice(self, question):
         options = dict(self.data).get('options', [])
         if options and question.answer_type == Question.MULTICHOICE:
+            options = options[0].split(",")
             for option in options:
                 QuestionOption.objects.create(text=option, question=question)
 

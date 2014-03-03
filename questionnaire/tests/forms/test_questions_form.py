@@ -50,7 +50,7 @@ class QuestionsFormTest(BaseTest):
         self.assertIn(('', 'Response type'), question_form.fields['answer_type'].choices)
 
     def test_save_multichoice_question_saves_options(self):
-        options = ['Yes', 'No', 'Maybe']
+        options = ['Yes, No, Maybe']
         form = {'text': 'How many kids were immunised this year?',
                 'instructions': 'Some instructions',
                 'short_instruction': 'short version',
@@ -63,7 +63,7 @@ class QuestionsFormTest(BaseTest):
         question_options = QuestionOption.objects.filter(question=question)
 
         self.assertEqual(3, question_options.count())
-        [self.assertIn(question_option.text, options) for question_option in question_options]
+        [self.assertIn(question_option.text, options[0].split(',')) for question_option in question_options]
 
     def test_form_invalid_if_multichoice_question_and_no_options_in_data_options(self):
         form = {'text': 'How many kids were immunised this year?',
