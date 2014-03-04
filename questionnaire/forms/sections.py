@@ -16,7 +16,8 @@ class SubSectionForm(ModelForm):
 
     def save(self, commit=True, *args, **kwargs):
         subsection = super(SubSectionForm, self).save(commit=False, *args, **kwargs)
-        subsection.order = SubSection.get_next_order(self.instance.section.id)
+        if not self.instance.order:
+            subsection.order = SubSection.get_next_order(self.instance.section.id)
         if commit:
             subsection.save()
         return subsection

@@ -25,18 +25,6 @@ $(function(){
         });
     });
 
-    $('.edit_section').on('show.bs.modal', function(){
-        var section_id = $(this).attr('object-id'),
-            assign_to_subsection_url = "/section/" + section_id +"/edit/";
-        $.get(assign_to_subsection_url, function( data ) {
-            var $holder = $('<div></div>').append(String(data));
-            var content =  $holder.find("#form-content").html()
-            $( "#edit_section_"+section_id+"_ajax_content").html(content);
-            $('textarea').autosize();
-        });
-    });
-
-
 });
 
 function disable_modal_input_fields(){

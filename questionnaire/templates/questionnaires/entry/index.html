@@ -1,6 +1,7 @@
 {% extends 'base/layout.html' %}
 {% block javascripts %}
-    <script src="{{ STATIC_URL }}js/preview_questionnaire.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ STATIC_URL }}js/preview_questionnaire.js" type="text/javascript" charset="utf-8"
+            xmlns="http://www.w3.org/1999/html"></script>
     {% if printable %}
         <script src="{{ STATIC_URL }}js/printable.js" type="text/javascript" charset="utf-8"></script>
     {% endif %}
@@ -56,9 +57,12 @@
                     <h4 class="button-padding">{% if section.has_at_least_two_subsections %}{{ section.order }}.{{ subsection.order }}
                         .{% endif %} {{ subsection.title }}
                         {% if perms.auth.can_edit_questionnaire %}
-                            <a href=""  class="btn btn-default pull-right" data-toggle="modal"
-                               data-target="#assign-question-modal-{{ subsection.id }}"><span class="cyan"><span
-                                    class="glyphicon glyphicon-plus-sign"></span> Assign Question</span></a>
+                        <div class="btn-group pull-right">
+                            <a href=""  class="btn btn-sm btn-default" data-toggle="modal" data-target="#assign-question-modal-{{ subsection.id }}">
+                                <span class="cyan"><span class="glyphicon glyphicon-plus-sign"></span> Assign Question</span>
+                            </a>
+                            <a href="" class="btn btn-sm btn-default" data-toggle="modal" data-target="#edit_subsection_{{ subsection.id }}"><span class="cyan"><span class="glyphicon glyphicon-pencil"></span> Edit</span></a>
+                        </div>
                         {% endif %}
                     </h4>
                     {% for group in subsection.parent_question_groups %}
@@ -167,5 +171,7 @@
             {% endfor %}
         {% endfor %}
     {% endif %}
-
+    {% for subsection in section.sub_sections.all %}
+        {% include 'base/modals/ajax_modal.html' with action_url=subsection.id|get_url_with_ids:"edit_subsection_page" object=subsection  action="edit_subsection" modal_title="Edit SubSection"  btn_label="SAVE" class="edit_subsection"%}
+    {% endfor %}
 {% endblock %}

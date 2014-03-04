@@ -18,4 +18,3 @@ Feature: Section feature
         And I fill in invalid data
         And I save the section
         Then I should see error messages against the fields
-
