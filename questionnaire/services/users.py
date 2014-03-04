@@ -55,4 +55,10 @@ class UserQuestionnaireService(object):
             questionnaires[section] = QuestionnaireEntryFormService(section, initial=initial)
         return questionnaires
 
+    def preview(self):
+        if self.answers_in_questionnaire.exists():
+            return self.answers_in_questionnaire.latest('modified').status == Answer.SUBMITTED_STATUS
+        return False
+
+
 

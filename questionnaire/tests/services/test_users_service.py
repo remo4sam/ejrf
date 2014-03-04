@@ -230,3 +230,26 @@ class UserServiceTest(BaseTest):
         self.assertEqual(section_2, all_section_questionnaires[section_2].section)
         self.assertIsInstance(all_section_questionnaires[section_3], QuestionnaireEntryFormService)
         self.assertEqual(section_3, all_section_questionnaires[section_3].section)
+
+    def test_user_knows_if_he_should_see_preview_when_status_is_submitted(self):
+        data = self.data
+        old_primary = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, **self.initial)
+        old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=self.question2, **self.initial)
+        old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=self.question3, **self.initial)
+
+        answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
+        answer_group.answer.add(old_primary, old_answer_1, old_answer_2)
+
+        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+
+        self.assertFalse(user_service.preview())
+
+        old_primary.status="Submitted"
+        old_primary.save()
+        old_answer_1.status="Submitted"
+        old_answer_1.save()
+        old_answer_2.status="Submitted"
+        old_answer_2.save()
+
+        self.assertTrue(user_service.preview())
+

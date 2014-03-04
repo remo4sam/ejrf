@@ -1,7 +1,7 @@
 $(function(){
     $('#preview_modal').on('show.bs.modal', function(){
-        var questionnaire_id = $(this).attr('data-attribute-id');
-        var questionnaire_preview_url = "/questionnaire/preview/"+questionnaire_id;
+        $.post( location.pathname, $( "#questionnaire_entry" ).serialize() );
+        var questionnaire_preview_url = get_questionnaire_preview_url($(this));
         $.get(questionnaire_preview_url, function( data ) {
             var $holder = $('<div></div>').append(String(data));
             var content =  $holder.find("#preview-content").html()
@@ -26,6 +26,12 @@ $(function(){
     });
 
 });
+
+function get_questionnaire_preview_url($element){
+        var questionnaire_id = $element.attr('data-attribute-id');
+        var questionnaire_preview_url = "/questionnaire/"+ questionnaire_id + "/preview/";
+        return questionnaire_preview_url.replace('//', '/')
+}
 
 function disable_modal_input_fields(){
     $('.preview-content :input').each(function() {

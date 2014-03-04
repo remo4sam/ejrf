@@ -31,9 +31,10 @@ class Entry(MultiplePermissionsRequiredMixin, FormView):
         initial = {'status': 'Draft', 'country': self.request.user.user_profile.country}
         required_answers = 'show' in request.GET
         formsets = QuestionnaireEntryFormService(section, initial=initial, highlight=required_answers)
+        user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
 
         printable = 'printable' in request.GET
-        preview = 'preview' in request.GET
+        preview = user_questionnaire_service.preview() or 'preview' in request.GET
 
         context = {'questionnaire': questionnaire,
                    'section': section, 'printable': printable,
