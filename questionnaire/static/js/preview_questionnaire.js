@@ -1,12 +1,15 @@
 $(function(){
     $('#preview_modal').on('show.bs.modal', function(){
-        $.post( location.pathname, $( "#questionnaire_entry" ).serialize() );
-        var questionnaire_preview_url = get_questionnaire_preview_url($(this));
-        $.get(questionnaire_preview_url, function( data ) {
-            var $holder = $('<div></div>').append(String(data));
-            var content =  $holder.find("#preview-content").html()
-            $( "#ajax-content" ).html(content);
-            disable_modal_input_fields();
+        var $modal = $(this);
+        $.post( location.pathname, $( "#questionnaire_entry" ).serialize(), function(data1){
+            var questionnaire_preview_url = get_questionnaire_preview_url($modal);
+            $.get(questionnaire_preview_url, function( data ) {
+                var $holder = $('<div></div>').append(String(data));
+                var content =  $holder.find("#preview-content").html()
+                $( "#ajax-content" ).html(content);
+                disable_modal_input_fields();
+            });
+            form_has_changed = false;
         });
     });
     disable_modal_input_fields();
