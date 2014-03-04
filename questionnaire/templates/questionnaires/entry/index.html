@@ -93,7 +93,7 @@
                                                     {{ subsection.order }}{% endif %}.
                                                 {% if subsection.has_at_least_two_groups %}
                                                     {{ group.order }}.{% endif %}{% if group.has_at_least_two_questions %}
-                                                {{ order.order }}.{% endif %}
+                                                {{ forloop.counter }}.{% endif %}
                                             </div>
                                             <div class="question-text">
                                                 {{ order.question.text }}
