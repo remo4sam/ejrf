@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.filter import QuestionnaireFilterForm
@@ -19,8 +20,8 @@ class HomePageViewTest(BaseTest):
         templates = [template.name for template in response.templates]
         self.assertIn('home/index.html', templates)
 
-    def test_homepage_redirects_to_first_section_of_first_questionnaire_if_any_if_logged_in_as_data_submitter(self):
-        questionnaire = Questionnaire.objects.create(name="JRF", description="bla")
+    def test_homepage_redirects_to_latest_published_questionnaire_logged_in_as_data_submitter(self):
+        questionnaire = Questionnaire.objects.create(name="JRF", description="bla", status=Questionnaire.PUBLISHED)
         section = Section.objects.create(title="section", order=1, questionnaire=questionnaire, name="section")
         Section.objects.create(title="section", order=2, questionnaire=questionnaire, name="section")
 
@@ -28,8 +29,26 @@ class HomePageViewTest(BaseTest):
         expected_url = "/questionnaire/entry/%d/section/%d/" % (questionnaire.id, section.id)
         self.assertRedirects(response, expected_url=expected_url)
 
+    def test_homepage_doesnot__redirects_to_latest_questionnaire_that_is_not_published_logged_data_submitter(self):
+        Questionnaire.objects.create(name="JRF", description="bla", status=Questionnaire.FINALIZED)
+        response = self.client.get("/")
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn('home/index.html', templates)
+        message = "Sorry, There are no published questionnaires at the moment"
+        self.assertIn(message, str(response.content))
+
     def test_login_required_for_home_get(self):
         self.assert_login_required('/')
+
+    def test_homepage_redirects_to_managejrf_logged_in_as_global_admin(self):
+        User.objects.all().delete()
+        self.client.logout()
+        user, self.country = self.create_user_with_no_permissions()
+        self.assign('can_view_users', user)
+        self.client.login(username=user.username, password='pass')
+        response = self.client.get("/")
+        self.assertRedirects(response, expected_url=reverse('manage_jrf_page'))
 
 
 class ManageJRFViewTest(BaseTest):
