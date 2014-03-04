@@ -48,3 +48,13 @@
     vertical-align: text-bottom;
     padding-top: 3px;
 }
+.section-list{
+    display: flex !important;
+}
+.edit-section{
+    float:none;
+    display: inline-block !important;
+}
+.section_tab{
+    width: 100%;
+}
