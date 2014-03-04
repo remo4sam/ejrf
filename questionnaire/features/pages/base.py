@@ -80,3 +80,6 @@ class PageObject(object):
 
     def confirm_delete(self, model):
         self.is_text_present("Confirm Delete", "Are you sure you want to delete this %s?" % model)
+
+    def is_text_not_present(self, text):
+        self.browser.is_text_not_present(text)
