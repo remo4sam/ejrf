@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.test import Client
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
@@ -241,3 +242,41 @@ class EditSubSectionsViewTest(BaseTest):
         self.assertIn('SubSection NOT updated. See errors below.', response.content)
         self.assertIsInstance(response.context['form'], SubSectionForm)
         self.assertEqual("SAVE", response.context['btn_label'])
+
+
+class DeleteSectionsViewTest(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country = self.create_user_with_no_permissions()
+
+        self.assign('can_edit_questionnaire', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
+        self.section_1 = Section.objects.create(name="section 2", questionnaire=self.questionnaire, order=2)
+        self.url = '/section/%d/delete/' % self.section.id
+
+    def test_post_deletes_section(self):
+        response = self.client.post(self.url)
+        self.assertNotIn(self.section, Section.objects.all())
+
+    def test_successful_post_redirect_to_referrer_url(self):
+        referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section_1.id)
+        meta = {'HTTP_REFERER': referer_url}
+        response = self.client.post(self.url, data={}, HTTP_REFERER=referer_url)
+        self.assertRedirects(response, referer_url)
+
+    def test_successful_post_redirect_to_home_page_if_referer_url_is_self(self):
+        referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section.id)
+        meta = {'HTTP_REFERER': referer_url}
+        response = self.client.post(self.url, data={}, HTTP_REFERER=referer_url)
+        self.assertRedirects(response, reverse('home_page'), target_status_code=302)
+
+    def test_successful_post_display_success_message(self):
+        referer_url = '/questionnaire/entry/%d/section/%d/'%(self.questionnaire.id, self.section_1.id)
+        meta = {'HTTP_REFERER': referer_url}
+        response = self.client.post(self.url, data={}, **meta)
+        message = "Section successfully deleted."
+        self.assertIn(message, response.cookies['messages'].value)

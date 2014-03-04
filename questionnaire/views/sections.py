@@ -1,11 +1,11 @@
 from braces.views import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-from django.views.generic import CreateView, View, UpdateView
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.http import HttpResponseRedirect, request
+from django.views.generic import CreateView, View, UpdateView, DeleteView
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
-from questionnaire.models import Section, SubSection
+from questionnaire.models import Section, SubSection, Questionnaire
 
 
 class NewSection(PermissionRequiredMixin, CreateView):
@@ -58,6 +58,30 @@ class EditSection(PermissionRequiredMixin, UpdateView):
     def form_invalid(self, form):
         messages.error(self.request, "Section NOT updated. See errors below." )
         return super(EditSection, self).form_invalid(form)
+
+
+class DeleteSection(DeleteView):
+
+    def __init__(self, *args, **kwargs):
+        super(DeleteSection, self).__init__(*args, **kwargs)
+        self.model = Section
+        self.pk_url_kwarg = 'section_id'
+        self.success_url = reverse("home_page")
+
+    def _set_success_url(self, request):
+        referer_url = request.META.get('HTTP_REFERER', None)
+        home_page = reverse("home_page")
+        self.object = self.get_object()
+        section_page = reverse("questionnaire_entry_page", args=(self.object.questionnaire.id, self.object.id))
+        if referer_url and section_page in referer_url:
+            return home_page
+        return referer_url or home_page
+
+    def post(self, request, *args, **kwargs):
+        self.success_url = self._set_success_url(request)
+        message = "Section successfully deleted."
+        messages.success(request, message)
+        return super(DeleteSection, self).post(request, *args, **kwargs)
 
 
 class NewSubSection(PermissionRequiredMixin, CreateView):

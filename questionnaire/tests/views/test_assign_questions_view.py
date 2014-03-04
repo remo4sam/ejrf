@@ -111,7 +111,7 @@ class UnAssignQuestionViewTest(BaseTest):
         self.client.login(username=self.user.username, password='pass')
 
     def test_post_unassign_question_to_group_and_removes_question_order(self):
-        meta = {'HTTP_REFERER': '/questionnaire/entry/%d/section/%d/'%(self.questionnaire.id, self.section.id)}
+        meta = {'HTTP_REFERER': '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section.id)}
         response = self.client.post(self.url, {}, **meta)
         group_questions = self.question_group.question.all()
 

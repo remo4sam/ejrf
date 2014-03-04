@@ -133,7 +133,7 @@
                                         <div class="unassign-question-div">
                                             {% if perms.auth.can_edit_questionnaire %}
                                                 <a href="" class="unassign-question pull-right red" data-toggle="modal"
-                                                    data-target="#delete-modal-{{ order.question.id }}">
+                                                    data-target="#unassign-question-modal-{{ order.question.id }}" id="unassign-question-{{ order.question.id }}">
                                                     <i class="glyphicon glyphicon-remove-circle red"></i>
                                                 </a>
                                             {% endif %}
@@ -171,7 +171,7 @@
             {% include 'questionnaires/assign_questions_modal.html' with subsection=subsection %}
             {% for group in subsection.parent_question_groups %}
                 {% for order in group.question_orders %}
-                    {% include 'base/modals/_delete.html' with object_type='Question' title='Confirm Unassign' action="unassign" url=subsection.id|add_string:order.question.id|get_url_with_ids:"unassign_question_page" object=order.question  confirm='Yes'%}
+                    {% include 'base/modals/_delete.html' with object_type='Question' title='Confirm Unassign' action="unassign" url=subsection.id|add_string:order.question.id|get_url_with_ids:"unassign_question_page" object=order.question  confirm='Yes' object_type='question'%}
                 {% endfor %}
             {% endfor %}
         {% endfor %}

@@ -79,7 +79,7 @@ def and_i_click_delete_button_next_to_that_file(step):
 @step(u'Then I should see a warning dialog')
 def then_i_should_see_a_warning_dialog(step):
     world.page = DeleteDocumentPage(world.browser, world.document)
-    world.page.is_text_present("Are you sure you want to delete this support document?")
+    world.page.is_text_present("Are you sure you want to delete this document?")
 
 @step(u'When I click confirm')
 def when_i_click_confirm(step):

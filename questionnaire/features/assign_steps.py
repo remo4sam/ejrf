@@ -91,7 +91,7 @@ def then_i_should_see_options_for_unassigning_questions_from_the_questionnaire(s
 
 @step(u'When I choose to unassign a question from the questionnaire')
 def when_i_unassign_a_question_from_the_questionnaire(step):
-    world.page.click_by_css('.unassign-question')
+    world.page.click_by_id('unassign-question-%s' % world.question3.id)
 
 @step(u'And that question should no longer appear in the questionnaire')
 def then_that_question_should_no_longer_appear_in_the_questionnaire(step):

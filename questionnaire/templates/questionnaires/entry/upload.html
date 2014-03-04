@@ -34,11 +34,11 @@
                 <td>
                     <div class="btn-group">
                         <a href="{% url 'download_document' questionnaire.id document.id %}" class="btn btn-default"><span class="cyan"><span class="glyphicon glyphicon-save"></span></span></a>
-                        <button data-target="#delete-modal-{{ document.id }}" data-toggle="modal" class="btn btn-default" id="delete-file-{{ document.id }}"><span class="red"><span class="glyphicon glyphicon-trash"></span></span></button>
+                        <button data-target="#delete-document-modal-{{ document.id }}" data-toggle="modal" class="btn btn-default" id="delete-file-{{ document.id }}"><span class="red"><span class="glyphicon glyphicon-trash"></span></span></button>
                     </div>
                 </td>
             </tr>
-            {% include 'base/modals/_delete.html' with object_type='Support Document' title='Confirm Delete' action="delete" object=document  url=document.id|get_url_with_ids:"delete_document"  confirm='Yes'%}
+            {% include 'base/modals/_delete.html' with object_type='Document' title='Confirm Delete' action="delete" object=document  url=document.id|get_url_with_ids:"delete_document"  confirm='Yes'%}
             {% endfor %}
           {% else %}
           <tr>

@@ -8,17 +8,24 @@
                 {% if perms.auth.can_edit_questionnaire %}
                     <a href="#" class="{% if section_.id == section.id %}current {% endif %} col-md-1 edit-section"
                             data-toggle="modal" data-target="#edit_section_{{section_.id}}"> <span class="glyphicon glyphicon-pencil"></span> </a>
+                    <a href="#" class="{% if section_.id == section.id %}current {% endif %} col-md-1 delete-section"
+                            data-toggle="modal" data-target="#delete-section-modal-{{section_.id}}"> <span class="glyphicon glyphicon-trash"></span> </a>
+
                 {% endif %}
+
             </li>
         {% endfor %}
         {% if perms.auth.can_edit_questionnaire %}
-            <li><a href="" id="new-section" class="col-md-10"  data-toggle="modal"
-                   data-target="#new-section-modal"><span class="cyan"><span
-                    class="glyphicon glyphicon-plus-sign"></span> New Section</span></a></li>
+            <li>
+                <a href="" id="new-section" class="col-md-10"  data-toggle="modal" data-target="#new-section-modal">
+                    <span class="cyan"><span class="glyphicon glyphicon-plus-sign"></span> New Section</span>
+                </a>
+            </li>
         {% endif %}
     </ul>
 </div>
 {% load generic_tags %}
 {% for section_ in ordered_sections %}
-    {% include 'base/modals/ajax_modal.html' with action_url=section_.id|get_url_with_ids:"edit_section_page" object=section_  action="edit_section" modal_title="Edit Section"  btn_label="SAVE" class="edit_section"%}
+    {% include 'base/modals/ajax_modal.html' with action_url=section_.id|get_url_with_ids:"edit_section_page" object=section_  action="edit_section" modal_title="Edit Section"  btn_label="SAVE" class="edit_section" object_type='section'%}
+    {% include 'base/modals/_delete.html' with url=section_.id|get_url_with_ids:"delete_section_page" object=section_  action="delete" title="Delete Section"  btn_label="SAVE" confirm="DELETE" object_type='section'%}
 {% endfor %}
