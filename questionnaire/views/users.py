@@ -1,17 +1,18 @@
-from braces.views import LoginRequiredMixin
+from braces.views import PermissionRequiredMixin
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
 from django.views.generic import ListView, CreateView, UpdateView
 from questionnaire.forms.filter import UserFilterForm
 from questionnaire.forms.user_profile import UserProfileForm, EditUserProfileForm
 from questionnaire.models import Organization, Region, Country
 
 
-class UsersList(LoginRequiredMixin, ListView):
+class UsersList(PermissionRequiredMixin, ListView):
+    permission_required = 'auth.can_view_users'
+
     FORM_QUERY_FIELD = {'role': 'groups',
                         'organization': 'user_profile__organization',
                         'region': 'user_profile__region'}
@@ -53,7 +54,8 @@ class UsersList(LoginRequiredMixin, ListView):
         return self.model.objects.order_by('user_profile__created')
 
 
-class CreateUser(LoginRequiredMixin, CreateView):
+class CreateUser(PermissionRequiredMixin, CreateView):
+    permission_required = 'auth.can_view_users'
 
     def __init__(self, **kwargs):
         super(CreateUser, self).__init__(**kwargs)
@@ -77,7 +79,8 @@ class CreateUser(LoginRequiredMixin, CreateView):
         return context
 
 
-class EditUser(LoginRequiredMixin, UpdateView):
+class EditUser(PermissionRequiredMixin, UpdateView):
+    permission_required = 'auth.can_view_users'
 
     def __init__(self, **kwargs):
         super(EditUser, self).__init__(**kwargs)

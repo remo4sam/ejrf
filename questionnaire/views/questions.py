@@ -1,3 +1,4 @@
+from braces.views import PermissionRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
@@ -6,7 +7,9 @@ from questionnaire.forms.questions import QuestionForm
 from questionnaire.models import Question, Questionnaire
 
 
-class QuestionList(ListView):
+class QuestionList(PermissionRequiredMixin, ListView):
+    permission_required = 'auth.can_edit_questionnaire'
+
     template_name = 'questions/index.html'
     model = Question
     object_list = Question.objects.all()
@@ -20,7 +23,9 @@ class QuestionList(ListView):
         return self.render_to_response(context)
 
 
-class CreateQuestion(CreateView):
+class CreateQuestion(PermissionRequiredMixin, CreateView):
+    permission_required = 'auth.can_edit_questionnaire'
+
     def __init__(self, **kwargs):
         super(CreateQuestion, self).__init__(**kwargs)
         self.template_name = 'questions/new.html'
@@ -51,7 +56,9 @@ class CreateQuestion(CreateView):
         return self.render_to_response(context)
 
 
-class DeleteQuestion(DeleteView):
+class DeleteQuestion(PermissionRequiredMixin, DeleteView):
+    permission_required = 'auth.can_edit_questionnaire'
+
     model = Question
 
     def post(self, *args, **kwargs):

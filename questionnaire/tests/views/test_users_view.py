@@ -12,6 +12,7 @@ class UsersViewTest(BaseTest):
     def setUp(self):
         self.client = Client()
         self.user, self.country = self.create_user_with_no_permissions()
+        self.assign('can_view_users', self.user)
         self.login_user()
         self.global_admin = Group.objects.create(name='Global Admin')
         auth_content = ContentType.objects.get_for_model(Permission)
@@ -143,6 +144,7 @@ class FilterUsersViewTest(BaseTest):
     def setUp(self):
         self.client = Client()
         self.user, self.country = self.create_user_with_no_permissions()
+        self.assign('can_view_users', self.user)
         self.login_user()
         self.organization = Organization.objects.create(name="UNICEF")
         self.region = Region.objects.create(name="Afro", organization=self.organization)
