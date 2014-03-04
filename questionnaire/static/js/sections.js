@@ -3,8 +3,17 @@ $(function(){
         rules: { 'name': 'required', 'title': 'required'}
     });
     $('#new-subsection-modal-form').validate({
-        rules: { 'title': 'required'}
+        rules: {'title': 'required'}
     });
+
+    $('.edit_section').find('form').each(function() {
+        $(this).validate({rules: { 'name': 'required', 'title': 'required'}});
+    });
+
+    $('.edit_subsection').find('form').each(function() {
+        $(this).validate({rules: {'title': 'required'}});
+    });
+
 
     $('.edit_subsection').on('show.bs.modal', function(){
         var id = $(this).attr('object-id'),

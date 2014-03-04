@@ -7,7 +7,7 @@
                 <h4 class="modal-title cyan" id="{{ action}}_{{ object.id }}_label"> {{ modal_title }}</h4>
             </div>
             <form action="{{ action_url }}" method="post"
-                  accept-charset="utf-8" class="form-horizontal">
+                  accept-charset="utf-8" class="form-horizontal {{ action}}_modal_form" id="{{ action}}_{{ object.id }}_modal_form">
                 <div class="modal-body">
                     {% csrf_token %}
                     <div  id="{{ action}}_{{ object.id }}_ajax_content"><img src="{{ STATIC_URL }}img/spinner.gif"> Loading,
