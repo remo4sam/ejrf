@@ -65,6 +65,11 @@
                         </div>
                         {% endif %}
                     </h4>
+                    {% if subsection.description %}
+                        <div class="">
+                            {{ subsection.description| safe }}
+                        </div>
+                    {% endif %}
                     {% for group in subsection.parent_question_groups %}
                         {% if group and group.grid and group.display_all %}
                             {% include 'questionnaires/entry/grid.html' with a_group=group section=section sub_section=subsection%}
