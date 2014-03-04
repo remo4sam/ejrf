@@ -55,7 +55,7 @@ class QuestionnairePreviewTest(BaseTest):
         templates = [template.name for template in response.templates]
         self.assertIn('questionnaires/entry/preview.html', templates)
 
-    def test_gets_ordered_sections_for_menu_breadcrumps_wizzard(self):
+    def test_gets_ordered_sections_for_menu_breadcrumps_wizzard_for_published_questionnaire(self):
         section2 = Section.objects.create(title="section 2", order=2, questionnaire=self.questionnaire)
         section3 = Section.objects.create(title="section 3", order=3, questionnaire=self.questionnaire)
         response = self.client.get(self.url)
@@ -80,9 +80,20 @@ class QuestionnairePreviewTest(BaseTest):
         self.assertIsInstance(all_section_questionnaires[section_3], QuestionnaireEntryFormService)
         self.assertEqual(section_3, all_section_questionnaires[section_3].section)
 
-
     def test_login_required(self):
         self.assert_login_required('/questionnaire/preview/')
 
     def test_permission_required(self):
         self.assert_permission_required('/questionnaire/preview/')
+
+    def test_gets_ordered_sections_for_menu_breadcrumps_wizzard_for_specified_questionnaire(self):
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English copy", status=Questionnaire.DRAFT)
+        section2 = Section.objects.create(title="section 2", order=2, questionnaire=questionnaire)
+        section3 = Section.objects.create(title="section 3", order=3, questionnaire=questionnaire)
+        url = '/questionnaire/%s/preview/' % questionnaire.id
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(2, response.context['ordered_sections'].count())
+        self.assertNotIn(self.section_1, response.context['ordered_sections'])
+        self.assertEqual(section2, response.context['ordered_sections'][0])
+        self.assertEqual(section3, response.context['ordered_sections'][1])

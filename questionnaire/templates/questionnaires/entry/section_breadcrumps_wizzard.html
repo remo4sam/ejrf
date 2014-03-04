@@ -5,8 +5,10 @@
                 <a class="{% if section_.id == section.id %}current {% endif %} section_tab col-md-10"
                    href="{% url 'questionnaire_entry_page' questionnaire.id section_.id %}{% if preview %}?preview=1{% endif %}"
                    id="section-{{ section_.id }}"> {{ section_.name }}</a>
+                {% if perms.auth.can_view_users %}
                 <a href="#" class="{% if section_.id == section.id %}current {% endif %} col-md-1"
                         data-toggle="modal" data-target="#edit_section_{{section_.id}}"> <span class="glyphicon glyphicon-pencil"></span> </a>
+                {% endif %}
             </li>
         {% endfor %}
         {% if perms.auth.can_view_users %}

@@ -11,7 +11,7 @@ class AssignQuestionForm(Form):
         super(AssignQuestionForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True, *args, **kwargs):
-        if(self.subsection.question_group.count() > 1):
+        if self.subsection.question_group.count() > 1:
             question_group = self.subsection.question_group.order_by('-order')[0]
         else:
             question_group = self.subsection.question_group.get_or_create()[0]

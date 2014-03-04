@@ -1,19 +1,19 @@
 from django.shortcuts import render
 from django.views.generic import View
+from braces.views import MultiplePermissionsRequiredMixin
 from questionnaire.models import Questionnaire
 from questionnaire.services.users import UserQuestionnaireService
-from braces.views import PermissionRequiredMixin, MultiplePermissionsRequiredMixin
 
 
 class PreviewQuestionnaire(MultiplePermissionsRequiredMixin, View):
     template_name = "questionnaires/entry/preview.html"
 
     permissions = {
-        "any" : ("auth.can_submit_responses", "auth.can_view_questionnaire"),
+        "any": ("auth.can_submit_responses", "auth.can_view_questionnaire"),
     }
 
     def get(self, request, *args, **kwargs):
-        if kwargs.get('questionnaire_id'):
+        if 'questionnaire_id' in kwargs.keys():
             questionnaire = Questionnaire.objects.get(id=kwargs.get('questionnaire_id'))
         else:
             questionnaire = Questionnaire.objects.get(status=Questionnaire.PUBLISHED)
