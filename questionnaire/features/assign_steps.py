@@ -33,6 +33,10 @@ def and_i_have_a_questionnaire_with_sections_and_with_subsections(step):
                         title="WHO/UNICEF Joint Reporting Form on Immunization for the Period January-December, 2013",
                         description="""If a question is not relevant, enter "NR" (not relevant)""",
                         questionnaire=world.questionnaire, name="Cover page")
+    world.section2 = Section.objects.create(order=1,
+                        title="Another title",
+                        description="This is just another one of them",
+                        questionnaire=world.questionnaire, name="Cover page")
     world.sub_section = SubSection.objects.create(order=1, section=world.section1)
 
 @step(u'And I have unassigned questions')

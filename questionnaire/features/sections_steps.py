@@ -67,6 +67,7 @@ def and_i_fill_in_invalid_data(step):
 def then_i_should_see_error_messages_against_the_fields(step):
     world.page.is_text_present('This field is required')
 
+<<<<<<< HEAD
 @step(u'And I choose to update a section')
 def and_i_choose_to_update_a_section(step):
     world.page.click_by_id('edit-section-%s' % world.section_1.id)
@@ -94,3 +95,21 @@ def then_i_should_see_a_message_that_the_section_was_updated(step):
 def and_i_should_see_the_changes_i_made_to_the_section_in_the_questionnaire(step):
     world.page.is_text_present('New Section Name')
     world.page.is_text_present('New Section Title')
+=======
+@step(u'And I choose to delete a section')
+def when_i_choose_to_delete_a_section(step):
+    world.page.click_by_id('id-delete-section-%s' % world.section1.id)
+
+@step(u'Then I should see a confirmation dialog')
+def then_i_should_see_a_confirmation_dialog(step):
+    world.page.is_text_present('Delete Section')
+
+@step(u'When I confirm that I want to delete')
+def when_i_confirm_that_i_want_to_delete(step):
+    world.page.click_by_id('confirm-delete-%s' % world.section1.id)
+
+@step(u'Then I should see a message that the section was deleted')
+def then_i_should_see_a_message_that_the_section_was_deleted(step):
+    world.page.is_text_present('Section successfully deleted.')
+    world.page.is_element_present_by_css('.alert-success')
+>>>>>>> [Robert, Tom, Emily] Added funtional tests for the delete section story
