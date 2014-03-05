@@ -33,6 +33,8 @@ function loadAjaxEditModal(objectId, url, objectToEdit){
             var $holder = $('<div></div>').append(String(data));
             var content =  $holder.find("#form-content").html()
             $( "#edit_"+ objectToEdit +"_"+objectId+"_ajax_content").html(content);
+
             $('textarea').autosize();
+            tinymce.init({selector:"#edit_"+ objectToEdit +"_"+objectId+"_ajax_content textarea"});
         });
 }

@@ -153,30 +153,30 @@
                         <hr class="group-hr"/>
                     {% endfor %}
                 {% endfor %}
-    <input type=hidden id="redirect_url" name="redirect_url"/>
-    {% if not perms.auth.can_edit_questionnaire %}
-        <div class="form-group top-padding ">
-            <div class="col-sm-offset-8 col-sm-3 pull-right">
-                <a href="{% url 'home_page' %}" class="btn btn-default" name="cancel_button" id="cancel_button"> <span
-                        class="red bold"><i class="glyphicon glyphicon-remove"></i> CANCEL</span></a>
-                <button type="submit" class="btn btn-default" id="save_draft_button" name="save_draft"><span
-                        class="cyan bold"><i class="glyphicon glyphicon-floppy-disk"></i> SAVE</span></button>
-            </div>
+                <input type=hidden id="redirect_url" name="redirect_url"/>
+                {% if not perms.auth.can_edit_questionnaire %}
+                    <div class="form-group top-padding ">
+                        <div class="col-sm-offset-8 col-sm-3 pull-right">
+                            <a href="{% url 'home_page' %}" class="btn btn-default" name="cancel_button" id="cancel_button"> <span
+                                    class="red bold"><i class="glyphicon glyphicon-remove"></i> CANCEL</span></a>
+                            <button type="submit" class="btn btn-default" id="save_draft_button" name="save_draft"><span
+                                    class="cyan bold"><i class="glyphicon glyphicon-floppy-disk"></i> SAVE</span></button>
+                        </div>
 
+                    </div>
+                {% endif %}
+            </form>
         </div>
-    {% endif %}
-    </form>
+    </div>
     {% if perms.auth.can_edit_questionnaire %}
-        {% for subsection in section.sub_sections.all %}
-            {% include 'questionnaires/assign_questions_modal.html' with subsection=subsection %}
-            {% for group in subsection.parent_question_groups %}
+        {% for subsection_ in section.sub_sections.all %}
+            {% include 'base/modals/ajax_modal.html' with action_url=subsection_.id|get_url_with_ids:"edit_subsection_page" object=subsection_  action="edit_subsection" modal_title="Edit SubSection"  btn_label="SAVE" class="edit_subsection"%}
+            {% include 'questionnaires/assign_questions_modal.html' with subsection=subsection_ %}
+            {% for group in subsection_.parent_question_groups %}
                 {% for order in group.question_orders %}
-                    {% include 'base/modals/_delete.html' with object_type='Question' title='Confirm Unassign' action="unassign" url=subsection.id|add_string:order.question.id|get_url_with_ids:"unassign_question_page" object=order.question  confirm='Yes' object_type='question'%}
+                    {% include 'base/modals/_delete.html' with object_type='Question' title='Confirm Unassign' action="unassign" url=subsection_.id|add_string:order.question.id|get_url_with_ids:"unassign_question_page" object=order.question  confirm='Yes'%}
                 {% endfor %}
             {% endfor %}
         {% endfor %}
     {% endif %}
-    {% for subsection in section.sub_sections.all %}
-        {% include 'base/modals/ajax_modal.html' with action_url=subsection.id|get_url_with_ids:"edit_subsection_page" object=subsection  action="edit_subsection" modal_title="Edit SubSection"  btn_label="SAVE" class="edit_subsection"%}
-    {% endfor %}
 {% endblock %}
