@@ -28,3 +28,9 @@ class GroupedAnswerTest(BaseTest):
         self.assertEqual(1, grouped_answers.row)
         self.assertEqual(self.answer, grouped_answers.answer.all()[0])
         self.assertEqual(self.grouped_question, grouped_answers.grouped_question)
+
+    def test_answer_group_max_row(self):
+        self.assertEqual(0, AnswerGroup.next_row())
+        AnswerGroup.objects.create(grouped_question=self.grouped_question, row=1)
+        AnswerGroup.objects.create(grouped_question=self.grouped_question, row=2)
+        self.assertEqual(3, AnswerGroup.next_row())

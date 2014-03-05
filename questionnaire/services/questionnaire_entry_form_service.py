@@ -1,6 +1,6 @@
 from django.forms.formsets import formset_factory
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
-from questionnaire.models import Question
+from questionnaire.models import Question, AnswerGroup
 
 
 ANSWER_FORM = {
@@ -21,6 +21,7 @@ class QuestionnaireEntryFormService(object):
         self.formsets = self._formsets()
         self.ANSWER_FORM_COUNTER = self._initialize_form_counter()
         self._highlight_required_answers(highlight)
+        self.form_answer_map = {}
 
     def next_ordered_form(self, question):
         next_question_type_count = self.ANSWER_FORM_COUNTER[question.answer_type]
@@ -54,7 +55,8 @@ class QuestionnaireEntryFormService(object):
     def save(self):
         for formset in self.formsets.values():
             for form in formset:
-                form.save()
+                self.form_answer_map.update({form: form.save()})
+        self.assign_answer_groups()
 
     def show_is_required_errors(self):
         for formset in self.formsets.values():
@@ -64,3 +66,31 @@ class QuestionnaireEntryFormService(object):
     def _highlight_required_answers(self, highlight):
         if highlight:
             self.show_is_required_errors()
+
+    def assign_answer_groups(self):
+        current_answer_form_counter = self.ANSWER_FORM_COUNTER
+        self.ANSWER_FORM_COUNTER = self._initialize_form_counter()
+        for subsection in self.section.sub_sections.all():
+            for group in subsection.parent_question_groups():
+                for order in group.question_orders():
+                    if group.grid and group.display_all:
+                        if order.question.is_primary:
+                            for option in order.question.options.all():
+                                answer_group = self._add_answer_to_group(order)
+                                self._assign_non_primary_answers_to(answer_group, question_group=group)
+                    else:
+                        self._add_answer_to_group(order)
+        self.ANSWER_FORM_COUNTER = current_answer_form_counter
+
+    def _add_answer_to_group(self, order):
+        form = self.next_ordered_form(order.question)
+        answer = self.form_answer_map.get(form)
+        row = AnswerGroup.next_row()
+        if answer.answergroup.all().exists():
+            return answer.answergroup.all()[0]
+        return answer.answergroup.create(grouped_question=form.question_group, row=row)
+
+    def _assign_non_primary_answers_to(self, answer_group, question_group):
+        for question in question_group.all_non_primary_questions():
+            form = self.next_ordered_form(question)
+            answer_group.answer.add(self.form_answer_map.get(form))

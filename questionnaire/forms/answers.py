@@ -44,16 +44,11 @@ class AnswerForm(ModelForm):
         answer = super(AnswerForm, self).save(commit=False, *args, **kwargs)
         self._add_extra_attributes_to(answer)
         answer.save()
-        self._add_to_answer_group(answer)
         return answer
 
     def _add_extra_attributes_to(self, answer):
         for attribute in self._initial.keys():
             setattr(answer, attribute, self._initial[attribute])
-
-    def _add_to_answer_group(self, answer):
-        answer_group = AnswerGroup.objects.get_or_create(grouped_question=self.question_group)[0]
-        answer_group.answer.add(answer)
 
     def _get_question(self, kwargs):
         return kwargs['initial'].get('question', None)

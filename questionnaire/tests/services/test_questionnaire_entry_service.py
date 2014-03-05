@@ -243,12 +243,15 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         answer_2 = NumericalAnswer.objects.get(response=int(data['Number-1-response']), question=self.question3)
 
         answer_group = AnswerGroup.objects.filter(grouped_question=self.question_group)
-        self.assertEqual(1, answer_group.count())
+
+        self.assertEqual(3, answer_group.count())
+        self.assertEqual(3, Answer.objects.select_subclasses().count())
         answer_group_answers = answer_group[0].answer.all().select_subclasses()
-        self.assertEqual(3, answer_group_answers.count())
-        self.assertIn(primary, answer_group_answers)
-        self.assertIn(answer_1, answer_group_answers)
+        self.assertEqual(1, answer_group_answers.count())
+        self.assertNotIn(primary, answer_group_answers)
+        self.assertNotIn(answer_1, answer_group_answers)
         self.assertIn(answer_2, answer_group_answers)
+        [self.assertIn(answer.id, answer_group.values_list('answer', flat=True)) for answer in Answer.objects.select_subclasses()]
 
     def test_save_on_already_existing_draft_answers_modify_original_draft_answers_and_not_create_new_instance(self):
         data = self.data

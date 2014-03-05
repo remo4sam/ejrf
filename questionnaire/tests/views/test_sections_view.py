@@ -171,7 +171,7 @@ class SubSectionsViewTest(BaseTest):
         subsection = SubSection.objects.filter(order=2, title=form_data['title'])
         self.failUnless(subsection)
         self.assertEqual(1, subsection.count())
-        self.assertRedirects(response,expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id ,self.section.id))
+        self.assertRedirects(response, expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id ,self.section.id))
 
     def test_post_invalid(self):
         SubSection.objects.create(title="Some", order=1, section=self.section)

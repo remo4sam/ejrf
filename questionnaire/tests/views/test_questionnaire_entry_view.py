@@ -3,6 +3,7 @@ from django.test import Client
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionOption, MultiChoiceAnswer, NumericalAnswer, QuestionGroupOrder, AnswerGroup, Answer, Country, TextAnswer, DateAnswer
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
+from questionnaire.templatetags.questionnaire_entry_tags import get_form
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -116,6 +117,7 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         self.failUnless(NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3))
 
     def test_post_groups_rows_into_answer_groups(self):
+        Answer.objects.select_subclasses().delete()
         data = self.data
         self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response'])))
         self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-0-response'])))
@@ -129,12 +131,14 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         answer_2 = NumericalAnswer.objects.get(response=int(data['Number-1-response']), question=self.question3)
 
         answer_group = AnswerGroup.objects.filter(grouped_question=self.question_group)
-        self.assertEqual(1, answer_group.count())
+        self.assertEqual(3, answer_group.count())
+        self.assertEqual(3, Answer.objects.select_subclasses().count())
         answer_group_answers = answer_group[0].answer.all().select_subclasses()
-        self.assertEqual(3, answer_group_answers.count())
-        self.assertIn(primary, answer_group_answers)
-        self.assertIn(answer_1, answer_group_answers)
+        self.assertEqual(1, answer_group_answers.count())
+        self.assertNotIn(primary, answer_group_answers)
+        self.assertNotIn(answer_1, answer_group_answers)
         self.assertIn(answer_2, answer_group_answers)
+        [self.assertIn(answer.id, answer_group.values_list('answer', flat=True)) for answer in Answer.objects.select_subclasses()]
 
     def test_successful_post_shows_success_message(self):
         data = self.data
@@ -192,7 +196,7 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         self.assertEqual(old_answer_2.id, answer_2.id)
 
         answer_group = AnswerGroup.objects.filter(grouped_question=self.question_group)
-        self.assertEqual(1, answer_group.count())
+        self.assertEqual(3, answer_group.count())
 
     def test_post_after_submit_save_new_draft_version(self):
         data = self.data.copy()
@@ -209,7 +213,7 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         self.assertEqual(Answer.SUBMITTED_STATUS, old_answer_2.status)
 
         answer_group = AnswerGroup.objects.filter(grouped_question=self.question_group)
-        self.assertEqual(1, answer_group.count())
+        self.assertEqual(3, answer_group.count())
 
         data = self.data
         self.client.post(self.url, data=data)
@@ -251,16 +255,12 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
 class SaveGridDraftQuestionGroupEntryTest(BaseTest):
 
     def setUp(self):
+        AnswerGroup.objects.all().delete()
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English")
-
         self.section1 = Section.objects.create(title="Reported Cases of Selected Vaccine", order=1,
                                                questionnaire=self.questionnaire, name="Reported Cases")
-
         self.sub_section = SubSection.objects.create(title="subsection 1", order=1, section=self.section1)
-        self.sub_section2 = SubSection.objects.create(title="subsection 2", order=2, section=self.section1)
-
         self.question_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1, grid=True, display_all=True)
-
         self.question1 = Question.objects.create(text='Favorite beer 1', UID='C00001', answer_type='MultiChoice', is_primary=True)
         self.option1 = QuestionOption.objects.create(text='tusker lager', question=self.question1)
         self.option2 = QuestionOption.objects.create(text='tusker lager1', question=self.question1)
@@ -268,10 +268,8 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
 
         self.question2 = Question.objects.create(text='question 2', instructions="instruction 2",
                                                  UID='C00002', answer_type='Text')
-
         self.question3 = Question.objects.create(text='question 3', instructions="instruction 3",
                                                  UID='C00003', answer_type='Number')
-
         self.question4 = Question.objects.create(text='question 4', instructions="instruction 2",
                                                  UID='C00005', answer_type='Date')
         self.question_group.question.add(self.question1, self.question3, self.question2, self.question4)
@@ -292,8 +290,8 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
                      u'Text-INITIAL_FORMS': u'3', u'Text-0-response': 'Haha',
                      u'Text-1-response': 'Hehe',  u'Text-2-response': 'hehehe',
                      u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
-                     u'Date-INITIAL_FORMS': u'3', u'Date-0-response': '2014-2-2',
-                     u'Date-1-response': '2014-2-2',  u'Date-2-response': '2014-2-2',
+                     u'Date-INITIAL_FORMS': u'3', u'Date-0-response': '2014-02-02',
+                     u'Date-1-response': '2014-10-02',  u'Date-2-response': '2014-03-02',
                      }
         self.url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section1.id)
         self.client = Client()
@@ -341,6 +339,45 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
         self.assertEqual(200, response.status_code)
         expected_message = 'Draft saved.'
         self.assertIn(expected_message, response.content)
+
+    def test_post_grid_form_creates_groups_for_each_primary_question_option(self):
+        data = self.data
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('Draft saved.', response.content)
+        self.assertEqual(3, AnswerGroup.objects.count())
+
+    def test_post_saves_answers_in_correct_answer_groups_rows(self):
+        data = self.data
+
+        self.client.post(self.url, data=data)
+
+        option_1_answer = MultiChoiceAnswer.objects.get(response=self.option1)
+        group1 = option_1_answer.answergroup.all()
+        self.assertEqual(1, group1.count())
+        group1_answers = group1[0].answer.all().select_subclasses()
+        self.assertEqual(4, group1_answers.count())
+        self.assertIn(NumericalAnswer.objects.get(response=int(data['Number-0-response']), question=self.question3), group1_answers)
+        self.assertIn(TextAnswer.objects.get(response=data['Text-0-response'], question=self.question2), group1_answers)
+        self.assertIn(DateAnswer.objects.get(response=data['Date-0-response'], question=self.question4), group1_answers)
+
+        option_2_answer = MultiChoiceAnswer.objects.get(response=self.option2)
+        group2 = option_2_answer.answergroup.all()
+        self.assertEqual(1, group1.count())
+        group2_answers = group2[0].answer.all().select_subclasses()
+        self.assertEqual(4, group2_answers.count())
+        self.assertIn(NumericalAnswer.objects.get(response=int(data['Number-1-response']), question=self.question3), group2_answers)
+        self.assertIn(TextAnswer.objects.get(response=data['Text-1-response'], question=self.question2), group2_answers)
+        self.assertIn(DateAnswer.objects.get(response=data['Date-1-response'], question=self.question4), group2_answers)
+
+        option_3_answer = MultiChoiceAnswer.objects.get(response=self.option3)
+        group3 = option_3_answer.answergroup.all()
+        self.assertEqual(1, group3.count())
+        group3_answers = group3[0].answer.all().select_subclasses()
+        self.assertEqual(4, group3_answers.count())
+        self.assertIn(NumericalAnswer.objects.get(response=int(data['Number-2-response']), question=self.question3), group3_answers)
+        self.assertIn(TextAnswer.objects.get(response=data['Text-2-response'], question=self.question2), group3_answers)
+        self.assertIn(DateAnswer.objects.get(response=data['Date-2-response'], question=self.question4), group3_answers)
 
 
 class QuestionnaireEntrySubmitTest(BaseTest):
