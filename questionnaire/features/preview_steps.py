@@ -15,7 +15,6 @@ def then_i_should_see_a_preview_layout_of_my_responses(step):
 @step(u'And it should contain my responses')
 def and_it_should_contain_my_responses(step):
     world.page.validate_responses(world.valid_responses)
-    world.page.is_text_present('Note: You will not be able to edit the form after submitting. Any changes thereafter will require submitting a new version of the form')
 
 @step(u'And the response fields in the preview should be inactive')
 def and_the_response_fields_in_the_preview_should_be_inactive(step):
@@ -31,7 +30,7 @@ def and_there_should_be_a_provision_for_me_to_exit_the_preview(step):
 
 @step(u'When I choose to exit the responses preview')
 def when_i_choose_to_exit_the_preview(step):
-    world.page.click_by_id('cancel_button')
+    world.page.click_by_id('preview-close-button')
 
 @step(u'Then I should see my questionnaire again with options for saving')
 def then_i_should_see_my_questionnaire_again(step):
