@@ -129,3 +129,11 @@ class FinalizeQuestionnaire(View):
         message = "The questionnaire has been finalized successfully."
         messages.success(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
+
+class UnfinalizeQuestionnaire(View):
+    def post(self, request, *args, **kwargs):
+        questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
+        QuestionnaireFinalizeService(questionnaire).unfinalize()
+        message = "The questionnaire is now in progress."
+        messages.success(self.request, message)
+        return HttpResponseRedirect(reverse('manage_jrf_page'))

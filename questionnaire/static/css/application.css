@@ -373,3 +373,6 @@ table td input[type='text'], select{
     padding-bottom: 20px;
     margin-bottom: 20px;
 }
+.glyph-icon{
+    height: 15px;
+}

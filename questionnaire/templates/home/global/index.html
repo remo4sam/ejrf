@@ -26,7 +26,7 @@
                                 {% endwith %}
                                 <span class="pull-right">
                                     <a href="" class="btn btn-xs btn-default" id="id-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
-                                    <a class="btn btn-xs btn-default" id="id-finalize" post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span class="glyphicon glyphicon-thumbs-up"></span> Finalize</a>
+                                    <a class="btn btn-xs btn-default" id="id-finalize" post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_lock.png"></span></a>
 
                                 </span>
                             </li>
@@ -47,6 +47,10 @@
                                 {% with questionnaire.sections.all|first as first_section %}
                                     <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                 {% endwith %}
+                                <span class="pull-right">
+                                    <a class="btn btn-xs btn-default" id="id-finalize" post="true" phref="/questionnaire/{{ questionnaire.id }}/unfinalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_unlock.png"></span></a>
+
+                                </span>
                             </li>
                         {% endfor %}
                         <li class="list-group-item more-toggle" >

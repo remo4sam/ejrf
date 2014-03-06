@@ -8,3 +8,7 @@ class QuestionnaireFinalizeService(object):
     def finalize(self):
         self.questionnaire.status = Questionnaire.FINALIZED
         self.questionnaire.save()
+
+    def unfinalize(self):
+        self.questionnaire.status = Questionnaire.DRAFT
+        self.questionnaire.save()
