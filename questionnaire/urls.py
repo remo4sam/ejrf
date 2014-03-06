@@ -7,7 +7,7 @@ from questionnaire.views.manage import ManageJRF
 from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
 from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection
 from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion
-from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire
+from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire, FinalizeQuestionnaire
 from questionnaire.views.upload_document import UploadDocument, DownloadDocument, DeleteDocument
 from questionnaire.views.users import UsersList, CreateUser, EditUser
 
@@ -27,6 +27,8 @@ urlpatterns = patterns('',
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/new/$', NewSection.as_view(), name="new_section_page"),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/(?P<section_id>\d+)/subsection/new/$',
         NewSubSection.as_view(), name="new_subsection_page"),
+    url(r'^questionnaire/(?P<questionnaire_id>\d+)/finalize/$', FinalizeQuestionnaire.as_view(),
+        name="finalize_questionnaire_page"),
     url(r'^questionnaire/preview/$', PreviewQuestionnaire.as_view(),
         name="preview_questionnaire"),
     url(r'^questionnaire/(?P<questionnaire_id>\d+)/preview/$', PreviewQuestionnaire.as_view(),

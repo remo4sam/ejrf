@@ -26,7 +26,8 @@
                                 {% endwith %}
                                 <span class="pull-right">
                                     <a href="" class="btn btn-xs btn-default" id="id-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
-                                    <a href="" class="btn btn-xs btn-default" id="id-finalize"><span class="glyphicon glyphicon-thumbs-up"></span> Finalize</a>
+                                    <a class="btn btn-xs btn-default" id="id-finalize" post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span class="glyphicon glyphicon-thumbs-up"></span> Finalize</a>
+
                                 </span>
                             </li>
                         {% endfor %}

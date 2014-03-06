@@ -72,3 +72,20 @@ class ManageJRFViewTest(BaseTest):
         self.assertIn(questionnaire2, response.context['draft_questionnaires'])
         self.assertIsInstance(response.context['filter_form'], QuestionnaireFilterForm)
         self.assertEqual(reverse('duplicate_questionnaire_page'), response.context['action'])
+
+
+class FinalizeQuestionnaireViewTest(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country = self.create_user_with_no_permissions()
+        self.assign('can_edit_questionnaire', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.DRAFT)
+        self.url = '/questionnaire/%d/finalize/' % self.questionnaire.id
+
+    def test_post_finalizes_questionnaire(self):
+        response = self.client.post(self.url)
+        self.assertNotIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.DRAFT).all())
+        self.assertIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED).all())

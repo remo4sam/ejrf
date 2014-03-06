@@ -8,6 +8,7 @@ from questionnaire.forms.filter import QuestionnaireFilterForm
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.services.questionnaire_cloner import QuestionnaireClonerService
+from questionnaire.services.questionnaire_finalizer import QuestionnaireFinalizeService
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
 from questionnaire.models import Questionnaire, Section
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
@@ -119,4 +120,12 @@ class DuplicateQuestionnaire(View):
             return HttpResponseRedirect(redirect_url)
         message = "Questionnaire could not be duplicated see errors below"
         messages.error(self.request, message)
+        return HttpResponseRedirect(reverse('manage_jrf_page'))
+
+class FinalizeQuestionnaire(View):
+    def post(self, request, *args, **kwargs):
+        questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
+        QuestionnaireFinalizeService(questionnaire).finalize()
+        message = "The questionnaire has been finalized successfully."
+        messages.success(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
