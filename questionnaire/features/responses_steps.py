@@ -71,9 +71,9 @@ def and_i_navigate_to_the_section_of_the_questionnaire_to_be_filled_in(step):
     world.page = QuestionnairePage(world.browser, world.section_1)
     world.page.visit()
 
-@step(u'When I enter valid responses to the questions')
+@step(u'I enter valid responses to the questions')
 def and_i_enter_valid_responses_to_the_questions(step):
-    world.responses = {
+    world.valid_responses = {
         'Text-0-response': 'James Smith',
         'Text-1-response': 'EPI Manager',
         'Text-2-response': 'jsmith@moh.gov.ug',
@@ -82,7 +82,7 @@ def and_i_enter_valid_responses_to_the_questions(step):
         'Text-5-response': 'Brad Wolfstrom',
         'Text-6-response': 'brad.wolfstrom@who.org',
         'Number-0-response': '200'}
-    world.page.fill_form(world.responses)
+    world.page.fill_form(world.valid_responses)
 
 @step(u'And I click the save button')
 def when_i_click_the_save_button(step):
@@ -98,11 +98,11 @@ def and_when_i_navigate_back_to_this_section(step):
 
 @step(u'I should see my responses filled out')
 def i_should_see_my_responses_filled_out(step):
-    world.page.validate_responses(world.responses)
+    world.page.validate_responses(world.valid_responses)
 
 @step(u'When I enter invalid responses to the questions')
 def when_i_enter_invalid_responses_to_the_questions(step):
-    data = {
+    invalid_responses = {
         'Text-0-response': '',
         'Text-1-response': '',
         'Text-2-response': '',
@@ -111,7 +111,7 @@ def when_i_enter_invalid_responses_to_the_questions(step):
         'Text-5-response': 'Brad Wolfstrom',
         'Text-6-response': 'brad.wolfstrom@who.org',
         'Number-0-response': 'something that is not a number'}
-    world.page.fill_form(data)
+    world.page.fill_form(invalid_responses)
 
 @step(u'Then I should see a save draft error message')
 def then_i_should_see_a_save_draft_error_message(step):
