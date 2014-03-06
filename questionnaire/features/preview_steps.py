@@ -1,4 +1,5 @@
 from lettuce import step, world
+import time
 from questionnaire.features.pages.manage import QuestionnairePreviewModal
 
 
@@ -9,12 +10,12 @@ def and_i_choose_to_preview_my_responses(step):
 @step(u'Then I should see a preview layout of my responses')
 def then_i_should_see_a_preview_layout_of_my_responses(step):
     world.page.is_text_present('Preview Questionnaire')
-    world.page.is_text_present('Note: You will not be able to edit the form after submitting. Any changes thereafter will require submitting a new version of the form')
     world.page.is_element_present_by_id('preview_modal')
 
 @step(u'And it should contain my responses')
 def and_it_should_contain_my_responses(step):
     world.page.validate_responses(world.valid_responses)
+    world.page.is_text_present('Note: You will not be able to edit the form after submitting. Any changes thereafter will require submitting a new version of the form')
 
 @step(u'And the response fields in the preview should be inactive')
 def and_the_response_fields_in_the_preview_should_be_inactive(step):
