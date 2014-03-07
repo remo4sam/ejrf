@@ -30,11 +30,15 @@ class QuestionnaireFilterForm(forms.Form):
 
 class PublishQuestionnaireForm(forms.Form):
     regions = forms.ModelMultipleChoiceField(queryset=Region.objects.none(),
-                                             widget=forms.Select(attrs={"class": 'form-control'}), required=True)
+                                             widget=forms.CheckboxSelectMultiple(attrs={"class": 'form-control'}), required=True)
 
     def __init__(self, *args, **kwargs):
         super(PublishQuestionnaireForm, self).__init__(*args, **kwargs)
+
+        print self._set_region_choices()
         self.fields['regions'].queryset = self._set_region_choices()
+        print self._set_region_choices()
+        print self.fields
 
     def _set_region_choices(self):
         questionnaire = self.initial.get('questionnaire', None)

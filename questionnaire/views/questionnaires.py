@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 from django.views.generic import View
 from braces.views import MultiplePermissionsRequiredMixin, LoginRequiredMixin
-from questionnaire.forms.questionnaires import QuestionnaireFilterForm
+from questionnaire.forms.questionnaires import QuestionnaireFilterForm, PublishQuestionnaireForm
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.services.questionnaire_cloner import QuestionnaireClonerService
@@ -122,6 +122,7 @@ class DuplicateQuestionnaire(View):
         messages.error(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
 
+
 class FinalizeQuestionnaire(View):
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
@@ -130,10 +131,25 @@ class FinalizeQuestionnaire(View):
         messages.success(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
 
+
 class UnfinalizeQuestionnaire(View):
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
         QuestionnaireFinalizeService(questionnaire).unfinalize()
         message = "The questionnaire is now in progress."
         messages.success(self.request, message)
+        return HttpResponseRedirect(reverse('manage_jrf_page'))
+
+
+class PublishQuestionnaire(View):
+    def post(self, *args, **kwargs):
+        questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
+        form = PublishQuestionnaireForm(initial={'questionnaire': questionnaire}, data=self.request.POST)
+        if form.is_valid():
+            form.save()
+            message = "The questionnaire has been published to %s" % ", ".join([region.name for region in form.cleaned_data['regions']])
+            messages.success(self.request, message)
+        else:
+            message = "Questionnaire could not be published see errors below"
+            messages.error(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
