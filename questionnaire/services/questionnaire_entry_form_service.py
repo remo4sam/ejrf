@@ -55,13 +55,13 @@ class QuestionnaireEntryFormService(object):
 
         answer = None
         if option:
-            primary_answer = option.answer.filter(version=version)
+            primary_answer = option.answer.filter(version=version, country=country)
             if question.is_primary:
                 initial['option'] = option
                 answer = primary_answer
             elif primary_answer.exists():
                 answer_group = primary_answer[0].answergroup.filter(grouped_question=question_group)
-                answer = answer_group[0].answer.filter(question=order.question).select_subclasses()
+                answer = answer_group[0].answer.filter(question=order.question, country=country, version=version).select_subclasses()
         else:
             answer = question.answers.filter(answergroup__grouped_question=question_group,
                                              country=country, version=version).select_subclasses()

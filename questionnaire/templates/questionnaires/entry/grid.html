@@ -55,7 +55,13 @@
                 {% for option in order.question.options.all %}
                     <tr>
                     <td>
-                        {{ section.order }}.{{ subsection.order }}.{{ a_group.order }}.{{ forloop.counter0 }}
+                        {{ section.order }}{% if section.has_at_least_two_subsections %}.
+                            {{ subsection.order }}{% endif %}.
+                        {% if subsection.has_at_least_two_groups %}
+                            {{ group.order }}.{% endif %}{% if group.has_at_least_two_questions %}
+                        {{ forloop.counter }}{% endif %}
+
+                        {#                        {{ section.order }}.{{ subsection.order }}.{{ a_group.order }}.{{ forloop.counter0 }}#}
                     </td>
                     {% for field in order.question|get_form:formsets %}
                         <td>{{ field }}</td>
@@ -65,8 +71,8 @@
                             <td>
                                 {% if field.errors %}
                                     <div class="field-error grid-error" data-toggle="popover" data-html="true"
-                                       data-placement="right" data-trigger="hover"
-                                       data-content="{{ field.errors|striptags }}">
+                                         data-placement="right" data-trigger="hover"
+                                         data-content="{{ field.errors|striptags }}">
 
                                 {% endif %}
                                 {{ field }}
