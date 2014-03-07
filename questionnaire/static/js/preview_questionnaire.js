@@ -1,18 +1,17 @@
 $(function(){
     $('#preview_modal').on('show.bs.modal', function(){
         var $modal = $(this);
-        $.post( location.pathname, $( "#questionnaire_entry" ).serialize(), function(data1){
-            var questionnaire_preview_url = get_questionnaire_preview_url($modal);
-            $.get(questionnaire_preview_url, function( data ) {
-                var $holder = $('<div></div>').append(String(data));
-                var content =  $holder.find("#preview-content").html()
-                $( "#ajax-content" ).html(content);
-                disable_modal_input_fields();
+        var questionnaire_preview_url = get_questionnaire_preview_url($modal);
+        if (form_has_changed){
+            $.post( location.pathname, $( "#questionnaire_entry" ).serialize(), function(data1){
+                fill_modal_ajax_content(questionnaire_preview_url);
             });
-            form_has_changed = false;
-        });
+        }else{
+            fill_modal_ajax_content(questionnaire_preview_url);
+        }
     });
-    disable_modal_input_fields();
+
+    disable_modal_input_fields(editable);
 
     $('#edit_questionnaire_link').on('click', function(){
         disableInputFields();
@@ -30,15 +29,25 @@ $(function(){
 
 });
 
+function fill_modal_ajax_content(questionnaire_preview_url){
+    $.get(questionnaire_preview_url, function( data ) {
+        var $holder = $('<div></div>').append(String(data));
+        var content =  $holder.find("#preview-content").html()
+        $( "#ajax-content" ).html(content);
+        disable_modal_input_fields(!editable);
+    });
+    form_has_changed = false;
+};
+
 function get_questionnaire_preview_url($element){
         var questionnaire_id = $element.attr('data-attribute-id');
         var questionnaire_preview_url = "/questionnaire/"+ questionnaire_id + "/preview/";
         return questionnaire_preview_url.replace('//', '/')
 }
 
-function disable_modal_input_fields(){
-    $('.preview-content :input').each(function() {
-       $(this).attr('disabled','disabled');
+function disable_modal_input_fields(editable){
+    $('.tab-content :input').each(function() {
+       $(this).prop('disabled', editable);
     });
 };
 

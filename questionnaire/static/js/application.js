@@ -1,3 +1,6 @@
+var form_has_changed = false;
+var editable = false;
+
 $(document).ready(function() {
     $('.pagination').children('ul').addClass('pagination')
     $('a[data-toggle=popover]').popover();

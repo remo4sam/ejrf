@@ -51,7 +51,9 @@
 <script src="{{ STATIC_URL }}bootstrap-datetimepicker/bootstrap-datetimepicker.js" type="text/javascript"
         charset="utf-8"></script>
 <script src="{{ STATIC_URL }}js/application.js" type="text/javascript" charset="utf-8"></script>
-{% if not perms.auth.can_edit_questionnaire %}
+{% if perms.auth.can_edit_questionnaire %}
+    <script src="{{ STATIC_URL }}js/admin_only.js" type="text/javascript" charset="utf-8"></script>
+{% else %}
     <script src="{{ STATIC_URL }}js/save-draft.js" type="text/javascript" charset="utf-8"></script>
 {% endif %}
 <script src="{{ STATIC_URL }}js/users.js" type="text/javascript" charset="utf-8"></script>

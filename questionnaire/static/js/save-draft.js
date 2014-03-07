@@ -1,4 +1,3 @@
-var form_has_changed = false;
 
 $(document).ready(function() {
     warnBeforeNavigatingAway();
