@@ -133,14 +133,15 @@ class SubSectionTest(BaseTest):
     def test_sub_section_fields(self):
         sub_section = SubSection()
         fields = [str(item.attname) for item in sub_section._meta.fields]
-        self.assertEqual(7, len(fields))
-        for field in ['id', 'created', 'modified', 'title', 'order', 'section_id', 'description']:
+        self.assertEqual(8, len(fields))
+        for field in ['id', 'created', 'modified', 'title', 'order', 'section_id', 'description', 'region_id']:
             self.assertIn(field, fields)
 
     def test_sub_section_store(self):
         self.failUnless(self.section.id)
         self.assertEqual("Infant Immunisation Coverage", self.sub_section.title)
         self.assertEqual(self.section, self.sub_section.section)
+        self.assertIsNone(self.sub_section.region)
 
     def test_subsection_can_get_its_questions_groups(self):
         sub_group = QuestionGroup.objects.create(subsection=self.sub_section, name="Laboratory Investigation")

@@ -51,6 +51,7 @@ class SubSection(BaseModel):
     order = models.IntegerField(blank=False, null=False)
     section = models.ForeignKey(Section, blank=False, null=False, related_name="sub_sections")
     description = models.TextField(blank=True, null=True)
+    region = models.ForeignKey("Region", blank=False, null=True, related_name="sub_sections")
 
     class Meta:
         ordering = ('order',)
