@@ -11,8 +11,9 @@ class UserQuestionnaireService(object):
         self.questionnaire = questionnaire
         self.unanswered_section = None
         self.answers_in_questionnaire = self.questionnaire_answers()
-        self.version = self.answer_version()
-        self.answers = self.answers_in_questionnaire.filter(version=self.version)
+        self.current_answer_status = Answer.DRAFT_STATUS
+        self.set_versions()
+        self.answers = self.answers_in_questionnaire.filter(version=self.POST_version)
 
     def all_answers(self):
         return Answer.objects.filter(country=self.country).select_subclasses()
@@ -35,7 +36,15 @@ class UserQuestionnaireService(object):
         if draft_answers.exists():
             return draft_answers.latest('modified').version
 
+        self.current_answer_status = Answer.SUBMITTED_STATUS
         return answers.latest('modified').version + 1
+
+    def set_versions(self):
+        self.POST_version = self.answer_version()
+        if self.current_answer_status == Answer.SUBMITTED_STATUS:
+            self.GET_version = self.POST_version -1
+        else:
+            self.GET_version = self.POST_version
 
     def required_sections_answered(self):
         for section in self.questionnaire.sections.all():
@@ -49,7 +58,7 @@ class UserQuestionnaireService(object):
         return self.answers.filter(question__in=required_question_in_section).count() == len(required_question_in_section)
 
     def all_sections_questionnaires(self):
-        initial = {'country': self.country, 'status': 'Draft', 'version': self.version}
+        initial = {'country': self.country, 'status': 'Draft', 'version': self.POST_version}
         questionnaires = SortedDict()
         for section in self.questionnaire.sections.order_by('order'):
             questionnaires[section] = QuestionnaireEntryFormService(section, initial=initial)

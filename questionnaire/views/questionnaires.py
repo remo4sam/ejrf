@@ -30,7 +30,7 @@ class Entry(MultiplePermissionsRequiredMixin, FormView):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
         section = Section.objects.get(id=self.kwargs['section_id'])
         user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
-        initial = {'status': 'Draft', 'country': self.request.user.user_profile.country, 'version': user_questionnaire_service.version}
+        initial = {'status': 'Draft', 'country': self.request.user.user_profile.country, 'version': user_questionnaire_service.GET_version}
         required_answers = 'show' in request.GET
         formsets = QuestionnaireEntryFormService(section, initial=initial, highlight=required_answers)
 
@@ -53,7 +53,7 @@ class Entry(MultiplePermissionsRequiredMixin, FormView):
         section = Section.objects.get(id=self.kwargs['section_id'])
         user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
         initial = {'country': self.request.user.user_profile.country, 'status': 'Draft',
-                   'version': user_questionnaire_service.version}
+                   'version': user_questionnaire_service.POST_version}
         formsets = QuestionnaireEntryFormService(section, initial=initial, data=request.POST)
 
         context = {'questionnaire': questionnaire, 'section': section,

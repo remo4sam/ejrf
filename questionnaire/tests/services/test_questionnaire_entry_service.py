@@ -155,6 +155,48 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
         self.assertNotIn('answer', formsets['Number'][1].initial.keys())
         self.assertNotIn('answer', formsets['Date'][0].initial.keys())
 
+    def test_initial_gets_response_if_the_latest_answer_is_SUMBITTED_for_country(self):
+        question3_answer = NumericalAnswer.objects.create(question=self.question3, country=self.country,
+                                                          status=Answer.SUBMITTED_STATUS, response=1)
+        question2_answer = TextAnswer.objects.create(question=self.question2, country=self.country,
+                                                     status=Answer.SUBMITTED_STATUS, response="ayoyoyo")
+        answer_group1 = AnswerGroup.objects.create(grouped_question=self.question_group, row=1)
+        answer_group1.answer.add(question2_answer, question3_answer)
+
+        country_2 = Country.objects.create(name="Uganda 2")
+        question1_answer_2 = NumericalAnswer.objects.create(question=self.question1, country=country_2,
+                                                            status=Answer.SUBMITTED_STATUS, response=23)
+        question2_answer_2 = NumericalAnswer.objects.create(question=self.question2, country=country_2,
+                                                          status=Answer.SUBMITTED_STATUS, response=1)
+        answer_group_2 = AnswerGroup.objects.create(grouped_question=self.question_group, row=2)
+        answer_group_2.answer.add(question1_answer_2, question2_answer_2)
+
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
+        formsets = questionnaire_entry_form._formsets()
+
+        self.assertEqual(self.question1, formsets['MultiChoice'][0].initial['question'])
+        self.assertEqual(self.question2, formsets['Text'][0].initial['question'])
+        self.assertEqual(self.question3, formsets['Number'][0].initial['question'])
+        self.assertEqual(self.question4, formsets['MultiChoice'][1].initial['question'])
+        self.assertEqual(self.question5, formsets['Number'][1].initial['question'])
+        self.assertEqual(self.question6, formsets['Date'][0].initial['question'])
+
+
+        self.assertNotIn('response', formsets['MultiChoice'][0].initial.keys())
+        self.assertEqual(question2_answer.response, formsets['Text'][0].initial['response'])
+        self.assertEqual(question3_answer.response, formsets['Number'][0].initial['response'])
+
+        self.assertNotIn('response', formsets['MultiChoice'][1].initial.keys())
+        self.assertNotIn('response', formsets['Number'][1].initial.keys())
+        self.assertNotIn('response', formsets['Date'][0].initial.keys())
+
+        self.assertNotIn('answer', formsets['MultiChoice'][0].initial.keys())
+        self.assertNotIn('answer', formsets['Text'][0].initial.keys())
+        self.assertNotIn('answer', formsets['Number'][0].initial.keys())
+        self.assertNotIn('answer', formsets['MultiChoice'][1].initial.keys())
+        self.assertNotIn('answer', formsets['Number'][1].initial.keys())
+        self.assertNotIn('answer', formsets['Date'][0].initial.keys())
+
 
 class QuestionnaireEntryAsFormTest(BaseTest):
 

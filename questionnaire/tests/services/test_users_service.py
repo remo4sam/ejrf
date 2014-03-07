@@ -147,9 +147,11 @@ class UserServiceTest(BaseTest):
         answer_group = AnswerGroup.objects.filter(grouped_question=self.question_group)
         self.assertEqual(1, answer_group.count())
 
-    def test_user_knows_answer_version_of_questionnaire_is_0_if_no_answer_exist_yet(self):
+    def test_user_knows_answer_version_of_questionnaire_is_1_if_no_answer_exist_yet(self):
         user_service = UserQuestionnaireService(self.user, self.questionnaire)
         self.assertEqual(1, user_service.answer_version())
+        self.assertEqual(1, user_service.POST_version)
+        self.assertEqual(1, user_service.GET_version)
 
     def test_user_knows_answer_version_of_questionnaire_is_the_same_as_draft_if_draft_exists(self):
         data = self.data
@@ -163,6 +165,8 @@ class UserServiceTest(BaseTest):
 
         user_service = UserQuestionnaireService(self.user, self.questionnaire)
         self.assertEqual(self.initial['version'], user_service.answer_version())
+        self.assertEqual(self.initial['version'], user_service.POST_version)
+        self.assertEqual(self.initial['version'], user_service.GET_version)
 
     def test_user_knows_answer_version_of_questionnaire_is_plus_1_of_the_latest_submitted_answers(self):
         data = self.data.copy()
@@ -178,6 +182,9 @@ class UserServiceTest(BaseTest):
         user_service.submit()
 
         self.assertEqual(self.initial['version']+1, user_service.answer_version())
+        user_service.set_versions()
+        self.assertEqual(self.initial['version']+1, user_service.POST_version)
+        self.assertEqual(self.initial['version'], user_service.GET_version)
 
     def test_knows_unanswered_required_question_in_section(self):
         data = self.data.copy()
