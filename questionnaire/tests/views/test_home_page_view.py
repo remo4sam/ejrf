@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import Client
-from questionnaire.forms.filter import QuestionnaireFilterForm
+from questionnaire.forms.questionnaires import QuestionnaireFilterForm
 from questionnaire.models import Questionnaire, Section
 from questionnaire.tests.base_test import BaseTest
 

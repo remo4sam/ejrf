@@ -1,5 +1,6 @@
 {% extends 'base/layout.html' %}
 {% block content %}
+    {% load generic_tags %}
     <div class="row">
         <div class="col-md-12">
             <h2>Core Template</h2>
@@ -26,7 +27,7 @@
                                 {% endwith %}
                                 <span class="pull-right">
                                     <a href="" class="btn btn-xs btn-default" id="id-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
-                                    <a class="btn btn-xs btn-default" id="id-finalize" post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_lock.png"></span></a>
+                                    <a class="btn btn-xs btn-default" id="id-finalize-{{ questionnaire.id }}" post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_lock.png"></span></a>
 
                                 </span>
                             </li>
@@ -43,13 +44,16 @@
                 <div class="panel-body">
                     <ul class="list-group">
                         {% for questionnaire in finalized_questionnaires %}
+{#                            {% include 'base/modals/ajax_modal.html' with action_url=questionnaire.id|get_url_with_ids:"publish_questionnaire_page" object=questionnaire  action="publish_questionnaire" modal_title="Send Questionnaire to Regions"  btn_label="SEND" class="publish_questionnaire"%}#}
                             <li class="list-group-item{%if  forloop.counter > 3 %} hide{% endif %}">
                                 {% with questionnaire.sections.all|first as first_section %}
                                     <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                 {% endwith %}
                                 <span class="pull-right">
-                                    <a class="btn btn-xs btn-default" id="id-finalize" post="true" phref="/questionnaire/{{ questionnaire.id }}/unfinalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_unlock.png"></span></a>
-
+                                    <a href="" class="btn btn-default btn-xs" data-toggle="modal" data-target="#publish-questionnaire-{{ questionnaire.id }}" id="id-publish-questionnaire-{{ questionnaire.id }}">
+                                        <span class="glyphicon glyphicon-send"></span> Send to Regions
+                                    </a>
+                                    <a class="btn btn-xs btn-default" id="id-unfinalize-{{ questionnaire.id }}" post="true" phref="/questionnaire/{{ questionnaire.id }}/unfinalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_unlock.png"></span></a>
                                 </span>
                             </li>
                         {% endfor %}
@@ -60,5 +64,42 @@
                 </div>
             </div>
         </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Regional template adaptations:</h2>
+        </div>
+        {% for region in who_regions %}
+            <div class="col-md-12 indent">
+                <h3>{{ region.name }}:</h3>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">In Progress</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Finalized</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}

@@ -31,8 +31,8 @@ class QuestionnaireTest(BaseTest):
 
     def test_questionnaire_fields(self):
         fields = [str(item.attname) for item in Questionnaire._meta.fields]
-        self.assertEqual(7, len(fields))
-        for field in ['id', 'created', 'modified', 'name', 'description', 'year', 'status']:
+        self.assertEqual(8, len(fields))
+        for field in ['id', 'created', 'modified', 'name', 'description', 'year', 'status', 'region_id']:
             self.assertIn(field, fields)
 
     def test_questionnaire_store(self):

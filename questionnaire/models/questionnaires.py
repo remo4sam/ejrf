@@ -2,6 +2,7 @@ from model_utils import Choices
 from model_utils.fields import StatusField
 from questionnaire.models.base import BaseModel
 from django.db import models
+from questionnaire.models import Region
 
 
 class Questionnaire(BaseModel):
@@ -13,6 +14,7 @@ class Questionnaire(BaseModel):
     description = models.TextField(null=True, blank=True)
     year = models.PositiveIntegerField(null=True, blank=True)
     status = StatusField(choices_name="STATUS", default=DRAFT)
+    region = models.ForeignKey(Region, blank=True, null=True, related_name="questionnaire")
 
     def __unicode__(self):
         return '%s' % self.name

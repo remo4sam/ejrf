@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 from django.views.generic import View
 from braces.views import MultiplePermissionsRequiredMixin, LoginRequiredMixin
-from questionnaire.forms.filter import QuestionnaireFilterForm
+from questionnaire.forms.questionnaires import QuestionnaireFilterForm
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.services.questionnaire_cloner import QuestionnaireClonerService
