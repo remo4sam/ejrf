@@ -134,3 +134,12 @@ Feature: User management
         Then I should see country drop down
         When I select the data submitter role
         Then I should see country drop down
+
+    Scenario: Global Admin Disables a User Account
+        Given I am a logged-in Global Admin
+        And I have a an active data submitter user
+        And I visit the user listing page
+        And I select that user
+        And I make that user inactive
+        Then that user should be unable to log in
+        And they should see a message that their account is inactive when they try to log in

@@ -367,3 +367,32 @@ def and_i_have_countries_in_afro_region(step):
 @step(u'And I click the create button')
 def and_i_click_the_create_button(step):
     world.page.click_by_css('button.submit')
+
+@step(u'And I have a an active data submitter user')
+def and_i_have_a_an_active_data_submitter_user(step):
+    password = 'pass'
+    world.uganda = Country.objects.create(name="Uganda")
+    world.datasubmitteruser = User.objects.create_user('ds', 'ds@ds.com', password)
+    UserProfile.objects.create(user=world.datasubmitteruser, country=world.uganda)
+
+@step(u'And I select that user')
+def and_i_select_that_user(step):
+    world.page.click_link_by_partial_href('/users/%s/edit' % world.datasubmitteruser.id)
+
+@step(u'And I make that user inactive')
+def and_i_make_that_user_inactive(step):
+    world.page.uncheck_by_name('is_active')
+    world.page.click_by_css('button.submit')
+
+@step(u'Then that user should be unable to log in')
+def then_that_user_should_be_unable_to_log_in(step):
+    world.page = LoginPage(world.browser)
+    world.page.visit()
+    data = {'username': world.datasubmitteruser.username,
+            'password': "pass"}
+    world.page.fill_form(data)
+    world.page.submit()
+
+@step(u'And they should see a message that their account is inactive when they try to log in')
+def and_they_should_see_a_message_that_their_account_is_inactive_when_they_try_to_log_in(step):
+    world.page.is_text_present('This account is inactive')

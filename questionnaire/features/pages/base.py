@@ -63,6 +63,9 @@ class PageObject(object):
     def check(self, value):
         self.browser.find_by_value(value).first.check()
 
+    def uncheck_by_name(self, value):
+        self.browser.find_by_name(value).first.uncheck()
+
     def select(self, name, value):
         self.browser.select(name, value)
 
