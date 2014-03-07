@@ -6,6 +6,11 @@ $(document).ready(function() {
 
     $('.datetimepicker').datetimepicker({ pickTime: false });
     $('textarea').autosize();
+
+    $('.grid-error').hover(function(){
+        $(this).popover('show');}, function(){
+        $(this).popover('hide');
+    });
 });
 
 function cloneMore(selector) {
