@@ -61,7 +61,10 @@
                             <a href=""  id="id-assign-{{ subsection.id }}" class="btn btn-sm btn-default" data-toggle="modal" data-target="#assign-question-modal-{{ subsection.id }}">
                                 <span class="cyan"><span class="glyphicon glyphicon-plus-sign"></span> Assign Question</span>
                             </a>
-                            <a href="" id="edit-subsection-{{ subsection.id }}" class="btn btn-sm btn-default" data-toggle="modal" data-target="#edit_subsection_{{ subsection.id }}"><span class="cyan"><span class="glyphicon glyphicon-pencil"></span> Edit</span></a>
+
+                            <a href="" class="btn btn-sm btn-default" data-toggle="modal" data-target="#edit_subsection_{{ subsection.id }}"><span class="cyan"><span class="glyphicon glyphicon-pencil"></span> Edit</span></a>
+                            <a href="" class="btn btn-sm btn-default" data-toggle="modal" data-target="#delete-subsection-modal-{{ subsection.id }}"><span class="cyan"><span class="glyphicon glyphicon-trash"></span></span></a>
+
                         </div>
                         {% endif %}
                     </h4>
@@ -171,6 +174,7 @@
     {% if perms.auth.can_edit_questionnaire %}
         {% for subsection_ in section.sub_sections.all %}
             {% include 'base/modals/ajax_modal.html' with action_url=subsection_.id|get_url_with_ids:"edit_subsection_page" object=subsection_  action="edit_subsection" modal_title="Edit SubSection"  btn_label="SAVE" class="edit_subsection"%}
+            {% include 'base/modals/_delete.html' with object_type='Subsection' title='Confirm Delete' action="delete" url=subsection_.id|get_url_with_ids:"delete_subsection_page" object=subsection_ confirm='Yes' %}
             {% include 'questionnaires/assign_questions_modal.html' with subsection=subsection_ %}
             {% for group in subsection_.parent_question_groups %}
                 {% for order in group.question_orders %}

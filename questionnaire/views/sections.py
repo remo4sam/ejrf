@@ -142,3 +142,23 @@ class EditSubSection(PermissionRequiredMixin, UpdateView):
     def form_invalid(self, form):
         messages.error(self.request, "SubSection NOT updated. See errors below.")
         return super(EditSubSection, self).form_invalid(form)
+
+
+class DeleteSubSection(DeleteView):
+
+    def __init__(self, **kwargs):
+        super(DeleteSubSection, self).__init__(**kwargs)
+        self.model = SubSection
+        self.pk_url_kwarg = 'subsection_id'
+        self.success_url = "/"
+
+    def _set_success_url(self):
+        self.object = self.get_object()
+        section = self.object.section
+        return section.get_absolute_url()
+
+    def post(self, request, *args, **kwargs):
+        self.success_url = self._set_success_url()
+        message = "Subsection successfully deleted."
+        messages.success(request, message)
+        return super(DeleteSubSection, self).post(request, *args, **kwargs)
