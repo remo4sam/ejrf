@@ -66,3 +66,31 @@ def and_i_fill_in_invalid_data(step):
 @step(u'Then I should see error messages against the fields')
 def then_i_should_see_error_messages_against_the_fields(step):
     world.page.is_text_present('This field is required')
+
+@step(u'And I choose to update a section')
+def and_i_choose_to_update_a_section(step):
+    world.page.click_by_id('edit-section-%s' % world.section_1.id)
+
+@step(u'Then I should see an edit section modal')
+def then_i_should_see_an_edit_section_modal(step):
+    world.page = CreateSectionPage(world.browser, world.questionnaire)
+    world.page.is_text_present("Edit Section", "Description", "Name", "Title")
+
+@step(u'When I update the section details')
+def when_i_update_the_section_details(step):
+    data = {'name': 'New Section Name',
+            'title': 'New Section Title'}
+    world.page.fill_form(data)
+
+@step(u'And I save the changes to the section')
+def and_i_save_the_changes_to_the_section(step):
+    world.page.click_by_id('submit_edit_section_%s' % world.section_1.id)
+
+@step(u'Then I should see a message that the section was updated')
+def then_i_should_see_a_message_that_the_section_was_updated(step):
+    world.page.is_text_present('Section updated successfully')
+
+@step(u'And I should see the changes I made to the section in the questionnaire')
+def and_i_should_see_the_changes_i_made_to_the_section_in_the_questionnaire(step):
+    world.page.is_text_present('New Section Name')
+    world.page.is_text_present('New Section Title')

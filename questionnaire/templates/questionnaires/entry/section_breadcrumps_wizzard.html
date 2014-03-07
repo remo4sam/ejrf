@@ -6,7 +6,7 @@
                    href="{% url 'questionnaire_entry_page' questionnaire.id section_.id %}{% if preview %}?preview=1{% endif %}"
                    id="section-{{ section_.id }}"> {{ section_.name }}</a>
                 {% if perms.auth.can_edit_questionnaire %}
-                    <a href="#" class="{% if section_.id == section.id %}current {% endif %} col-md-1 edit-section"
+                    <a href="#" id="edit-section-{{ section_.id }}" class="{% if section_.id == section.id %}current {% endif %} col-md-1 edit-section"
                             data-toggle="modal" data-target="#edit_section_{{section_.id}}"> <span class="glyphicon glyphicon-pencil"></span> </a>
                     <a href="#" class="{% if section_.id == section.id %}current {% endif %} col-md-1 delete-section"
                             data-toggle="modal" data-target="#delete-section-modal-{{section_.id}}"> <span class="glyphicon glyphicon-trash"></span> </a>
