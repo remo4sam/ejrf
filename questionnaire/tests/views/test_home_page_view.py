@@ -9,7 +9,7 @@ class HomePageViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
 
@@ -43,7 +43,7 @@ class HomePageViewTest(BaseTest):
     def test_homepage_redirects_to_managejrf_logged_in_as_global_admin(self):
         User.objects.all().delete()
         self.client.logout()
-        user, self.country = self.create_user_with_no_permissions()
+        user, self.country, self.region = self.create_user_with_no_permissions()
         self.assign('can_view_users', user)
         self.client.login(username=user.username, password='pass')
         response = self.client.get("/")

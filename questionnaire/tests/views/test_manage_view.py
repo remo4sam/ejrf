@@ -9,7 +9,7 @@ class ManageJRFViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
@@ -32,7 +32,7 @@ class FinalizeQuestionnaireViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
@@ -58,7 +58,7 @@ class PublishQuestionnaireToRegionsViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 

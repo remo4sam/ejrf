@@ -1,14 +1,15 @@
-from braces.views import PermissionRequiredMixin, LoginRequiredMixin
+from braces.views import PermissionRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.http import HttpResponseRedirect, request
-from django.views.generic import CreateView, View, UpdateView, DeleteView
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.views.generic import CreateView, UpdateView, DeleteView
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
-from questionnaire.models import Section, SubSection, Questionnaire
+from questionnaire.mixins import RegionAndPermissionRequiredMixin
+from questionnaire.models import Section, SubSection
 
 
-class NewSection(PermissionRequiredMixin, CreateView):
+class NewSection(RegionAndPermissionRequiredMixin, CreateView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, **kwargs):
@@ -25,6 +26,7 @@ class NewSection(PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         section = form.save(commit=False)
         section.order = Section.get_next_order(form.cleaned_data['questionnaire'])
+        section.region = self.request.user.user_profile.region
         section.save()
         messages.success(self.request,"Section created successfully" )
         return super(NewSection, self).form_valid(form)

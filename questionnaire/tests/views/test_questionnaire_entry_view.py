@@ -42,7 +42,7 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         self.url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section_1.id)
 
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
@@ -295,7 +295,7 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
                      }
         self.url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section1.id)
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
@@ -415,7 +415,7 @@ class QuestionnaireEntrySubmitTest(BaseTest):
         self.url = '/submit/'
 
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
@@ -549,7 +549,7 @@ class QuestionnaireCloneViewTest(BaseTest):
         QuestionGroupOrder.objects.create(order=5, question_group=self.parent12, question=self.question4)
         self.parent10.question.add(self.question3, self.question4, self.question2, self.question1, self.primary_question)
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')

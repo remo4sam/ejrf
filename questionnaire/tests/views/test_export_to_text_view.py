@@ -7,7 +7,7 @@ from questionnaire.tests.base_test import BaseTest
 class ExportToTextViewTest(BaseTest):
     def setUp(self):
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.login_user()
 
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English",

@@ -7,7 +7,7 @@ class RegionViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.login_user()
 
 
@@ -17,7 +17,7 @@ class RegionViewTest(BaseTest):
         self.assertEqual(200, response.status_code)
         templates = [template.name for template in response.templates]
         self.assertIn('locations/region/index.html', templates)
-        self.assertEqual(1, len(response.context['region_list']))
+        self.assertEqual(2, len(response.context['region_list']))
         self.assertIn(region, response.context['region_list'])
 
     def test_login_required(self):
@@ -28,7 +28,7 @@ class CountryViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
-        self.user, self.country = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.login_user()
 
     def test_get_region_list(self):

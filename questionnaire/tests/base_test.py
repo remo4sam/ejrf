@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from urllib import quote
-from questionnaire.models import Country, UserProfile
+from questionnaire.models import Country, UserProfile, Region
 
 
 class BaseTest(TestCase):
@@ -14,14 +14,15 @@ class BaseTest(TestCase):
             _file.writerows(data)
             fp.close()
 
-    def create_user_with_no_permissions(self, username=None):
+    def create_user_with_no_permissions(self, username=None, country_name="Uganda", region_name="Afro"):
         username = username if username else "user"
         user = User.objects.create(username=username, email="user@mail.com")
-        uganda = Country.objects.create(name="Uganda")
-        UserProfile.objects.create(user=user, country=uganda)
+        uganda = Country.objects.create(name=country_name)
+        region = Region.objects.create(description=region_name)
+        UserProfile.objects.create(user=user, country=uganda, region=region)
         user.set_password("pass")
         user.save()
-        return user, uganda
+        return user, uganda, region
 
     def login_user(self):
         self.client.login(username='user', password='pass')
@@ -34,7 +35,7 @@ class BaseTest(TestCase):
 
     def assign(self, permissions, user):
         auth_content = ContentType.objects.get_for_model(Permission)
-        group = Group.objects.create(name="Group with %s permissions" % permissions)
+        group = Group.objects.get_or_create(name="Group with %s permissions" % permissions)[0]
         permission, out = Permission.objects.get_or_create(codename=permissions, content_type=auth_content)
         group.permissions.add(permission)
         group.user_set.add(user)
