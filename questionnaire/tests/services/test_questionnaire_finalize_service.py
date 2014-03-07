@@ -7,7 +7,7 @@ class QuestionnaireFinalizeServiceTest(BaseTest):
 
     def setUp(self):
         self.draft_questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan", year=2013, status=Questionnaire.DRAFT)
-        self.finalized_questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan", year=2013, status=Questionnaire.FINALIZED)
+        self.finalized_questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan", year=2013, status=Questionnaire.DRAFT)
 
     def test_finalizes_questionnaire_when_finalize_is_called(self):
         QuestionnaireFinalizeService(self.draft_questionnaire).finalize()
