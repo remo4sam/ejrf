@@ -149,7 +149,7 @@ class UserServiceTest(BaseTest):
 
     def test_user_knows_answer_version_of_questionnaire_is_0_if_no_answer_exist_yet(self):
         user_service = UserQuestionnaireService(self.user, self.questionnaire)
-        self.assertEqual(0, user_service.answer_version())
+        self.assertEqual(1, user_service.answer_version())
 
     def test_user_knows_answer_version_of_questionnaire_is_the_same_as_draft_if_draft_exists(self):
         data = self.data

@@ -14,3 +14,9 @@ def largest_uid(cls):
 
 def stringify(uid):
     return "0" * (MAX_UID_LENGTH - len(str(uid))) + str(uid)
+
+
+def map_question_type_with(orders, mapping, option=''):
+    for order in orders:
+        order_dict = {'option': option, 'order': order}
+        mapping[order.question.answer_type].append(order_dict)

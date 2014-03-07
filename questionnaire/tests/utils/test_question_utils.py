@@ -1,6 +1,6 @@
 from questionnaire.models import Question
 from questionnaire.tests.base_test import BaseTest
-from questionnaire.utils.question_util import largest_uid
+from questionnaire.utils.model_utils import largest_uid
 
 
 class QuestionUtilTest(BaseTest):

@@ -92,24 +92,31 @@ class SectionTest(BaseTest):
         Section.objects.filter(questionnaire=self.questionnaire).delete()
         self.assertEqual(0, Section.get_next_order(self.questionnaire))
 
-    def test_section_gets_orders_for_each_question_option_for_each_answert_type(self):
-        QuestionGroupOrder.objects.all().delete()
-        question1 = Question.objects.create(text='Favorite beer 1', UID='C00323', answer_type='MultiChoice', is_primary=True)
-        option1 = QuestionOption.objects.create(text='tusker lager', question=question1)
-        option2 = QuestionOption.objects.create(text='tusker lager1', question=question1)
-        option3 = QuestionOption.objects.create(text='tusker lager2', question=question1)
+    def test_mapped_question_orders(self):
+        grid_question_group = QuestionGroup.objects.create(subsection=self.sub_section, order=11, grid=True, display_all=True)
+        self.question1.is_primary = True
+        self.question1.save()
+        self.option1 = QuestionOption.objects.create(text='tusker lager', question=self.question1)
+        self.option2 = QuestionOption.objects.create(text='tusker lager1', question=self.question1)
+        self.option3 = QuestionOption.objects.create(text='tusker lager2', question=self.question1)
 
-        question_group3 = QuestionGroup.objects.create(subsection=self.sub_section2, order=1, grid=True, display_all=True)
+        grid_question_group.question.add(self.question1, self.question2, self.question3, self.question6)
 
-        question_group3.question.add(self.question5, self.question2, self.question6, question1)
-        question_order1 = QuestionGroupOrder.objects.create(question=question1, question_group=question_group3, order=1)
-        question_order2 = QuestionGroupOrder.objects.create(question=self.question2, question_group=question_group3, order=2)
-        question_order3 = QuestionGroupOrder.objects.create(question=self.question5, question_group=question_group3, order=3)
-        question_order4 = QuestionGroupOrder.objects.create(question=self.question6, question_group=question_group3, order=4)
+        order1 = QuestionGroupOrder.objects.create(question=self.question1, question_group=grid_question_group, order=1)
+        order2 = QuestionGroupOrder.objects.create(question=self.question2, question_group=grid_question_group, order=2)
+        order3 = QuestionGroupOrder.objects.create(question=self.question3, question_group=grid_question_group, order=3)
+        order6 = QuestionGroupOrder.objects.create(question=self.question6, question_group=grid_question_group, order=4)
 
-        self.assertEqual(12, len(self.section.question_orders()))
-        for i in range(1, 4):
-            self.assertEqual(3, self.section.question_orders().count(eval('question_order%d' % i)))
+        type_order_mapping = self.section.mapped_question_orders()
+
+        for option in self.question1.options.all():
+            for order in grid_question_group.orders.all():
+                grid_question_group.map_orders_with_answer_type(type_order_mapping)
+                self.assertIn({'option': option, 'order': order}, type_order_mapping[order.question.answer_type])
+
+        for group in [self.question_group, self.question_group2, self.question_group3]:
+            for order in group.orders.order_by('order'):
+                self.assertIn({'option': '', 'order': order}, type_order_mapping[order.question.answer_type])
 
 
 class SubSectionTest(BaseTest):

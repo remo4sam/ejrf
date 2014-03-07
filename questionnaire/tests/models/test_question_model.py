@@ -1,6 +1,6 @@
 from django.db import IntegrityError
 from questionnaire.models import Questionnaire, Section, SubSection, Organization, Region, Country, QuestionGroup, \
-    NumericalAnswer, Answer, QuestionGroupOrder, AnswerGroup, MultiChoiceAnswer
+    NumericalAnswer, Answer, QuestionGroupOrder, AnswerGroup, MultiChoiceAnswer, TextAnswer, DateAnswer
 from questionnaire.models.questions import Question, QuestionOption
 from questionnaire.tests.base_test import BaseTest
 
@@ -133,11 +133,11 @@ class QuestionTest(BaseTest):
         group2.question.add(question3)
 
         question1_answer = NumericalAnswer.objects.create(question=question1, country=self.country,
-                                                          status=Answer.DRAFT_STATUS, response=23)
+                                                          status=Answer.DRAFT_STATUS, response=23, version=1)
         question2_answer = NumericalAnswer.objects.create(question=question2, country=self.country,
-                                                          status=Answer.DRAFT_STATUS, response=1)
+                                                          status=Answer.DRAFT_STATUS, response=1, version=1)
         question3_answer = NumericalAnswer.objects.create(question=question3, country=self.country,
-                                                          status=Answer.SUBMITTED_STATUS, response=11)
+                                                          status=Answer.SUBMITTED_STATUS, response=11, version=1)
 
         answer_group1 = AnswerGroup.objects.create(grouped_question=self.parent_group, row=1)
         answer_group1.answer.add(question1_answer, question2_answer)
@@ -147,9 +147,9 @@ class QuestionTest(BaseTest):
 
         country_2 = Country.objects.create(name="Uganda 2")
         question1_answer_2 = NumericalAnswer.objects.create(question=question1, country=country_2,
-                                                            status=Answer.DRAFT_STATUS, response=23)
+                                                            status=Answer.DRAFT_STATUS, response=23, version=1)
         question2_answer_2 = NumericalAnswer.objects.create(question=question2, country=country_2,
-                                                            status=Answer.DRAFT_STATUS, response=1)
+                                                            status=Answer.DRAFT_STATUS, response=1, version=1)
         answer_group_2 = AnswerGroup.objects.create(grouped_question=self.parent_group, row=2)
         answer_group_2.answer.add(question1_answer_2, question2_answer_2)
 
@@ -185,37 +185,6 @@ class QuestionTest(BaseTest):
         self.assertEqual(option1, question.get_option_at(1))
         self.assertEqual(option2, question.get_option_at(2))
         self.assertEqual(option3, question.get_option_at(3))
-
-    def test_question_sets_own_initial_for_form_set(self):
-        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, status=Questionnaire.FINALIZED)
-        section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
-                                           questionnaire=questionnaire, name="Reported Cases")
-        sub_section = SubSection.objects.create(title="Another", order=2, section=section_1)
-        question1 = Question.objects.create(text='B. Number of cases tested', UID='C00030', answer_type='MultiChoice',
-                                            is_primary=True)
-
-        parent_group = QuestionGroup.objects.create(subsection=sub_section, name="Laboratory Investigation", grid=True,
-                                                    display_all=True)
-        parent_group.question.add(question1)
-        order = QuestionGroupOrder.objects.create(question=question1, question_group=parent_group, order=1)
-        option1 = QuestionOption.objects.create(text='tusker lager', question=question1)
-        option2 = QuestionOption.objects.create(text='tusker lite', question=question1)
-        option3 = QuestionOption.objects.create(text='tusker malt', question=question1)
-        question1_answer = MultiChoiceAnswer.objects.create(question=question1, country=self.country,
-                                                            status=Answer.SUBMITTED_STATUS, response=option1)
-        answer_group_2 = AnswerGroup.objects.create(grouped_question=parent_group, row=2)
-        answer_group_2.answer.add(question1_answer)
-
-        initial = {'question': question1, 'response': option1, 'group': parent_group, 'country': self.country}
-        self.assertEqual(initial, question1.get_initial(order=order, country=self.country))
-        initial = {'question': question1, 'response': option1, 'group': parent_group, 'country': self.country}
-        self.assertEqual(initial, question1.get_initial(order=order,  option_index=1, country=self.country))
-
-        initial = {'question': question1, 'response': option2, 'group': parent_group, 'country': self.country}
-        self.assertEqual(initial, question1.get_initial(order=order,  option_index=2, country=self.country))
-
-        initial = {'question': question1, 'response': option3, 'group': parent_group, 'country': self.country}
-        self.assertEqual(initial, question1.get_initial(order=order,  option_index=3, country=self.country))
 
 
 class QuestionOptionTest(BaseTest):

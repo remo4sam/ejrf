@@ -1,6 +1,6 @@
 from django.forms.formsets import formset_factory
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
-from questionnaire.models import Question, AnswerGroup
+from questionnaire.models import Question, AnswerGroup, QuestionGroupOrder
 
 
 ANSWER_FORM = {
@@ -17,7 +17,7 @@ class QuestionnaireEntryFormService(object):
         self.initial = initial
         self.data = data
         self.section = section
-        self.question_orders = section.question_orders()
+        self.mapped_question_orders = section.mapped_question_orders()
         self.formsets = self._formsets()
         self.ANSWER_FORM_COUNTER = self._initialize_form_counter()
         self._highlight_required_answers(highlight)
@@ -27,8 +27,6 @@ class QuestionnaireEntryFormService(object):
         next_question_type_count = self.ANSWER_FORM_COUNTER[question.answer_type]
         self.ANSWER_FORM_COUNTER[question.answer_type] += 1
         formset = self.formsets[question.answer_type][next_question_type_count]
-        if question.is_primary and question.group().grid:
-            formset.initial['response'] = question.get_option_at(self.ANSWER_FORM_COUNTER[question.answer_type])
         return formset
 
     @staticmethod
@@ -38,15 +36,47 @@ class QuestionnaireEntryFormService(object):
     def _formsets(self):
         formsets = {}
         for answer_type in ANSWER_FORM.keys():
-            orders = filter(lambda order: order.question.answer_type == answer_type, self.question_orders)
-            if orders:
-                _formset_factory = formset_factory(ANSWER_FORM[answer_type], max_num=len(orders))
-                initial = self._get_initial(orders)
+            mapped_orders = self.mapped_question_orders.get(answer_type)
+            if mapped_orders:
+                _formset_factory = formset_factory(ANSWER_FORM[answer_type], max_num=len(mapped_orders))
+                initial = self._get_initial(mapped_orders)
                 formsets[answer_type] = _formset_factory(prefix=answer_type, initial=initial, data=self.data)
         return formsets
 
+    def _initial(self, order_dict):
+        option = order_dict.get('option', None)
+        order = order_dict.get('order', None)
+        country = self.initial.get('country')
+        version = self.initial.get('version')
+        question = order.question
+        question_group = order.question_group
+
+        initial = {'question': question, 'group': question_group, 'country': country}
+
+        answer = None
+        if option:
+            primary_answer = option.answer.filter(version=version)
+            if question.is_primary:
+                initial['option'] = option
+                answer = primary_answer
+            elif primary_answer.exists():
+                answer_group = primary_answer[0].answergroup.filter(grouped_question=question_group)
+                answer = answer_group[0].answer.filter(question=order.question).select_subclasses()
+        else:
+            answer = question.answers.filter(answergroup__grouped_question=question_group,
+                                             country=country, version=version).select_subclasses()
+        if answer:
+            self._append(answer, initial)
+        return dict(self.initial.items() + initial.items())
+
+    def _append(self, answer, initial):
+        answer = answer.latest('modified')
+        initial['response'] = answer.format_response()
+        if answer.is_draft():
+            initial['answer'] = answer
+
     def _get_initial(self, orders):
-        return [dict(self.initial.items() + order.question.get_initial(order=order, country=self.initial['country']).items()) for order in orders]
+        return [self._initial(order_dict=order) for order in orders]
 
     def is_valid(self):
         formset_checks = [formset.is_valid() for formset in self.formsets.values()]

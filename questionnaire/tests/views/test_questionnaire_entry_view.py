@@ -187,9 +187,9 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         response = self.client.post(self.url, data=data_modified)
         self.assertEqual(200, response.status_code)
 
-        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']), question=self.question1, version=0)
-        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']), question=self.question2, version=0)
-        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']), question=self.question3, version=0)
+        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']), question=self.question1, version=1)
+        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']), question=self.question2, version=1)
+        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']), question=self.question3, version=1)
 
         self.assertEqual(old_primary.id, primary.id)
         self.assertEqual(old_answer_1.id, answer_1.id)
@@ -204,9 +204,9 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
 
         self.client.post('/submit/')
 
-        old_primary = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-0-response']), question=self.question1, version=0)
-        old_answer_1 = NumericalAnswer.objects.get(response=int(data['Number-0-response']), question=self.question2, version=0)
-        old_answer_2 = NumericalAnswer.objects.get(response=int(data['Number-1-response']), question=self.question3, version=0)
+        old_primary = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-0-response']), question=self.question1, version=1)
+        old_answer_1 = NumericalAnswer.objects.get(response=int(data['Number-0-response']), question=self.question2, version=1)
+        old_answer_2 = NumericalAnswer.objects.get(response=int(data['Number-1-response']), question=self.question3, version=1)
 
         self.assertEqual(Answer.SUBMITTED_STATUS, old_primary.status)
         self.assertEqual(Answer.SUBMITTED_STATUS, old_answer_1.status)
@@ -218,21 +218,21 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         data = self.data
         self.client.post(self.url, data=data)
 
-        primary = MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response']), question=self.question1, version=1)
-        answer_1 = NumericalAnswer.objects.filter(response=int(data['Number-0-response']), question=self.question2, version=1)
-        answer_2 = NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3, version=1)
+        primary = MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response']), question=self.question1, version=2)
+        answer_1 = NumericalAnswer.objects.filter(response=int(data['Number-0-response']), question=self.question2, version=2)
+        answer_2 = NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3, version=2)
 
         self.assertEqual(1, primary.count())
         self.assertEqual(Answer.DRAFT_STATUS, primary[0].status)
-        self.assertEqual(1, primary[0].version)
+        self.assertEqual(2, primary[0].version)
 
         self.assertEqual(1, answer_1.count())
         self.assertEqual(Answer.DRAFT_STATUS, answer_1[0].status)
-        self.assertEqual(1, answer_1[0].version)
+        self.assertEqual(2, answer_1[0].version)
 
         self.assertEqual(1, answer_2.count())
         self.assertEqual(Answer.DRAFT_STATUS, answer_2[0].status)
-        self.assertEqual(1, answer_2[0].version)
+        self.assertEqual(2, answer_2[0].version)
 
     def test_post_saves_answers_and_redirect_to_no_preview_if_given_redirect_url(self):
         data = self.data

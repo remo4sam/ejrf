@@ -169,10 +169,10 @@ class QuestionGroupTest(BaseTest):
         question3 = Question.objects.create(text='question2', UID='c00s01', answer_type='Text')
         question4 = Question.objects.create(text='question3', UID='c00a01', answer_type='Text')
         self.parent_question_group.question.add(question1, question2, question3, question4)
-        order2 = QuestionGroupOrder.objects.create(question=question1, question_group=self.parent_question_group, order=1)
-        order3 = QuestionGroupOrder.objects.create(question=question2, question_group=self.parent_question_group, order=2)
-        order4 = QuestionGroupOrder.objects.create(question=question3, question_group=self.parent_question_group, order=3)
-        order5 = QuestionGroupOrder.objects.create(question=question4, question_group=self.parent_question_group, order=4)
+        QuestionGroupOrder.objects.create(question=question1, question_group=self.parent_question_group, order=1)
+        QuestionGroupOrder.objects.create(question=question2, question_group=self.parent_question_group, order=2)
+        QuestionGroupOrder.objects.create(question=question3, question_group=self.parent_question_group, order=3)
+        QuestionGroupOrder.objects.create(question=question4, question_group=self.parent_question_group, order=4)
         self.assertEqual(3, len(self.parent_question_group.all_non_primary_questions()))
         self.assertNotIn(question1, self.parent_question_group.all_non_primary_questions())
         for i in range(2, 3):
@@ -191,43 +191,50 @@ class QuestionGroupTest(BaseTest):
         sub_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1, parent=self.parent_question_group)
         self.assertFalse(sub_group.has_subgroups())
 
-    def test_group_knows_its_questions_orders(self):
-        sub_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1)
-        question = Question.objects.create(text='question', UID='ab3123', answer_type='Text', is_primary=True)
-        question2 = Question.objects.create(text='question2', UID='c00001', answer_type='Text')
-        sub_group.question.add(question, question2)
-
-        order2 = QuestionGroupOrder.objects.create(question=question, question_group=sub_group, order=1)
-        order3 = QuestionGroupOrder.objects.create(question=question2, question_group=sub_group, order=2)
-        self.assertEqual(2, len(sub_group.get_orders()))
-        self.assertIn(order2, sub_group.get_orders())
-        self.assertIn(order3, sub_group.get_orders())
-
-    def test_group_adds_orders_for_its_primary_question_times_its_number_of_its_options(self):
+    def test_maps_multiple_questions_type_with_orders_when_they_are_of_same_type(self):
+        available_answer_types = ['Date', 'Number', 'MultiChoice', 'Text']
+        type_order_mapping = {type_: [] for type_ in available_answer_types}
         question_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1, grid=True, display_all=True)
-
         question1 = Question.objects.create(text='Favorite beer 1', UID='C00001', answer_type='MultiChoice', is_primary=True)
-        option1 = QuestionOption.objects.create(text='tusker lager', question=question1)
-        option2 = QuestionOption.objects.create(text='tusker lager1', question=question1)
-        option3 = QuestionOption.objects.create(text='tusker lager2', question=question1)
+        QuestionOption.objects.create(text='tusker lager', question=question1)
+        QuestionOption.objects.create(text='tusker lager1', question=question1)
+        QuestionOption.objects.create(text='tusker lager2', question=question1)
+        question2 = Question.objects.create(text='question 2', instructions="instruction 2", UID='C00002', answer_type='Text')
+        question3 = Question.objects.create(text='question 3', instructions="instruction 3", UID='C00003', answer_type='Number')
+        question5 = Question.objects.create(text='question 3', instructions="instruction 5", UID='04444', answer_type='Date')
+        question4 = Question.objects.create(text='question 4', instructions="instruction 2", UID='C00005', answer_type='Date')
+        question_group.question.add(question1, question3, question2, question4, question5)
 
-        question2 = Question.objects.create(text='question 2', instructions="instruction 2",
-                                            UID='C00002', answer_type='Text')
+        QuestionGroupOrder.objects.create(question=question1, question_group=question_group, order=1)
+        QuestionGroupOrder.objects.create(question=question2, question_group=question_group, order=2)
+        QuestionGroupOrder.objects.create(question=question3, question_group=question_group, order=3)
+        QuestionGroupOrder.objects.create(question=question4, question_group=question_group, order=4)
+        QuestionGroupOrder.objects.create(question=question5, question_group=question_group, order=5)
 
-        question3 = Question.objects.create(text='question 3', instructions="instruction 3",
-                                            UID='C00003', answer_type='Number')
+        for option in question1.options.all():
+            for order in question_group.orders.all():
+                question_group.map_orders_with_answer_type(type_order_mapping)
+                self.assertIn({'option': option, 'order': order}, type_order_mapping[order.question.answer_type])
 
-        question4 = Question.objects.create(text='question 4', instructions="instruction 2",
-                                            UID='C00005', answer_type='Date')
+    def test_maps_orders_for_non_primary_questions(self):
+        available_answer_types = ['Date', 'Number', 'MultiChoice', 'Text']
+        type_order_mapping = {type_: [] for type_ in available_answer_types}
+        question_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1, grid=False, display_all=True)
+        question1 = Question.objects.create(text='Favorite beer 1', UID='C00001', answer_type='MultiChoice', is_primary=False)
+        QuestionOption.objects.create(text='tusker lager', question=question1)
+        QuestionOption.objects.create(text='tusker lager1', question=question1)
+        QuestionOption.objects.create(text='tusker lager2', question=question1)
+        question2 = Question.objects.create(text='question 2', instructions="instruction 2", UID='C00002', answer_type='Text')
+        question3 = Question.objects.create(text='question 3', instructions="instruction 3", UID='C00003', answer_type='Number')
+        question4 = Question.objects.create(text='question 4', instructions="instruction 2", UID='C00005', answer_type='Date')
         question_group.question.add(question1, question3, question2, question4)
 
-        order1 = QuestionGroupOrder.objects.create(question=question1, question_group=question_group, order=1)
-        order2 = QuestionGroupOrder.objects.create(question=question2, question_group=question_group, order=2)
-        order3 = QuestionGroupOrder.objects.create(question=question3, question_group=question_group, order=3)
-        order4 = QuestionGroupOrder.objects.create(question=question4, question_group=question_group, order=4)
+        QuestionGroupOrder.objects.create(question=question1, question_group=question_group, order=1)
+        QuestionGroupOrder.objects.create(question=question2, question_group=question_group, order=2)
+        QuestionGroupOrder.objects.create(question=question3, question_group=question_group, order=3)
+        QuestionGroupOrder.objects.create(question=question4, question_group=question_group, order=4)
 
-        self.assertEqual(12, len(question_group.get_orders()))
-        self.assertIn(order1, question_group.get_orders())
-        self.assertIn(order2, question_group.get_orders())
-        self.assertIn(order3, question_group.get_orders())
-        self.assertIn(order4, question_group.get_orders())
+        question_group.map_orders_with_answer_type(type_order_mapping)
+
+        for order in question_group.orders.order_by('order'):
+            self.assertEqual([{'option': '', 'order': order}], type_order_mapping[order.question.answer_type])

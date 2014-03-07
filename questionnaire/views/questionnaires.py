@@ -29,10 +29,10 @@ class Entry(MultiplePermissionsRequiredMixin, FormView):
     def get(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
         section = Section.objects.get(id=self.kwargs['section_id'])
-        initial = {'status': 'Draft', 'country': self.request.user.user_profile.country}
+        user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
+        initial = {'status': 'Draft', 'country': self.request.user.user_profile.country, 'version': user_questionnaire_service.version}
         required_answers = 'show' in request.GET
         formsets = QuestionnaireEntryFormService(section, initial=initial, highlight=required_answers)
-        user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
 
         printable = 'printable' in request.GET
         preview = user_questionnaire_service.preview() or 'preview' in request.GET
@@ -53,7 +53,7 @@ class Entry(MultiplePermissionsRequiredMixin, FormView):
         section = Section.objects.get(id=self.kwargs['section_id'])
         user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
         initial = {'country': self.request.user.user_profile.country, 'status': 'Draft',
-                   'version': user_questionnaire_service.answer_version()}
+                   'version': user_questionnaire_service.version}
         formsets = QuestionnaireEntryFormService(section, initial=initial, data=request.POST)
 
         context = {'questionnaire': questionnaire, 'section': section,
@@ -68,7 +68,7 @@ class Entry(MultiplePermissionsRequiredMixin, FormView):
         message = 'Draft saved.'
         messages.success(request, message)
         if request.POST.get('redirect_url', None):
-            return HttpResponseRedirect(request.POST['redirect_url'].replace('preview=1',''))
+            return HttpResponseRedirect(request.POST['redirect_url'].replace('preview=1', ''))
         return self.render_to_response(context)
 
     def _form_invalid(self, request, context):

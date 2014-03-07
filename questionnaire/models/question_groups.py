@@ -1,5 +1,6 @@
 from questionnaire.models.base import BaseModel
 from django.db import models
+from questionnaire.utils.model_utils import map_question_type_with
 
 
 class QuestionGroup(BaseModel):
@@ -56,15 +57,10 @@ class QuestionGroup(BaseModel):
             return group_orders[0].order
         return 0
 
-    def get_orders(self):
-        orders = self.orders.order_by('order')
+    def map_orders_with_answer_type(self, mapped_orders):
+        orders = self.orders.order_by('order').select_related()
         if self.primary_question() and self.grid:
-            return self._repeat_orders_for_grid_questions(orders)
-        return orders
-
-    def _repeat_orders_for_grid_questions(self, orders):
-        _orders = []
-        number_of_primary_question_options = self.primary_question()[0].options.all().count()
-        for i in range(0, number_of_primary_question_options):
-            _orders.extend(orders)
-        return _orders
+            for option in self.primary_question()[0].options.all():
+                map_question_type_with(orders, mapped_orders, option)
+        else:
+            map_question_type_with(orders, mapped_orders)

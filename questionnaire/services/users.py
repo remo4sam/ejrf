@@ -29,7 +29,7 @@ class UserQuestionnaireService(object):
     def answer_version(self):
         answers = self.answers_in_questionnaire
         if not answers.exists():
-            return 0
+            return 1
 
         draft_answers = answers.filter(status=Answer.DRAFT_STATUS)
         if draft_answers.exists():

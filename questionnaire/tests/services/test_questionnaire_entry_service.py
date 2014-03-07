@@ -46,7 +46,7 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
         QuestionGroupOrder.objects.create(question=self.question6, question_group=self.question_group3, order=1)
 
         self.country = Country.objects.create(name="Uganda")
-        self.initial = {'status': 'Draft', 'country': self.country}
+        self.initial = {'status': 'Draft', 'country': self.country, 'version':1}
 
     def test_questionnaire_entry_form_formset_size_per_answer_type_should_match_number_of_question_per_answer_type(self):
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
@@ -114,16 +114,16 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
         self.assertEqual(self.question_group3, formsets['Date'][0].initial['group'])
 
     def test_initial_gets_response_if_there_is_draft_answer_for_country(self):
-        question2_answer = TextAnswer.objects.create(question=self.question2, country=self.country,
-                                                               status=Answer.DRAFT_STATUS, response="ayoyoyo")
         question3_answer = NumericalAnswer.objects.create(question=self.question3, country=self.country,
-                                                               status=Answer.DRAFT_STATUS, response=1)
+                                                          status=Answer.DRAFT_STATUS, response=1)
+        question2_answer = TextAnswer.objects.create(question=self.question2, country=self.country,
+                                                     status=Answer.DRAFT_STATUS, response="ayoyoyo")
         answer_group1 = AnswerGroup.objects.create(grouped_question=self.question_group, row=1)
         answer_group1.answer.add(question2_answer, question3_answer)
 
         country_2 = Country.objects.create(name="Uganda 2")
         question1_answer_2 = NumericalAnswer.objects.create(question=self.question1, country=country_2,
-                                                          status=Answer.DRAFT_STATUS, response=23)
+                                                            status=Answer.DRAFT_STATUS, response=23)
         question2_answer_2 = NumericalAnswer.objects.create(question=self.question2, country=country_2,
                                                           status=Answer.DRAFT_STATUS, response=1)
         answer_group_2 = AnswerGroup.objects.create(grouped_question=self.question_group, row=2)
@@ -369,7 +369,8 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         QuestionGroupOrder.objects.create(question=self.question3, question_group=self.question_group, order=3)
         QuestionGroupOrder.objects.create(question=self.question4, question_group=self.question_group, order=4)
         self.country = Country.objects.create(name="Uganda")
-        self.initial = {'country': self.country, 'status': 'Draft', 'version': 1, 'code': 'ABC123'}
+        self.version = 1
+        self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123'}
         self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
                      u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': self.option1.id,
                      u'MultiChoice-1-response': self.option2.id,  u'MultiChoice-2-response': self.option3.id,
@@ -392,20 +393,6 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         self.assertEqual(3, len(formsets['Text']))
         self.assertEqual(3, len(formsets['Date']))
         self.assertEqual(3, len(formsets['MultiChoice']))
-
-    def test_returns_multichoice_question_initial_for_all_question_options(self):
-        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
-        formsets = questionnaire_entry_form._formsets()
-        self.assertEqual(self.option1, formsets['MultiChoice'][0].initial['response'])
-
-        formset_ = questionnaire_entry_form.next_ordered_form(self.question1)
-        self.assertEqual(self.option1, formset_.initial['response'])
-
-        formset_ = questionnaire_entry_form.next_ordered_form(self.question1)
-        self.assertEqual(self.option2, formset_.initial['response'])
-
-        formset_ = questionnaire_entry_form.next_ordered_form(self.question1)
-        self.assertEqual(self.option3, formset_.initial['response'])
 
     def test_returns_save_grid_with_display_all(self):
         data = self.data
@@ -450,3 +437,103 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         self.assertEqual(3, len(formsets['Text']))
         self.assertEqual(3, len(formsets['Date']))
         self.assertEqual(4, len(formsets['MultiChoice']))
+
+    def test_return_with_draft_answers_after_saving_drafts(self):
+        question1_answer = MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=self.option1)
+        question2_answer = TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo")
+        question3_answer = NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=1)
+        answer_group1 = question1_answer.answergroup.create(grouped_question=self.question_group, row=1)
+        answer_group1.answer.add(question2_answer, question3_answer)
+
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
+        formsets = questionnaire_entry_form._formsets()
+
+        self.assertEqual(self.question1, formsets['MultiChoice'][0].initial['question'])
+        self.assertEqual(self.question2, formsets['Text'][0].initial['question'])
+        self.assertEqual(self.question3, formsets['Number'][0].initial['question'])
+        self.assertEqual(self.question4, formsets['Date'][0].initial['question'])
+
+        self.assertEqual(question2_answer.response, formsets['Text'][0].initial['response'])
+        self.assertEqual(question3_answer.response, formsets['Number'][0].initial['response'])
+
+        self.assertIn('response', formsets['MultiChoice'][0].initial.keys())
+        self.assertIn('response', formsets['Number'][0].initial.keys())
+        self.assertIn('response', formsets['Text'][0].initial.keys())
+        self.assertNotIn('response', formsets['Date'][0].initial.keys())
+
+        self.assertEqual(question1_answer.response, formsets['MultiChoice'][0].initial['response'])
+        self.assertEqual(question2_answer.response, formsets['Text'][0].initial['response'])
+        self.assertEqual(question3_answer.response, formsets['Number'][0].initial['response'])
+
+        self.assertIn('answer', formsets['MultiChoice'][0].initial.keys())
+        self.assertIn('answer', formsets['Number'][0].initial.keys())
+        self.assertIn('answer', formsets['Text'][0].initial.keys())
+        self.assertNotIn('answer', formsets['Date'][0].initial.keys())
+
+        self.assertEqual(question1_answer, formsets['MultiChoice'][0].initial['answer'])
+        self.assertEqual(question2_answer, formsets['Text'][0].initial['answer'])
+        self.assertEqual(question3_answer, formsets['Number'][0].initial['answer'])
+
+    def test_return_with_multiple_row_draft_answers_after_saving_drafts(self):
+        question1_answer = []
+        question2_answer = []
+        question3_answer = []
+        answer_group1 = []
+
+        for index, option in enumerate(self.question1.options.order_by('modified')):
+            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=option))
+            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo %d"%index))
+            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=index))
+            answer_group1.append(question1_answer[index].answergroup.create(grouped_question=self.question_group, row=1))
+            answer_group1[index].answer.add(question2_answer[index], question3_answer[index])
+
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
+        formsets = questionnaire_entry_form._formsets()
+
+        for index, option in enumerate(self.question1.options.order_by('modified')):
+            self.assertEqual(question1_answer[index].response, formsets[self.question1.answer_type][index].initial['response'])
+            self.assertEqual(question1_answer[index], formsets[self.question1.answer_type][index].initial['answer'])
+            self.assertEqual(option, formsets[self.question1.answer_type][index].initial['option'])
+
+            for index1, question in enumerate([self.question2, self.question3]):
+                self.assertEqual(eval("question%d_answer[index].response"% (index1 +2)), formsets[question.answer_type][index].initial['response'])
+                self.assertEqual(eval("question%d_answer[index]"% (index1 +2)), formsets[question.answer_type][index].initial['answer'])
+
+    def test_initial_gets_answers_and_responses_after_draft_saved(self):
+        question5 = Question.objects.create(text='question 5', instructions="instruction 5", UID='C00055', answer_type='Date')
+        self.question_group.question.add(question5)
+
+        QuestionGroupOrder.objects.create(question=question5, question_group=self.question_group, order=5)
+        order = self.question_group.orders.order_by('order')
+
+        question1_answer = []
+        question2_answer = []
+        question3_answer = []
+        question4_answer = []
+        question5_answer = []
+        answer_group1 = []
+
+        for index, option in enumerate(self.question1.options.order_by('modified')):
+            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=option, version=self.version))
+            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo %d" % index, version=self.version))
+            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=index, version=self.version))
+            question4_answer.append(DateAnswer.objects.create(question=self.question4, country=self.country, status=Answer.DRAFT_STATUS, response='2007-10-%d' % (index+1), version=self.version))
+            question5_answer.append(DateAnswer.objects.create(question=question5, country=self.country, status=Answer.DRAFT_STATUS, response='2007-11-%d' % (index+1), version=self.version))
+            answer_group1.append(question1_answer[index].answergroup.create(grouped_question=self.question_group, row=1))
+            answer_group1[index].answer.add(question2_answer[index], question3_answer[index], question4_answer[index], question5_answer[index])
+
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
+
+        for index, option in enumerate(self.question1.options.order_by('modified')):
+            order_dict = {'option': option, 'order': order[0]}
+            answer = answer_group1[index].answer.filter(question=self.question1).select_subclasses()[0]
+            initial = {'question': self.question1, 'response': answer.response, 'answer': answer, 'version': self.version,
+                       'group': self.question_group, 'country': self.country, 'option': option, 'code': 'ABC123', 'status': 'Draft'}
+            self.assertEqual(initial, questionnaire_entry_form._initial(order_dict))
+
+            for index1, question in enumerate([self.question2, self.question3, self.question4, question5]):
+                order_dict = {'option': option, 'order': order[index1+1]}
+                answer = answer_group1[index].answer.filter(question=question).select_subclasses()[0]
+                initial = {'question': question, 'response': answer.response, 'answer': answer, 'version': self.version,
+                           'group': self.question_group, 'country': self.country, 'code': 'ABC123', 'status': 'Draft'}
+                self.assertEqual(initial, questionnaire_entry_form._initial(order_dict))

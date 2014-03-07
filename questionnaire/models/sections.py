@@ -20,13 +20,12 @@ class Section(BaseModel):
                 questions.extend([group_question_order.question for group_question_order in orders])
         return questions
 
-    def question_orders(self):
+    def mapped_question_orders(self):
         subsections = self.sub_sections.order_by('order')
-        _orders = []
+        _orders = {type_[0]: [] for type_ in Question.ANSWER_TYPES}
         for subsection in subsections:
             for group in subsection.question_group.order_by('order'):
-                orders = group.get_orders()
-                _orders.extend(orders)
+                group.map_orders_with_answer_type(_orders)
         return _orders
 
     class Meta:

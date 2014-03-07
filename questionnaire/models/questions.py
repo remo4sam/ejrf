@@ -1,6 +1,6 @@
 from django.db import models
 from questionnaire.models.base import BaseModel
-from questionnaire.utils.question_util import largest_uid, stringify
+from questionnaire.utils.model_utils import largest_uid, stringify
 
 
 class Question(BaseModel):
@@ -43,9 +43,9 @@ class Question(BaseModel):
     def has_question_option_instructions(self):
         return self.options.exclude(instructions=None)
 
-    def latest_answer(self, parent_group, country):
+    def latest_answer(self, parent_group, country, version=1):
         answer = self.answers.filter(answergroup__grouped_question=parent_group,
-                                     country=country).select_subclasses()
+                                     country=country, version=version).select_subclasses()
         if answer.exists():
             return answer.latest('modified')
         return None
@@ -60,16 +60,6 @@ class Question(BaseModel):
         if self.is_primary:
             all_options = self.options.order_by('text')
             return all_options[index - 1]
-
-    def get_initial(self, order, option_index=1, country=None):
-        answer = self.latest_answer(order.question_group, country)
-        initial = {'question': self, 'group': order.question_group, 'country': country}
-        if self.is_primary and order.question_group.grid and order.question_group.display_all:
-            initial['response'] = self.get_option_at(option_index)
-        if answer and answer.is_draft():
-            initial['answer'] = answer
-            initial['response'] = answer.format_response()
-        return initial
 
     def is_assigned_to(self, questionnaire):
         return self.question_group.filter(subsection__section__questionnaire=questionnaire).exists()
@@ -87,3 +77,7 @@ class QuestionOption(BaseModel):
 
     def __unicode__(self):
         return "%s" % self.text
+
+    class Meta:
+        ordering = ('modified',)
+        app_label = 'questionnaire'

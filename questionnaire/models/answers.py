@@ -47,7 +47,7 @@ class DateAnswer(Answer):
 
 
 class MultiChoiceAnswer(Answer):
-    response = models.ForeignKey(QuestionOption, null=True)
+    response = models.ForeignKey(QuestionOption, null=True, related_name="answer")
 
     def format_response(self):
         return self.response
