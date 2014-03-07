@@ -1,6 +1,6 @@
 from datetime import date
-from questionnaire.forms.questionnaires import QuestionnaireFilterForm
-from questionnaire.models import Questionnaire
+from questionnaire.forms.questionnaires import QuestionnaireFilterForm, PublishQuestionnaireForm
+from questionnaire.models import Questionnaire, Region, Organization
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -64,3 +64,46 @@ class QuestionnaireFilterFormTest(BaseTest):
             year_option = date.today().year + count
             self.assertIn((year_option, year_option), questionnaire_filter.fields['year'].choices)
         self.assertNotIn((date.today().year + 1, date.today().year + 1), questionnaire_filter.fields['year'].choices)
+
+
+class PublishQuestionnaireFormTest(BaseTest):
+
+    def setUp(self):
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.FINALIZED, year=2013)
+        self.who = Organization.objects.create(name="WHO")
+        self.afro = Region.objects.create(name="The Afro", organization=self.who)
+        self.paho = Region.objects.create(name="The Paho", organization=self.who)
+
+        self.form_data = {
+            'questionnaire': self.questionnaire.id,
+            'regions':[self.paho.id, self.afro.id]}
+
+    def test_valid(self):
+        publish_questionnaire_form = PublishQuestionnaireForm(initial={'questionnaire': self.questionnaire}, data=self.form_data)
+        self.assertTrue(publish_questionnaire_form.is_valid())
+        self.assertIn((self.paho.id, self.paho.name), publish_questionnaire_form.fields['regions'].choices)
+        self.assertIn((self.afro.id, self.afro.name), publish_questionnaire_form.fields['regions'].choices)
+
+    def test_choices_only_has_regions_that_do_not_have_published_questionnaires(self):
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED, year=2013, region=self.afro)
+        data = {'questionnaire': self.questionnaire, 'regions': [self.paho.id]}
+        publish_questionnaire_form = PublishQuestionnaireForm(initial={'questionnaire': self.questionnaire}, data=data)
+        self.assertTrue(publish_questionnaire_form.is_valid())
+        region_choices = [choice for choice in publish_questionnaire_form.fields['regions'].choices]
+        self.assertIn((self.paho.id, self.paho.name), region_choices)
+        self.assertNotIn((self.afro.id, self.afro.name), region_choices)
+
+    def test_creates_copies_regions_on_save(self):
+        Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED, year=2013, region=self.afro)
+        pacific = Region.objects.create(name="haha", organization=self.who)
+        asia = Region.objects.create(name="hehe", organization=self.who)
+
+        data = {'questionnaire': self.questionnaire, 'regions': [self.paho.id, pacific.id, asia.id]}
+
+        publish_questionnaire_form = PublishQuestionnaireForm(initial={'questionnaire': self.questionnaire}, data=data)
+        self.assertTrue(publish_questionnaire_form.is_valid())
+        publish_questionnaire_form.save()
+        questionnaires = Questionnaire.objects.filter(year=self.questionnaire.year)
+        self.assertEqual(5, questionnaires.count())
+        [self.assertEqual(1, region.questionnaire.all().count()) for region in [self.paho, pacific, asia]]
+        self.assertEqual(1, self.afro.questionnaire.all().count())

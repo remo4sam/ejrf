@@ -4,8 +4,9 @@ from questionnaire.utils.cloner_util import create_copies
 
 
 class QuestionnaireClonerService(object):
-    def __init__(self, questionnaire):
+    def __init__(self, questionnaire, region=None):
         self.questionnaire = questionnaire
+        self.region =region
         self.original_questionnaire = copy.deepcopy(self.questionnaire)
         self.sections = None
         self.sub_sections = None
@@ -14,6 +15,7 @@ class QuestionnaireClonerService(object):
     def clone(self):
         self.questionnaire.pk = None
         self.questionnaire.status = Questionnaire.DRAFT
+        self.questionnaire.region = self.region
         self.questionnaire.save()
         self.sections = self._clone_sections()
         self.sub_sections = self._clone_sub_sections()

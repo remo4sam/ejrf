@@ -1,6 +1,8 @@
 from datetime import date
 from django import forms
-from questionnaire.models import Questionnaire
+from django.forms import ModelForm
+from questionnaire.models import Questionnaire, Region
+from questionnaire.services.questionnaire_cloner import QuestionnaireClonerService
 
 
 class QuestionnaireFilterForm(forms.Form):
@@ -26,5 +28,23 @@ class QuestionnaireFilterForm(forms.Form):
         return choices
 
 
-class QuestionnairePublishFilterForm(forms.Form):
-    pass
+class PublishQuestionnaireForm(forms.Form):
+    regions = forms.ModelMultipleChoiceField(queryset=Region.objects.none(),
+                                             widget=forms.Select(attrs={"class": 'form-control'}), required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(PublishQuestionnaireForm, self).__init__(*args, **kwargs)
+        self.fields['regions'].queryset = self._set_region_choices()
+
+    def _set_region_choices(self):
+        questionnaire = self.initial.get('questionnaire', None)
+        regions = Region.objects.all()
+        regions_with_questionnaire = Questionnaire.objects.filter(year=questionnaire.year, region__isnull=False).values_list('region', flat=True)
+        if questionnaire:
+            return regions.exclude(id__in=regions_with_questionnaire)
+        return regions
+
+    def save(self):
+        regions = self.cleaned_data['regions']
+        for region in regions:
+            QuestionnaireClonerService(self.initial['questionnaire'], region).clone()
