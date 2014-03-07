@@ -44,8 +44,8 @@ class SectionTest(BaseTest):
     def test_section_fields(self):
         section = Section()
         fields = [str(item.attname) for item in section._meta.fields]
-        self.assertEqual(8, len(fields))
-        for field in ['id', 'created', 'modified', 'title', 'order', 'questionnaire_id', 'name', 'description']:
+        self.assertEqual(9, len(fields))
+        for field in ['id', 'created', 'modified', 'title', 'order', 'questionnaire_id', 'name', 'description', 'region_id']:
             self.assertIn(field, fields)
 
     def test_section_store(self):
@@ -54,6 +54,7 @@ class SectionTest(BaseTest):
         self.assertEqual("im cover", self.section.name)
         self.assertEqual("section description", self.section.description)
         self.assertEqual(self.questionnaire, self.section.questionnaire)
+        self.assertIsNone(self.section.region)
 
     def test_should_order_questions(self):
         questions = self.section.ordered_questions()

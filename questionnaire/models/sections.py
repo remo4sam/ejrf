@@ -10,6 +10,7 @@ class Section(BaseModel):
     order = models.IntegerField(blank=False, null=False)
     description = models.TextField(blank=True, null=True)
     questionnaire = models.ForeignKey(Questionnaire, blank=False, null=False, related_name="sections")
+    region = models.ForeignKey("Region", blank=False, null=True, related_name="sections")
 
     def ordered_questions(self):
         subsections = self.sub_sections.order_by('order')
