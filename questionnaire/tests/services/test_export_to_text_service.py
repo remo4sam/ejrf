@@ -48,9 +48,9 @@ class ExportToTextServiceTest(BaseTest):
         question_text = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.primary_question.text)
         question_text1 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question1.text)
         question_text_2 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question2.text)
-        answer_id = "R_%s_%s_%s" % (self.primary_question.UID, self.primary_question.UID, self.option.UID)
-        answer_id_1 = "R_%s_%s_1" % (self.primary_question.UID, self.question1.UID)
-        answer_id_2 = "R_%s_%s_%d_1" % (self.primary_question.UID, self.question1.UID, 1)
+        answer_id = "C_%s_%s_%s" % (self.primary_question.UID, self.primary_question.UID, self.option.UID)
+        answer_id_1 = "C_%s_%s_1" % (self.primary_question.UID, self.question1.UID)
+        answer_id_2 = "C_%s_%s_%d_1" % (self.primary_question.UID, self.question1.UID, 1)
         expected_data = [self.headings,
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id.encode('base64').strip(), question_text, self.option.text),
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_1.encode('base64').strip(), question_text1, '23.00'),
@@ -74,12 +74,12 @@ class ExportToTextServiceTest(BaseTest):
         question_text = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.primary_question.text)
         question_text1 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question1.text)
         question_text_2 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question2.text)
-        answer_id = "R_%s_%s_%s" % (self.primary_question.UID, self.primary_question.UID, self.option.UID)
-        answer_id_1 = "R_%s_%s_1" % (self.primary_question.UID, self.question1.UID)
-        answer_id_2 = "R_%s_%s_1" % (self.primary_question.UID, self.question2.UID)
-        answer_id_10 = "R_%s_%s_%s" % (self.primary_question.UID, self.primary_question.UID, self.option2.UID)
-        answer_id_11 = "R_%s_%s_2" % (self.primary_question.UID, self.question1.UID)
-        answer_id_21 = "R_%s_%s_2" % (self.primary_question.UID, self.question2.UID)
+        answer_id = "C_%s_%s_%s" % (self.primary_question.UID, self.primary_question.UID, self.option.UID)
+        answer_id_1 = "C_%s_%s_1" % (self.primary_question.UID, self.question1.UID)
+        answer_id_2 = "C_%s_%s_1" % (self.primary_question.UID, self.question2.UID)
+        answer_id_10 = "C_%s_%s_%s" % (self.primary_question.UID, self.primary_question.UID, self.option2.UID)
+        answer_id_11 = "C_%s_%s_2" % (self.primary_question.UID, self.question1.UID)
+        answer_id_21 = "C_%s_%s_2" % (self.primary_question.UID, self.question2.UID)
         expected_data = [self.headings,
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id.encode('base64').strip(), question_text, self.option.text),
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_1.encode('base64').strip(), question_text1, '23.00'),
@@ -114,7 +114,7 @@ class ExportToTextServiceTest(BaseTest):
         answer_group1.answer.add(answer1)
 
         question_text = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, question.text)
-        answer_id = "R_%s_%s_1" % (question.UID, question.UID)
+        answer_id = "C_%s_%s_1" % (question.UID, question.UID)
 
         expected_data = [self.headings,
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id.encode('base64').strip(), question_text, 'tusker lager')]

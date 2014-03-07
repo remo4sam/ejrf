@@ -19,12 +19,16 @@ class Question(BaseModel):
     instructions = models.TextField(blank=True, null=True)
     UID = models.CharField(blank=False, null=False, max_length=6, unique=True)
     answer_type = models.CharField(blank=False, null=False, max_length=20, choices=ANSWER_TYPES)
-    is_core = models.BooleanField(blank=False, null=False, default=False)
+    region = models.ForeignKey("Region", blank=False, null=True, related_name="questions")
     is_primary = models.BooleanField(blank=False, null=False, default=False)
     is_required = models.BooleanField(blank=False, null=False, default=False)
 
     def all_answers(self):
         return self.answers.filter(status='Submitted').order_by('answergroup__id').select_subclasses()
+
+    @property
+    def is_core(self):
+        return not self.region
 
     def __unicode__(self):
         return "%s" % self.text

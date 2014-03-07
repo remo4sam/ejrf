@@ -66,8 +66,8 @@ class ExportToTextViewTest(BaseTest):
 
         question_text1 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question1.text)
         question_text_2 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question2.text)
-        answer_id_1 = "R_%s_%s_1" % (self.question1.UID, self.question1.UID)
-        answer_id_2 = "R_%s_%s_%d" % (self.question1.UID, self.question2.UID, 1)
+        answer_id_1 = "C_%s_%s_1" % (self.question1.UID, self.question1.UID)
+        answer_id_2 = "C_%s_%s_%d" % (self.question1.UID, self.question2.UID, 1)
         headings = "ISO\tCountry\tYear\tField code\tQuestion text\tValue"
         row1 = "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_1.encode('base64').strip(), question_text1, '23.00')
         row2 = "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_2.encode('base64').strip(), question_text_2, '1.00')

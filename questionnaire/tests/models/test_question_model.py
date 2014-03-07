@@ -45,7 +45,7 @@ class QuestionTest(BaseTest):
         fields = [str(item.attname) for item in question._meta.fields]
         self.assertEqual(11, len(fields))
         for field in ['id', 'created', 'modified', 'text', 'instructions', 'UID', 'answer_type',
-                      'is_core', 'is_primary', 'is_required', 'export_label']:
+                      'region_id', 'is_primary', 'is_required', 'export_label']:
             self.assertIn(field, fields)
 
     def test_question_store(self):
@@ -54,7 +54,8 @@ class QuestionTest(BaseTest):
         self.assertEqual('Uganda Revision 2014 what what?', question.text)
         self.assertIsNone(question.instructions)
         self.assertEqual('abc123', question.UID)
-        self.assertFalse(question.is_core)
+        self.assertIsNone(question.region)
+        self.assertTrue(question.is_core)
         self.assertFalse(question.is_primary)
         self.assertFalse(question.is_required)
 
