@@ -44,7 +44,6 @@
                 <div class="panel-body">
                     <ul class="list-group">
                         {% for questionnaire in finalized_questionnaires %}
-{#                            {% include 'base/modals/ajax_modal.html' with action_url=questionnaire.id|get_url_with_ids:"publish_questionnaire_page" object=questionnaire  action="publish_questionnaire" modal_title="Send Questionnaire to Regions"  btn_label="SEND" class="publish_questionnaire"%}#}
                             <li class="list-group-item{%if  forloop.counter > 3 %} hide{% endif %}">
                                 {% with questionnaire.sections.all|first as first_section %}
                                     <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
@@ -70,9 +69,9 @@
         <div class="col-md-12">
             <h2>Regional template adaptations:</h2>
         </div>
-        {% for region in who_regions %}
+        {% for region in regions %}
             <div class="col-md-12 indent">
-                <h3>{{ region.name }}:</h3>
+                <h6>{{ region.name }} :</h6>
             </div>
             <div class="col-md-6">
                 <div class="panel panel-default">
@@ -81,8 +80,12 @@
                     </div>
                     <div class="panel-body">
                         <ul class="list-group">
-                            <li class="list-group-item">
-                            </li>
+                            {% get_questionnaire_from region regions_questionnaire_map=regions_questionnaire_map status='drafts' as drafts%}
+                            {% for questionnaire in drafts %}
+                                {% with questionnaire.sections.all|first as first_section %}
+                                    <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                {% endwith %}
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
@@ -94,8 +97,12 @@
                     </div>
                     <div class="panel-body">
                         <ul class="list-group">
-                            <li class="list-group-item">
-                            </li>
+                            {% get_questionnaire_from region regions_questionnaire_map=regions_questionnaire_map status='finalized' as finalized_questionnaires%}
+                            {% for questionnaire in finalized_questionnaires %}
+                                {% with questionnaire.sections.all|first as first_section %}
+                                    <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                {% endwith %}
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>

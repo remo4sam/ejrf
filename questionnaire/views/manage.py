@@ -21,6 +21,7 @@ class ManageJRF(MultiplePermissionsRequiredMixin, View):
                    'draft_questionnaires': core_questionnaires.filter(status=Questionnaire.DRAFT),
                    'filter_form': QuestionnaireFilterForm(),
                    'regions_questionnaire_map': self.map_region_with_questionnaires(),
+                   'regions': self.regions,
                    'btn_label': 'Duplicate',
                    'action': reverse('duplicate_questionnaire_page')}
         return render(self.request, self.template_name, context)

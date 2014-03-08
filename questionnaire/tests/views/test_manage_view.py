@@ -41,7 +41,6 @@ class ManageJRFViewTest(BaseTest):
         self.assertEqual(reverse('duplicate_questionnaire_page'), response.context['action'])
 
         question_map = response.context['regions_questionnaire_map']
-
         self.assertEqual(questionnaire2, question_map[self.paho]['drafts'][0])
         self.assertEqual(questionnaire1, question_map[self.paho]['finalized'][0])
 

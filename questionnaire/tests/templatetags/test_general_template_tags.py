@@ -1,4 +1,4 @@
-from questionnaire.templatetags.generic_tags import display_list, bootstrap_message, get_url_with_ids, divide_to_paginate, ASSIGN_QUESTION_PAGINATION_SIZE, add_string
+from questionnaire.templatetags.generic_tags import display_list, bootstrap_message, get_url_with_ids, divide_to_paginate, ASSIGN_QUESTION_PAGINATION_SIZE, add_string, get_questionnaire_from
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -27,3 +27,7 @@ class GeneralTemplateTagTest(BaseTest):
     def test_should_return_concatenated_ints_in_a_single_string(self):
         self.assertEqual('1, 2', add_string(1,2))
         self.assertEqual('1, 2', add_string('1','2'))
+
+    def test_should_get_alist_of_questionnaires_given_a_dict_of_region_and_questionnaires(self):
+        expected_input = {'region': {'drafts': ["Questuinnaire 1"], 'finalized': ["Questionnaire 2"]}}
+        self.assertEqual(["Questionnaire 2"], get_questionnaire_from('region', regions_questionnaire_map=expected_input, status='finalized'))

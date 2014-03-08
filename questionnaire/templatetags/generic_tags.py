@@ -26,14 +26,20 @@ def get_url_with_ids(args, url_name):
         return reverse(url_name, args=arg_list)
     return reverse(url_name, args=(args,))
 
+
 @register.filter
 def divide_to_paginate(questions):
-    size_of_paginated = 1 + len(questions)/ ASSIGN_QUESTION_PAGINATION_SIZE
-    paginated = [questions[i* ASSIGN_QUESTION_PAGINATION_SIZE:(i+1)* ASSIGN_QUESTION_PAGINATION_SIZE] for i in range(size_of_paginated)]
+    size_of_paginated = 1 + len(questions)/ASSIGN_QUESTION_PAGINATION_SIZE
+    paginated = [questions[i * ASSIGN_QUESTION_PAGINATION_SIZE:(i+1) * ASSIGN_QUESTION_PAGINATION_SIZE] for i in range(size_of_paginated)]
     return paginated
+
 
 @register.filter
 def add_string(int_1, int_2):
-   return "%s, %s"%(str(int_1), str(int_2))
+    return "%s, %s" % (str(int_1), str(int_2))
 
 
+@register.assignment_tag
+def get_questionnaire_from(region, **kwargs):
+    region_questionnaire_map = kwargs['regions_questionnaire_map']
+    return region_questionnaire_map[region][kwargs['status']]
