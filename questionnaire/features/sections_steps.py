@@ -36,13 +36,12 @@ def then_i_should_see_a_new_section_modal(step):
 
 @step(u'When i fill in the section data')
 def when_i_fill_in_the_section_data(step):
-    data = {'title': 'Some title',
-            'description': 'some description'}
-
-    world.page.fill_form(data)
-    sleep(3)
     world.page.fill_form({'name': 'Some section'})
-
+    sleep(5)
+    world.page.fill_form({'title': 'Some title'})
+    sleep(5)
+    world.page.fill_form({'description': 'some description'})
+    sleep(5)
 
 @step(u'Then I should see the section I created')
 def then_i_should_see_the_section_i_created(step):
@@ -52,8 +51,8 @@ def then_i_should_see_the_section_i_created(step):
 
 @step(u'And I save the section')
 def and_i_save_the_section(step):
-    world.page.fill_form({'name': 'Some section'})
     world.page.click_by_id('save-new-section-modal')
+    sleep(5)
 
 @step(u'And I fill in invalid data')
 def and_i_fill_in_invalid_data(step):
@@ -95,19 +94,32 @@ def and_i_should_see_the_changes_i_made_to_the_section_in_the_questionnaire(step
     world.page.is_text_present('New Section Name')
     world.page.is_text_present('New Section Title')
 
-@step(u'And I choose to delete a section')
+@step(u'Then I should see an option to delete each section')
+def then_i_should_see_an_option_to_delete_each_section(step):
+   world.page.is_element_present_by_id('id-delete-section-%s' % world.section_1.id)
+   world.page.is_element_present_by_id('id-delete-section-%s' % world.section_2.id)
+
+@step(u'When I choose to delete a section')
 def when_i_choose_to_delete_a_section(step):
-    world.page.click_by_id('id-delete-section-%s' % world.section1.id)
+    world.page.click_by_id('id-delete-section-%s' % world.section_2.id)
 
-@step(u'Then I should see a confirmation dialog')
-def then_i_should_see_a_confirmation_dialog(step):
+@step(u'Then I should see a confirmation message')
+def then_i_should_see_a_confirmation_message(step):
     world.page.is_text_present('Delete Section')
+    world.page.is_text_present('Are you sure you want to delete this section')
 
-@step(u'When I confirm that I want to delete')
-def when_i_confirm_that_i_want_to_delete(step):
-    world.page.click_by_id('confirm-delete-%s' % world.section1.id)
+@step(u'When I confirm the deletion')
+def when_i_confirm_the_deletion(step):
+    world.page.click_by_id('confirm-delete-%s' % world.section_2.id)
 
 @step(u'Then I should see a message that the section was deleted')
 def then_i_should_see_a_message_that_the_section_was_deleted(step):
-    world.page.is_text_present('Section successfully deleted.')
-    world.page.is_element_present_by_css('.alert-success')
+    world.page.is_text_present('Section successfully deleted')
+
+@step(u'And the section should no longer appear in the Questionnaire')
+def and_the_section_should_no_longer_appear_in_the_questionnaire(step):
+    world.page.is_text_present(world.section_2.name, status=False)
+
+@step(u'And the section numbering should be updated')
+def and_the_section_numbering_should_be_updated(step):
+    assert False, 'This step must be implemented'

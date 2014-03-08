@@ -30,11 +30,14 @@ Feature: Section feature
         Then I should see a message that the section was updated
         And I should see the changes I made to the section in the questionnaire
 
-    Scenario: Delete a Section
+    Scenario: Delete Section in Core Questionnaire
         Given I am logged in as a global admin
-        And I have a questionnaire with sections and with subsections
-        When I open that questionnaire for editing
-        And I choose to delete a section
-        Then I should see a confirmation dialog
-        When I confirm that I want to delete
+        And I have a questionnaire with sections and subsections
+        And I visit that questionnaires section page
+        Then I should see an option to delete each section
+        When I choose to delete a section
+        Then I should see a confirmation message
+        When I confirm the deletion
         Then I should see a message that the section was deleted
+        And the section should no longer appear in the Questionnaire
+        #And the section numbering should be updated
