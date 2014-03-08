@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.test import Client
-from questionnaire.forms.questionnaires import QuestionnaireFilterForm
+from questionnaire.forms.questionnaires import QuestionnaireFilterForm, PublishQuestionnaireForm
 from questionnaire.models import Questionnaire, Section, Organization, Region
 from questionnaire.tests.base_test import BaseTest
 
@@ -10,22 +10,43 @@ class ManageJRFViewTest(BaseTest):
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.who = Organization.objects.create(name="WHO")
+        self.unicef = Organization.objects.create(name="UNICEF")
+        self.paho = Region.objects.create(name="The Paho", organization=self.who)
+        self.pacific = Region.objects.create(name="haha", organization=self.who)
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
-    def test_get(self):
-        questionnaire1 = Questionnaire.objects.create(name="JRF Jamaica", description="bla", year=2012, status=Questionnaire.FINALIZED)
-        questionnaire2 = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.DRAFT)
+    def test_get_returns_only_core_and_region_specific_questionnaires(self):
+        core1 = Questionnaire.objects.create(name="JRF Jamaica core", description="bla", year=2012,
+                                             status=Questionnaire.FINALIZED)
+        core2 = Questionnaire.objects.create(name="JRF Brazil core", description="bla", year=2013,
+                                             status=Questionnaire.DRAFT)
+        questionnaire1 = Questionnaire.objects.create(name="JRF Jamaica paho", description="bla", year=2012,
+                                                      status=Questionnaire.FINALIZED, region=self.paho)
+        questionnaire2 = Questionnaire.objects.create(name="JRF Brazil Paho", description="bla", year=2013,
+                                                      status=Questionnaire.DRAFT, region=self.paho)
+        Section.objects.create(title="section", order=1, questionnaire=core2, name="section")
+        Section.objects.create(title="section", order=1, questionnaire=core1, name="section")
         Section.objects.create(title="section", order=1, questionnaire=questionnaire1, name="section")
         Section.objects.create(title="section", order=1, questionnaire=questionnaire2, name="section")
+
         response = self.client.get("/manage/")
         self.assertEqual(200, response.status_code)
         templates = [template.name for template in response.templates]
         self.assertIn('home/global/index.html', templates)
-        self.assertIn(questionnaire1, response.context['finalized_questionnaires'])
-        self.assertIn(questionnaire2, response.context['draft_questionnaires'])
+        self.assertIn(core1, response.context['finalized_questionnaires'])
+        self.assertIn(core2, response.context['draft_questionnaires'])
         self.assertIsInstance(response.context['filter_form'], QuestionnaireFilterForm)
         self.assertEqual(reverse('duplicate_questionnaire_page'), response.context['action'])
+
+        question_map = response.context['regions_questionnaire_map']
+
+        self.assertEqual(questionnaire2, question_map[self.paho]['drafts'][0])
+        self.assertEqual(questionnaire1, question_map[self.paho]['finalized'][0])
+
+        self.assertEqual(0, len(question_map[self.pacific]['drafts']))
+        self.assertEqual(0, len(question_map[self.pacific]['finalized']))
 
 
 class FinalizeQuestionnaireViewTest(BaseTest):
@@ -96,3 +117,12 @@ class PublishQuestionnaireToRegionsViewTest(BaseTest):
         self.assertRedirects(response, reverse('manage_jrf_page'))
         message = "Questionnaire could not be published see errors below"
         self.assertIn(message, response.cookies['messages'].value)
+
+    def test_get_publish(self):
+        response = self.client.get("/questionnaire/%d/publish/" % self.questionnaire.id)
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn('questionnaires/_publish.html', templates)
+        self.assertEqual(self.questionnaire, response.context['questionnaire'])
+        self.assertIsInstance(response.context['publish_form'], PublishQuestionnaireForm)
+        self.assertEqual( "Publish", response.context['btn_label'])

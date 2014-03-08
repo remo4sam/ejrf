@@ -23,7 +23,7 @@ class Home(MultiplePermissionsRequiredMixin, View):
         return self._render_questionnaire_does_not_exist()
 
     def _render_questionnaire_does_not_exist(self):
-        message = "Sorry, There are no published questionnaires at the moment"
+        message = "Sorry, The JRF is not yet published at the moment"
         messages.error(self.request, message)
         return render(self.request, self.template_name)
 

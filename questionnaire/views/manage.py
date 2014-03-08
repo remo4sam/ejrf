@@ -1,9 +1,9 @@
-from braces.views import MultiplePermissionsRequiredMixin
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.views.generic import View
+from braces.views import MultiplePermissionsRequiredMixin
 from questionnaire.forms.questionnaires import QuestionnaireFilterForm
-from questionnaire.models import Organization, Questionnaire, Region
+from questionnaire.models import Questionnaire, Region
 
 
 class ManageJRF(MultiplePermissionsRequiredMixin, View):
@@ -13,16 +13,23 @@ class ManageJRF(MultiplePermissionsRequiredMixin, View):
         super(ManageJRF, self).__init__(**kwargs)
         self.template_name = 'home/global/index.html'
         self.questionnaires = Questionnaire.objects.all().order_by('-year')
-
-        self.who_regions = Region.objects.filter(organization__name='WHO').order_by('name')
-        self.unicef_regions = Region.objects.filter(organization__name='UNICEF').order_by('name')
+        self.regions = Region.objects.filter(organization__name='WHO').order_by('name')
 
     def get(self, *args, **kwargs):
-        context = {'finalized_questionnaires': self.questionnaires.filter(status=Questionnaire.FINALIZED),
-                   'draft_questionnaires': self.questionnaires.filter(status=Questionnaire.DRAFT),
+        core_questionnaires = self.questionnaires.filter(region__isnull=True)
+        context = {'finalized_questionnaires': core_questionnaires.filter(status=Questionnaire.FINALIZED),
+                   'draft_questionnaires': core_questionnaires.filter(status=Questionnaire.DRAFT),
                    'filter_form': QuestionnaireFilterForm(),
-                   'who_regions': self.who_regions,
-                   'unicef_regions': self.unicef_regions,
+                   'regions_questionnaire_map': self.map_region_with_questionnaires(),
                    'btn_label': 'Duplicate',
                    'action': reverse('duplicate_questionnaire_page')}
         return render(self.request, self.template_name, context)
+
+    def map_region_with_questionnaires(self):
+        questionnaire_region_map = {}
+        regional_questionnaires = self.questionnaires.filter(region__isnull=False)
+        for region in self.regions:
+            regional = {region: {'finalized': regional_questionnaires.filter(region=region, status=Questionnaire.FINALIZED),
+                        'drafts': regional_questionnaires.filter(region=region, status=Questionnaire.DRAFT)}}
+            questionnaire_region_map.update(regional)
+        return questionnaire_region_map

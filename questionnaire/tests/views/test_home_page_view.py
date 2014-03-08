@@ -34,7 +34,7 @@ class HomePageViewTest(BaseTest):
         self.assertEqual(200, response.status_code)
         templates = [template.name for template in response.templates]
         self.assertIn('home/index.html', templates)
-        message = "Sorry, There are no published questionnaires at the moment"
+        message = "Sorry, The JRF is not yet published at the moment"
         self.assertIn(message, str(response.content))
 
     def test_login_required_for_home_get(self):

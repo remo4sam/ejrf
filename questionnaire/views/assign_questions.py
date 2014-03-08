@@ -1,10 +1,10 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import View, DeleteView
+from django.views.generic import View
+from braces.views import PermissionRequiredMixin
 from questionnaire.forms.assign_question import AssignQuestionForm
 from questionnaire.models import SubSection, Question
-from braces.views import PermissionRequiredMixin
 
 
 class AssignQuestion(PermissionRequiredMixin, View):

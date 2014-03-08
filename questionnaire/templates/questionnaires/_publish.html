@@ -1,0 +1,7 @@
+{% extends 'base/form.html' %}
+{% block title %}
+    Publish Questionnaire : {{ questionnaire.name }}
+{% endblock %}
+{% block display_form_fields %}
+    {% include 'base/naked_form.html' with a_form=publish_form %}
+{% endblock %}

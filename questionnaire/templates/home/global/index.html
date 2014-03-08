@@ -50,7 +50,7 @@
                                     <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                 {% endwith %}
                                 <span class="pull-right">
-                                    <a href="" class="btn btn-default btn-xs" data-toggle="modal" data-target="#publish-questionnaire-{{ questionnaire.id }}" id="id-publish-questionnaire-{{ questionnaire.id }}">
+                                    <a href="{% url 'publish_questionnaire_page' questionnaire.id %}" class="btn btn-default btn-xs"  id="id-publish-questionnaire-{{ questionnaire.id }}">
                                         <span class="glyphicon glyphicon-send"></span> Send to Regions
                                     </a>
                                     <a class="btn btn-xs btn-default" id="id-unfinalize-{{ questionnaire.id }}" post="true" phref="/questionnaire/{{ questionnaire.id }}/unfinalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_unlock.png"></span></a>

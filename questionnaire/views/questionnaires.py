@@ -1,5 +1,6 @@
-from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.shortcuts import render
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 from django.views.generic import View
@@ -142,6 +143,14 @@ class UnfinalizeQuestionnaire(View):
 
 
 class PublishQuestionnaire(View):
+    template_name = 'questionnaires/_publish.html'
+
+    def get(self, *args, **kwargs):
+        questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
+        form = PublishQuestionnaireForm(initial={'questionnaire': questionnaire})
+        context = {'questionnaire': questionnaire, 'publish_form': form, 'btn_label': "Publish"}
+        return render(self.request, self.template_name, context)
+
     def post(self, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
         form = PublishQuestionnaireForm(initial={'questionnaire': questionnaire}, data=self.request.POST)
