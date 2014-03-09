@@ -78,8 +78,10 @@ class PageObject(object):
     def is_element_present_by_value(self, value):
         self.browser.is_element_present_by_value(value)
 
-    def is_element_present_by_id(self, element_id):
-        self.browser.is_element_present_by_id(element_id)
+    def is_element_present_by_id(self, id):
+        found = self.browser.find_by_id(id)
+        if len(found)==0: return False
+        else: return True
 
     def confirm_delete(self, model):
         self.is_text_present("Confirm Delete", "Are you sure you want to delete this %s?" % model)
