@@ -31,3 +31,19 @@ Feature: Manage JRF
         Then I should see a message that the questionnaire was duplicated successfully
         When I visit the manage JRF page
         Then I should see the new questionnaire listed
+
+    Scenario: Global Admin locking and unlocking a Core Questionnaire
+        Given I am a logged-in Global Admin
+        And I have draft and finalised core questionnaires
+        And I visit the manage JRF page
+        Then I should see an option to lock each draft Core Questionnaire
+        And I should see an option to unlock each finalised Core Questionnaire
+        When I lock a draft Core Questionnaire
+        Then it should now have an option to unlock it
+        When I unlock a finalised Core Questionnaire
+        Then it should now have an option to lock it
+        When I click on a Draft Core Questionnaire
+        Then it should open in an edit view
+        When I visit the manage JRF page
+        And I click on a Finalised Core Questionnaire
+        #Then it should open in a preview mode

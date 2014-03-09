@@ -99,3 +99,61 @@ def then_i_should_see_the_new_questionnaire_listed(step):
 def then_i_should_a_validation_error_message(step):
     world.page.is_element_present_by_css('.error')
     world.page.is_text_present('This field is required.')
+
+@step(u'And I have draft and finalised core questionnaires')
+def and_i_have_draft_and_finalised_core_questionnaires(step):
+    world.questionnaire1 = Questionnaire.objects.create(name="Questionnaire1", description="Section 1 Description",
+                                                        year=2010, status=Questionnaire.FINALIZED)
+    Section.objects.create(title="Section1", order=0, questionnaire=world.questionnaire1, name="Section 1 Name")
+    world.questionnaire2 = Questionnaire.objects.create(name="Questionnaire2", description="Section 1 Description",
+                                                        year=2011, status=Questionnaire.FINALIZED)
+    Section.objects.create(title="Section1", order=0, questionnaire=world.questionnaire2, name="Section 1 Name")
+    world.questionnaire3 = Questionnaire.objects.create(name="Questionnaire3", description="Section 1 Description",
+                                                        year=2012, status=Questionnaire.DRAFT)
+    Section.objects.create(title="Section1", order=0, questionnaire=world.questionnaire3, name="Section 1 Name")
+    world.questionnaire4 = Questionnaire.objects.create(name="Questionnaire4", description="Section 1 Description",
+                                                        year=2013, status=Questionnaire.DRAFT)
+    Section.objects.create(title="Section1", order=0, questionnaire=world.questionnaire4, name="Section 1 Name")
+
+@step(u'Then I should see an option to lock each draft Core Questionnaire')
+def then_i_should_see_an_option_to_lock_each_draft_core_questionnaire(step):
+    assert(world.page.is_element_present_by_id('id-finalize-%s' % world.questionnaire3.id))
+    assert(world.page.is_element_present_by_id('id-finalize-%s' % world.questionnaire4.id))
+
+@step(u'And I should see an option to unlock each finalised Core Questionnaire')
+def and_i_should_see_an_option_to_unlock_each_finalised_core_questionnaire(step):
+    assert(world.page.is_element_present_by_id('id-unfinalize-%s' % world.questionnaire1.id))
+    assert(world.page.is_element_present_by_id('id-unfinalize-%s' % world.questionnaire2.id))
+
+@step(u'When I lock a draft Core Questionnaire')
+def when_i_lock_a_draft_core_questionnaire(step):
+    world.page.click_by_id('id-finalize-%s' % world.questionnaire3.id)
+
+@step(u'Then it should now have an option to unlock it')
+def then_it_should_now_have_an_option_to_unlock_it(step):
+    world.page.click_by_id('id-unfinalize-%s' % world.questionnaire3.id)
+
+@step(u'When I unlock a finalised Core Questionnaire')
+def when_i_unlock_a_finalised_core_questionnaire(step):
+    world.page.click_by_id('id-unfinalize-%s' % world.questionnaire1.id)
+
+@step(u'Then it should now have an option to lock it')
+def then_it_should_now_have_an_option_to_lock_it(step):
+    world.page.click_by_id('id-finalize-%s' % world.questionnaire1.id)
+
+@step(u'When I click on a Draft Core Questionnaire')
+def when_i_click_on_a_draft_core_questionnaire(step):
+    world.page.click_by_id('questionnaire-%s' % world.questionnaire4.id)
+
+@step(u'Then it should open in an edit view')
+def then_it_should_open_in_an_edit_view(step):
+    world.page.is_text_present('New Section')
+    world.page.is_text_present('New Subsection')
+
+@step(u'I click on a Finalised Core Questionnaire')
+def when_i_click_on_a_finalised_core_questionnaire(step):
+    world.page.click_by_id('questionnaire-%s' % world.questionnaire2.id)
+
+@step(u'Then it should open in a preview mode')
+def then_it_should_open_in_a_preview_mode(step):
+    world.page.is_text_present('Preview Questionnaire')
