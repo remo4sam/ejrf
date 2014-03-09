@@ -33,7 +33,7 @@
         {% include 'base/modals/_create.html' with a_form=form action=action modal_id="new-section-modal" modal_title="New Section" %}
         <div class="form-content">
             <h3 class="button-padding">{{ section.order }}. {{ section.title | safe }}
-                {% if perms.auth.can_edit_questionnaire %}
+                {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
                     <a href="" id="new-subsection" class="btn btn-default pull-right" data-toggle="modal"
                        data-target="#new-subsection-modal"><span class="cyan"><span
                             class="glyphicon glyphicon-plus-sign"></span> New Subsection</span></a>
@@ -56,7 +56,7 @@
                 {% for subsection in section.sub_sections.all %}
                     <h4 class="button-padding">{% if section.has_at_least_two_subsections %}{{ section.order }}.{{ subsection.order }}
                         .{% endif %} {{ subsection.title }}
-                        {% if perms.auth.can_edit_questionnaire %}
+                        {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
                         <div class="btn-group pull-right">
                             <a href=""  id="id-assign-{{ subsection.id }}" class="btn btn-sm btn-default" data-toggle="modal" data-target="#assign-question-modal-{{ subsection.id }}">
                                 <span class="cyan"><span class="glyphicon glyphicon-plus-sign"></span> Assign Question</span>
@@ -134,7 +134,7 @@
 
                                         </div>
                                         <div class="unassign-question-div">
-                                            {% if perms.auth.can_edit_questionnaire %}
+                                            {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
                                                 <a href="" class="unassign-question pull-right red" data-toggle="modal"
                                                     data-target="#unassign-question-modal-{{ order.question.id }}" id="unassign-question-{{ order.question.id }}">
                                                     <i class="glyphicon glyphicon-remove-circle red"></i>
@@ -171,7 +171,7 @@
             </form>
         </div>
     </div>
-    {% if perms.auth.can_edit_questionnaire %}
+    {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
         {% for subsection_ in section.sub_sections.all %}
             {% include 'base/modals/ajax_modal.html' with action_url=subsection_.id|get_url_with_ids:"edit_subsection_page" object=subsection_  action="edit_subsection" modal_title="Edit SubSection"  btn_label="SAVE" class="edit_subsection"%}
             {% include 'base/modals/_delete.html' with object_type='Subsection' title='Confirm Delete' action="delete" url=subsection_.id|get_url_with_ids:"delete_subsection_page" object=subsection_ confirm='Yes' %}

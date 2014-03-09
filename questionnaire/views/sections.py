@@ -28,11 +28,11 @@ class NewSection(RegionAndPermissionRequiredMixin, CreateView):
         section.order = Section.get_next_order(form.cleaned_data['questionnaire'])
         section.region = self.request.user.user_profile.region
         section.save()
-        messages.success(self.request,"Section created successfully" )
+        messages.success(self.request, "Section created successfully")
         return super(NewSection, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request,"Section NOT created. See errors below." )
+        messages.error(self.request, "Section NOT created. See errors below.")
         context = {'id':  "new-section-modal",
                    'form': form, 'btn_label': "CREATE", }
         return self.render_to_response(context)
