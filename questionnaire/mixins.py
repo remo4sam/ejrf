@@ -1,4 +1,4 @@
-from braces.views import AccessMixin
+from braces.views import AccessMixin, MultiplePermissionsRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from questionnaire.models import Questionnaire
@@ -26,3 +26,18 @@ class RegionAndPermissionRequiredMixin(AccessMixin):
                                          self.get_redirect_field_name())
 
         return super(RegionAndPermissionRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class AdvancedMultiplePermissionsRequiredMixin(MultiplePermissionsRequiredMixin):
+    permissions = None
+    GET_permissions = None
+    POST_permissions = None
+
+    def _assign_permissions(self, request):
+        self.permissions = self.GET_permissions or self.permissions
+        if request.method == 'POST' and self.POST_permissions:
+            self.permissions = self.POST_permissions
+
+    def dispatch(self, request, *args, **kwargs):
+        self._assign_permissions(request)
+        return super(AdvancedMultiplePermissionsRequiredMixin, self).dispatch(request, *args, **kwargs)

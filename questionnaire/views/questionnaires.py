@@ -4,10 +4,11 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 from django.views.generic import View
-from braces.views import MultiplePermissionsRequiredMixin, LoginRequiredMixin
+from braces.views import LoginRequiredMixin
 from questionnaire.forms.questionnaires import QuestionnaireFilterForm, PublishQuestionnaireForm
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
+from questionnaire.mixins import AdvancedMultiplePermissionsRequiredMixin
 from questionnaire.services.questionnaire_cloner import QuestionnaireClonerService
 from questionnaire.services.questionnaire_finalizer import QuestionnaireFinalizeService
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
@@ -23,9 +24,10 @@ ANSWER_FORM = {'Number': NumericalAnswerForm,
                }
 
 
-class Entry(MultiplePermissionsRequiredMixin, FormView):
+class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
     template_name = 'questionnaires/entry/index.html'
-    permissions = {'any': ('auth.can_submit_responses', 'auth.can_view_users', 'auth.can_edit_questionnaire')}
+    GET_permissions = {'any': ('auth.can_submit_responses', 'auth.can_view_users', 'auth.can_edit_questionnaire')}
+    POST_permissions = {'any': ('auth.can_submit_responses', )}
 
     def get(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
@@ -78,7 +80,10 @@ class Entry(MultiplePermissionsRequiredMixin, FormView):
         return self.render_to_response(context)
 
 
-class SubmitQuestionnaire(LoginRequiredMixin, View):
+class SubmitQuestionnaire(AdvancedMultiplePermissionsRequiredMixin, View):
+    GET_permissions = {'any': ('auth.can_submit_responses', 'auth.can_view_users', 'auth.can_edit_questionnaire')}
+    POST_permissions = {'any': ('auth.can_submit_responses', )}
+
 
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(status=Questionnaire.PUBLISHED)

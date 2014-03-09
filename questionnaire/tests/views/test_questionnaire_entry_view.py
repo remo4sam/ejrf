@@ -1,10 +1,9 @@
-from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionOption, MultiChoiceAnswer, NumericalAnswer, QuestionGroupOrder, AnswerGroup, Answer, Country, TextAnswer, DateAnswer
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
-from questionnaire.templatetags.questionnaire_entry_tags import get_form
 from questionnaire.tests.base_test import BaseTest
+from urllib import quote
 
 
 class QuestionnaireEntrySaveDraftTest(BaseTest):
@@ -100,6 +99,16 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
 
     def test_permission_required(self):
         self.assert_permission_required('/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section_1.id))
+
+    def test_POST_is_restricted_to_data_submitters_only(self):
+        global_admin, country, region = self.create_user_with_no_permissions(username="ga", country_name="GA", region_name=None)
+        self.assign('can_edit_questionnaire', global_admin)
+
+        self.client.logout()
+        self.client.login(username='ga', password='pass')
+        response = self.client.post(self.url, data=self.data)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
+                             status_code=302, target_status_code=200, msg_prefix='')
 
     def test_post_saves_answers(self):
         data = self.data
@@ -427,6 +436,20 @@ class QuestionnaireEntrySubmitTest(BaseTest):
 
     def test_login_required(self):
         self.assert_login_required(self.url)
+
+    def test_permission_required(self):
+        self.assert_permission_required(self.url)
+
+    def test_POST_is_restricted_to_data_submitters_only(self):
+        global_admin, country, region = self.create_user_with_no_permissions(username="ga", country_name="GA", region_name=None)
+        self.assign('can_edit_questionnaire', global_admin)
+
+        self.client.logout()
+        self.client.login(username='ga', password='pass')
+        response = self.client.post(self.url, data=self.data)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
+                             status_code=302, target_status_code=200, msg_prefix='')
+
 
     def test_submit_changes_all_answers_statuses_to_submitted(self):
         other_section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)",
