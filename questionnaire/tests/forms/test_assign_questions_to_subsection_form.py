@@ -1,5 +1,5 @@
 from questionnaire.forms.assign_question import AssignQuestionForm
-from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup
+from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, Region
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -75,4 +75,19 @@ class AssignQuestionFormTest(BaseTest):
         question_group = self.question1.question_group.all()[0]
         self.assertEqual(existing_group2, question_group)
         self.assertEqual(2, existing_group2.all_questions().count())
+
+    def test_if_subsection_is_regionnal_then_only_regional_questions_can_be_added_to_it(self):
+        region = Region.objects.create(name="AFR")
+        question1 = Question.objects.create(text='Q1 R', UID='C000R3', answer_type='Number', region=region)
+        question2 = Question.objects.create(text='Q2 R', UID='C000R2', answer_type='Number', region=region)
+
+        form_data = {'questions': [self.question1.id, self.question2.id]}
+        assign_question_form = AssignQuestionForm(form_data, region=region)
+
+        self.assertFalse(assign_question_form.is_valid())
+        error_message = 'Select a valid choice. %d is not one of the available choices.' % self.question1.id
+        self.assertEqual([error_message], assign_question_form.errors['questions'])
+
+        form_data = {'questions': [question1.id, question2.id]}
+        assign_question_form = AssignQuestionForm(form_data, region=region)
 

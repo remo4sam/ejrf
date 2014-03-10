@@ -4,11 +4,19 @@ from questionnaire.models import Question
 
 
 class AssignQuestionForm(Form):
-    questions = forms.ModelMultipleChoiceField(queryset=Question.objects.all(), label='')
+    questions = forms.ModelMultipleChoiceField(queryset=None, label='')
 
     def __init__(self, *args, **kwargs):
         self.subsection = kwargs.pop('subsection', None)
+        self.region = kwargs.pop('region', None)
         super(AssignQuestionForm, self).__init__(*args, **kwargs)
+        self.fields['questions'].queryset = self._get_questions_query_set()
+
+    def _get_questions_query_set(self):
+        query_set = Question.objects.all()
+        if self.region:
+            return query_set.filter(region=self.region)
+        return query_set
 
     def save(self, commit=True, *args, **kwargs):
         if self.subsection.question_group.count() > 1:

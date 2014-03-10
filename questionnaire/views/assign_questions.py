@@ -4,25 +4,28 @@ from django.shortcuts import render
 from django.views.generic import View
 from braces.views import PermissionRequiredMixin
 from questionnaire.forms.assign_question import AssignQuestionForm
+from questionnaire.mixins import RegionAndPermissionRequiredMixin
 from questionnaire.models import SubSection, Question
 
 
-class AssignQuestion(PermissionRequiredMixin, View):
+class AssignQuestion(RegionAndPermissionRequiredMixin, View):
     template_name = "questionnaires/assign_questions.html"
     permission_required = 'auth.can_edit_questionnaire'
 
     def get(self, request, *args, **kwargs):
         subsection = SubSection.objects.select_related('section').get(id=kwargs['subsection_id'])
         active_questions = subsection.section.questionnaire.get_all_questions()
-        form = AssignQuestionForm(subsection=subsection)
+        region = request.user.user_profile.region
+        form = AssignQuestionForm(subsection=subsection, region=region)
         context = {'assign_question_form': form, 'active_questions': active_questions,
-                  'btn_label': 'Done', 'questions': Question.objects.all()}
+                  'btn_label': 'Done', 'questions': form.fields['questions'].queryset}
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         referer_url = request.META.get('HTTP_REFERER', None)
         subsection = SubSection.objects.get(id=kwargs['subsection_id'])
-        form = AssignQuestionForm(request.POST, subsection=subsection)
+        region = request.user.user_profile.region
+        form = AssignQuestionForm(request.POST, subsection=subsection, region=region)
         if form.is_valid():
             form.save()
             messages.success(request, "Questions successfully assigned to questionnaire.")

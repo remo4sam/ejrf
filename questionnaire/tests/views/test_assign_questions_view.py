@@ -1,3 +1,4 @@
+from urllib import quote
 from questionnaire.forms.assign_question import AssignQuestionForm
 from questionnaire.models import Questionnaire, Section, SubSection, Question
 from questionnaire.tests.base_test import BaseTest
@@ -9,17 +10,18 @@ class AssignQuestionViewTest(BaseTest):
     def setUp(self):
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
         self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
-        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1)
-        self.question1 = Question.objects.create(text='Q1', UID='C00003', answer_type='Number')
-        self.question2 = Question.objects.create(text='Q2', UID='C00002', answer_type='Number')
-        self.form_data = {'questions': [self.question1.id, self.question2.id]}
-        self.url = '/subsection/%d/assign_questions/'%(self.subsection.id)
 
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
+
+        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1, region=self.region)
+        self.question1 = Question.objects.create(text='Q1', UID='C00003', answer_type='Number', region=self.region)
+        self.question2 = Question.objects.create(text='Q2', UID='C00002', answer_type='Number', region=self.region)
+        self.form_data = {'questions': [self.question1.id, self.question2.id]}
+        self.url = '/subsection/%d/assign_questions/' % self.subsection.id
 
     def test_get_assign_question_page(self):
         response = self.client.get(self.url)
@@ -28,16 +30,19 @@ class AssignQuestionViewTest(BaseTest):
         self.assertIn('questionnaires/assign_questions.html', templates)
 
     def test_gets_assign_questions_form_and_subsection_in_context(self):
+        question_not_in_region = Question.objects.create(text='not in Region Q', UID='C000R3', answer_type='Number')
+
         response = self.client.get(self.url)
         self.assertIsInstance(response.context['assign_question_form'], AssignQuestionForm)
         self.assertEqual(2, response.context['questions'].count())
         questions_texts = [question.text for question in list(response.context['questions'])]
         self.assertIn(self.question1.text, questions_texts)
         self.assertIn(self.question2.text, questions_texts)
+        self.assertNotIn(question_not_in_region.text, questions_texts)
         self.assertEqual('Done', response.context['btn_label'])
 
     def test_GET_puts_list_of_already_used_questions_in_context(self):
-        question1 = Question.objects.create(text='USed question', UID='C00033', answer_type='Number')
+        question1 = Question.objects.create(text='USed question', UID='C00033', answer_type='Number', region=self.region)
         question1.question_group.create(subsection=self.subsection)
 
         response = self.client.get(self.url)
@@ -85,9 +90,19 @@ class AssignQuestionViewTest(BaseTest):
     def test_login_required(self):
         self.assert_login_required(self.url)
 
-    def test_permission_required(self):
+    def test_permission_required_for_create_section(self):
         self.assert_permission_required(self.url)
 
+        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
+                                                                                        country_name="China",
+                                                                                        region_name="ASEAN")
+        self.assign('can_edit_questionnaire', user_not_in_same_region)
+
+        self.client.logout()
+        self.client.login(username='asian_chic', password='pass')
+        response = self.client.get(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
+                             status_code=302, target_status_code=200, msg_prefix='')
 
 class UnAssignQuestionViewTest(BaseTest):
 
