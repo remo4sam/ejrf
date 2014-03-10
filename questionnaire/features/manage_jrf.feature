@@ -46,7 +46,7 @@ Feature: Manage JRF
         Then it should open in an edit view
         When I visit the manage JRF page
         And I click on a Finalised Core Questionnaire
-        #Then it should open in a preview mode
+        Then it should open in a preview mode
 
     Scenario: Publish core questionnaire to regional admins
          Given I am logged in as a global admin

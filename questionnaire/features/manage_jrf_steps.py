@@ -158,7 +158,9 @@ def when_i_click_on_a_finalised_core_questionnaire(step):
 
 @step(u'Then it should open in a preview mode')
 def then_it_should_open_in_a_preview_mode(step):
-    world.page.is_text_present('Preview Questionnaire')
+    world.page.is_text_present('New Section', status=False)
+    world.page.is_text_present('Assign Question', status=False)
+    world.page.is_text_present('New Subsection', status=False)
 
 @step(u'And I have two finalised questionnaires')
 def and_i_have_two_finalised_questionnaires(step):
@@ -179,7 +181,6 @@ def and_i_have_two_finalised_questionnaires(step):
 
 @step(u'And I see finalized questionnaires')
 def and_i_see_finalized_questionnaires(step):
-    #world.page = HomePage(world.browser)
     world.page.links_present_by_text(["%s %s" % (world.questionnaire7.name, world.questionnaire7.year),
                                      "%s %s" % (world.questionnaire8.name, world.questionnaire8.year)])
     world.page.is_element_present_by_id('id-unfinalize-%s' % world.questionnaire8.id)
