@@ -12,13 +12,7 @@ class RegionAndPermissionRequiredMixin(AccessMixin):
             raise ImproperlyConfigured(
                 "'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
-        user = request.user
-        region = None
-        if 'questionnaire_id' in kwargs:
-            region = Questionnaire.objects.get(id=kwargs['questionnaire_id']).region
-        if 'region_id' in kwargs:
-            region = Region.objects.get(id=kwargs['region_id'])
-        has_permission = user.has_perm(self.permission_required) and user.user_profile and user.user_profile.region == region
+        has_permission = self.get_permissions_from_request()
 
         if not has_permission:
             if self.raise_exception:
@@ -27,8 +21,16 @@ class RegionAndPermissionRequiredMixin(AccessMixin):
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
-
         return super(RegionAndPermissionRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_permissions_from_request(self, request, **kwargs):
+        user = request.user
+        region = None
+        if 'questionnaire_id' in kwargs:
+            region = Questionnaire.objects.get(id=kwargs['questionnaire_id']).region
+        if 'region_id' in kwargs:
+            region = Region.objects.get(id=kwargs['region_id'])
+        return user.has_perm(self.permission_required) and user.user_profile and user.user_profile.region == region
 
 
 class AdvancedMultiplePermissionsRequiredMixin(MultiplePermissionsRequiredMixin):

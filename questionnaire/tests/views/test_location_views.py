@@ -7,9 +7,8 @@ class RegionViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
-        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions(region_name="Afro")
         self.login_user()
-
 
     def test_get_region_list(self):
         region = Region.objects.create(name="AFRO")

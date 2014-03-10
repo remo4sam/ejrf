@@ -2,25 +2,32 @@ from braces.views import PermissionRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
-from django.views.generic import ListView, CreateView, DeleteView
+from django.shortcuts import render
+from django.views.generic import CreateView, DeleteView, View
 from questionnaire.forms.questions import QuestionForm
 from questionnaire.models import Question, Questionnaire
 
 
-class QuestionList(PermissionRequiredMixin, ListView):
+class QuestionList(PermissionRequiredMixin, View):
     permission_required = 'auth.can_edit_questionnaire'
-
     template_name = 'questions/index.html'
     model = Question
-    object_list = Question.objects.all()
 
     def get(self, *args, **kwargs):
         finalized_questionnaire = Questionnaire.objects.filter(status=Questionnaire.FINALIZED)
         active_questions = None
+
         if finalized_questionnaire.exists():
             active_questions = finalized_questionnaire.latest('created').get_all_questions()
-        context = {'request': self.request, 'questions': self.model.objects.all(), 'active_questions': active_questions}
-        return self.render_to_response(context)
+        context = {'request': self.request,
+                   'questions': self.get_questions_for_user(),
+                   'active_questions': active_questions}
+        return render(self.request, self.template_name, context)
+
+    def get_questions_for_user(self):
+        if self.request.user.has_perm('auth.can_view_users'):
+            return self.model.objects.all()
+        return self.model.objects.filter(region=self.request.user.user_profile.region)
 
 
 class CreateQuestion(PermissionRequiredMixin, CreateView):

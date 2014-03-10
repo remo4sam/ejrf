@@ -1,11 +1,11 @@
 from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.questions import QuestionForm
-from questionnaire.models import Question, QuestionGroup, Questionnaire, Section, SubSection, Country, Answer
+from questionnaire.models import Question, Questionnaire, Section, SubSection, Country, Answer
 from questionnaire.tests.base_test import BaseTest
 
 
-class SectionsViewTest(BaseTest):
+class QuestionViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
@@ -22,7 +22,8 @@ class SectionsViewTest(BaseTest):
 
     def test_get_list_question(self):
         questions = Question.objects.create(text='B. Number of cases tested',
-                                            instructions="Enter the total number of cases", UID='00001', answer_type='Number')
+                                            instructions="Enter the total number of cases", UID='00001',
+                                            answer_type='Number')
 
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
@@ -132,3 +133,39 @@ class SectionsViewTest(BaseTest):
         self.failUnless(Question.objects.get(**data))
         message = "Question was not deleted because it has responses"
         self.assertIn(message, response.cookies['messages'].value)
+
+
+class RegionalQuestionsViewTest(BaseTest):
+
+    def setUp(self):
+
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions(region_name="Afro")
+
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
+        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1, region=self.region)
+        self.assign('can_edit_questionnaire', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.url = '/questions/'
+        self.form_data = {'text': 'How many kids were immunised this year?',
+                          'instructions': 'Some instructions',
+                          'export_label': 'blah',
+                          'answer_type': 'Number'}
+
+    def test_get_regional_questions(self):
+        question1 = Question.objects.create(text='Q1', UID='C00003', answer_type='Number', region=self.region)
+        question2 = Question.objects.create(text='Q2', UID='C00002', answer_type='Number', region=self.region)
+        question3 = Question.objects.create(text='Q3', UID='C00001', answer_type='Number')
+        question_group = question1.question_group.create(subsection=self.subsection)
+        question_group.question.add(question2, question3)
+
+        response = self.client.get(self.url)
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn('questions/index.html', templates)
+        self.assertIn(question1, response.context['questions'])
+        self.assertIn(question2, response.context['questions'])
+        self.assertNotIn(question3, response.context['questions'])
+        self.assertIsNone(response.context['active_questions'])
