@@ -1,3 +1,4 @@
-body {
-  display: none;
+.edit-section, .delete-section, .section-buttons, #new-subsection, .btn-group, .unassign-question-div,
+#edit_questionnaire_link, #new-section{
+    display: none !important;
 }
