@@ -1,6 +1,8 @@
 from lettuce import world, step
+from splinter import Browser
 from questionnaire.features.pages.home import HomePage
-from questionnaire.models import Questionnaire, Section
+from questionnaire.features.pages.users import LoginPage
+from questionnaire.models import Questionnaire, Section, Organization, Region
 
 
 @step(u'I have four finalised questionnaires')
@@ -157,3 +159,75 @@ def when_i_click_on_a_finalised_core_questionnaire(step):
 @step(u'Then it should open in a preview mode')
 def then_it_should_open_in_a_preview_mode(step):
     world.page.is_text_present('Preview Questionnaire')
+
+@step(u'And I have two finalised questionnaires')
+def and_i_have_two_finalised_questionnaires(step):
+    world.questionnaire7 = Questionnaire.objects.create(name="JRF Kampala Test version1", description="description",
+                                                        year=2014, status=Questionnaire.FINALIZED)
+
+    Section.objects.create(title="School Based Section1", order=0, questionnaire=world.questionnaire1, name="Name")
+
+    world.questionnaire8 = Questionnaire.objects.create(name="JRF Brazil Test version1", description="description",
+                                                        year=2015, status=Questionnaire.FINALIZED)
+    Section.objects.create(title="School Section1", order=0, questionnaire=world.questionnaire2, name="Section1 name")
+
+    world.org = Organization.objects.create(name="WHO")
+    world.afro = Region.objects.create(name="AFRO", organization=world.org)
+    world.amer = Region.objects.create(name="AMER", organization=world.org)
+    world.euro = Region.objects.create(name="EURO", organization=world.org)
+    world.asia = Region.objects.create(name="ASIA", organization=world.org)
+
+@step(u'And I see finalized questionnaires')
+def and_i_see_finalized_questionnaires(step):
+    #world.page = HomePage(world.browser)
+    world.page.links_present_by_text(["%s %s" % (world.questionnaire7.name, world.questionnaire7.year),
+                                     "%s %s" % (world.questionnaire8.name, world.questionnaire8.year)])
+    world.page.is_element_present_by_id('id-unfinalize-%s' % world.questionnaire8.id)
+
+@step(u'Then I should see an option to send to regions on each of the finalized questionnaires')
+def then_i_should_see_an_option_to_send_to_regions_on_each_of_the_finalized_questionnaires(step):
+    world.page.is_element_present_by_id('id-publish-questionnaire-%s' % world.questionnaire7.id)
+    world.page.is_element_present_by_id('id-publish-questionnaire-%s' % world.questionnaire8.id)
+
+@step(u'When I choose option to send core questionnaire to regions')
+def when_i_choose_option_to_send_core_questionnaire_to_regions(step):
+    world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire7.id)
+
+@step(u'Then I should see an interface to choose the regions to which to publish the finalised Core Questionnaire')
+def then_i_should_see_an_interface_to_choose_the_regions_to_which_to_publish_the_finalised_core_questionnaire(step):
+    world.page.is_text_present("Publish Questionnaire : %s" % world.questionnaire7.name)
+
+@step(u'And I should be able to select one region to which to publish the finalised Core Questionnaire')
+def and_i_should_be_able_to_select_one_region_to_which_to_publish_the_finalised_core_questionnaire(step):
+    world.page.check("%s" % world.afro.id)
+    world.page.click_by_css('button.submit')
+
+@step(u'And I should be able to confirm that the Core Questionnaire is published to the region I selected')
+def and_i_should_be_able_to_confirm_that_the_core_questionnaire_is_published_to_the_region_i_selected(step):
+    world.page.is_text_present("The questionnaire has been published to %s" % world.afro.name)
+    world.page.is_text_present("%s" % world.afro.name)
+    world.page.is_element_present_by_id("%s" % world.questionnaire7.id)
+
+@step(u'And I should be able to confirm that the region to which I published the questionnaire is not on the list')
+def and_i_should_be_able_to_confirm_that_the_region_to_which_i_published_the_questionnaire_is_not_on_the_list(step):
+    world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire7.id)
+    world.page.is_text_not_present("%s" % world.afro.name)
+
+@step(u'And I should be able to select two regions to which to publish the finalised Core Questionnaire')
+def and_i_should_be_able_to_select_two_regions_to_which_to_publish_the_finalised_core_questionnaire(step):
+    world.page.check("%s" % world.amer.id)
+    world.page.check("%s" % world.asia.id)
+    world.page.click_by_css('button.submit')
+
+@step(u'And I should be able to confirm that the Core Questionnaire is published to the regions I selected')
+def and_i_should_be_able_to_confirm_that_the_core_questionnaire_is_published_to_the_regions_i_selected(step):
+    world.page.is_text_present("The questionnaire has been published to %s, %s" % (world.amer.name, world.asia.name))
+    world.page.is_text_present("%s" % world.amer.name)
+    world.page.is_text_present("%s" % world.asia.name)
+    world.page.is_element_present_by_id("%s" % world.questionnaire8.id)
+
+@step(u'And I should be able to confirm that the regions to which I published the questionnaire is not on the list')
+def and_i_should_be_able_to_confirm_that_the_regions_to_which_i_published_the_questionnaire_is_not_on_the_list(step):
+    world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire8.id)
+    world.page.is_text_not_present("%s" % world.amer.name)
+    world.page.is_text_not_present("%s" % world.asia.name)

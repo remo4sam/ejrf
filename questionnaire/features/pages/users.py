@@ -1,4 +1,6 @@
+from lettuce import world
 from questionnaire.features.pages.base import PageObject
+from questionnaire.features.pages.home import HomePage
 
 
 class LoginPage(PageObject):
@@ -11,6 +13,9 @@ class LoginPage(PageObject):
         self.browser.fill_form(details)
         self.submit()
 
+    def links_present_by_text(self, links_text):
+        for text in links_text:
+            assert self.browser.find_link_by_text(text)
 
 class UserListingPage(PageObject):
     url = "/users/"
