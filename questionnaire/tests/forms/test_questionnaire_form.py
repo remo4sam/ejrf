@@ -19,6 +19,16 @@ class QuestionnaireFilterFormTest(BaseTest):
         questionnaire_filter = QuestionnaireFilterForm(self.form_data)
         self.assertTrue(questionnaire_filter.is_valid())
 
+    def test_valid_with_published_questionnaire(self):
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED, year=2013)
+        form_data = {
+            'questionnaire': questionnaire.id,
+            'year': date.today().year + 1,
+            'name': 'New JRF'
+        }
+        questionnaire_filter = QuestionnaireFilterForm(form_data)
+        self.assertTrue(questionnaire_filter.is_valid())
+
     def test_has_years_of_existing_questionnaires(self):
         questionnaire_filter = QuestionnaireFilterForm(self.form_data)
         self.assertIn(('', 'Choose a year'), questionnaire_filter.fields['year'].choices)
