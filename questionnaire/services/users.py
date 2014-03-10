@@ -14,6 +14,7 @@ class UserQuestionnaireService(object):
         self.current_answer_status = Answer.DRAFT_STATUS
         self.set_versions()
         self.answers = self.answers_in_questionnaire.filter(version=self.POST_version)
+        self.edit_after_submit = not self.POST_version == self.GET_version
 
     def all_answers(self):
         return Answer.objects.filter(country=self.country).select_subclasses()

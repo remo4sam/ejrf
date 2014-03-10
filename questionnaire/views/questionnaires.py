@@ -35,7 +35,8 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
         user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
         initial = {'status': 'Draft', 'country': self.request.user.user_profile.country, 'version': user_questionnaire_service.GET_version}
         required_answers = 'show' in request.GET
-        formsets = QuestionnaireEntryFormService(section, initial=initial, highlight=required_answers)
+        formsets = QuestionnaireEntryFormService(section, initial=initial, highlight=required_answers,
+                                                 edit_after_submit=user_questionnaire_service.edit_after_submit)
 
         printable = 'printable' in request.GET
         preview = user_questionnaire_service.preview() or 'preview' in request.GET
@@ -57,7 +58,8 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
         user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
         initial = {'country': self.request.user.user_profile.country, 'status': 'Draft',
                    'version': user_questionnaire_service.POST_version}
-        formsets = QuestionnaireEntryFormService(section, initial=initial, data=request.POST)
+        formsets = QuestionnaireEntryFormService(section, initial=initial, data=request.POST,
+                                                 edit_after_submit=user_questionnaire_service.edit_after_submit)
 
         context = {'questionnaire': questionnaire, 'section': section,
                    'formsets': formsets, 'ordered_sections': Section.objects.order_by('order')}

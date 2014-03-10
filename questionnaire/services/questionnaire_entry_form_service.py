@@ -1,6 +1,7 @@
 from django.forms.formsets import formset_factory
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
-from questionnaire.models import Question, AnswerGroup, QuestionGroupOrder
+from questionnaire.models import Question, AnswerGroup, QuestionGroupOrder, Answer
+from questionnaire.models.answers import MultiChoiceAnswer, NumericalAnswer, DateAnswer, TextAnswer
 
 
 ANSWER_FORM = {
@@ -13,7 +14,7 @@ ANSWER_FORM = {
 
 class QuestionnaireEntryFormService(object):
 
-    def __init__(self, section, initial={}, data=None, highlight=False):
+    def __init__(self, section, initial={}, data=None, highlight=False, edit_after_submit=False):
         self.initial = initial
         self.data = data
         self.section = section
@@ -22,6 +23,7 @@ class QuestionnaireEntryFormService(object):
         self.ANSWER_FORM_COUNTER = self._initialize_form_counter()
         self._highlight_required_answers(highlight)
         self.form_answer_map = {}
+        self.editing_after_submit = edit_after_submit
 
     def next_ordered_form(self, question):
         next_question_type_count = self.ANSWER_FORM_COUNTER[question.answer_type]
@@ -83,6 +85,24 @@ class QuestionnaireEntryFormService(object):
         return len(formset_checks) == formset_checks.count(True)
 
     def save(self):
+        if self.editing_after_submit:
+            self._duplicate_other_sections_answers_and_answer_groups()
+        self._save_current_section()
+
+    def _duplicate_other_sections_answers_and_answer_groups(self):
+        version_ = self.initial['version']
+        answer_groups = AnswerGroup.objects.filter(grouped_question__subsection__section__questionnaire=self.section.questionnaire,
+                                                   answer__country=self.initial['country'],
+                                                   answer__version=version_-1).exclude(
+            grouped_question__subsection__section=self.section).distinct().select_related()
+        for answer_group in answer_groups:
+            new_answer_group = AnswerGroup.objects.create(grouped_question=answer_group.grouped_question, row=answer_group.row)
+            for answer in answer_group.answer.all().select_related().select_subclasses():
+                new_answer = eval(answer.__class__.__name__).objects.create(question=answer.question, country=answer.country, code=answer.code,
+                                                                            response=answer.response, version=version_, status=Answer.DRAFT_STATUS)
+                new_answer_group.answer.add(new_answer)
+
+    def _save_current_section(self):
         for formset in self.formsets.values():
             for form in formset:
                 self.form_answer_map.update({form: form.save()})

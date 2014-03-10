@@ -288,7 +288,8 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
         QuestionGroupOrder.objects.create(question=self.question3, question_group=self.question_group, order=3)
         QuestionGroupOrder.objects.create(question=self.question4, question_group=self.question_group, order=4)
         self.country = Country.objects.create(name="Uganda")
-        self.initial = {'country': self.country, 'status': 'Draft', 'version': 1, 'code': 'ABC123'}
+        self.version = 1
+        self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123'}
         self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
                      u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': self.option1.id,
                      u'MultiChoice-1-response': self.option2.id,  u'MultiChoice-2-response': self.option3.id,
@@ -387,6 +388,107 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
         self.assertIn(NumericalAnswer.objects.get(response=int(data['Number-2-response']), question=self.question3), group3_answers)
         self.assertIn(TextAnswer.objects.get(response=data['Text-2-response'], question=self.question2), group3_answers)
         self.assertIn(DateAnswer.objects.get(response=data['Date-2-response'], question=self.question4), group3_answers)
+
+    def given_I_have_questions_and_corresponding_submitted_answers_in_a_section(self):
+        section = Section.objects.create(title="another section", order=2, questionnaire=self.questionnaire, name="haha")
+        sub_section = SubSection.objects.create(title="subsection in another section", order=1, section=section)
+        question1 = Question.objects.create(text='q1', UID='C00011', answer_type='MultiChoice')
+        question2 = Question.objects.create(text='q2', UID='C00033', answer_type='Number')
+        question3 = Question.objects.create(text='q3', UID='C00034', answer_type='Number')
+
+        option1 = QuestionOption.objects.create(text='tusker lager', question=question1)
+        option2 = QuestionOption.objects.create(text='tusker lager1', question=question1)
+        option3 = QuestionOption.objects.create(text='tusker lager2', question=question1)
+
+        question_group = QuestionGroup.objects.create(subsection=sub_section, order=1)
+        question_group.question.add(question1, question3, question2)
+
+        QuestionGroupOrder.objects.create(question_group=question_group, question=question1, order=1)
+        QuestionGroupOrder.objects.create(question_group=question_group, question=question2, order=2)
+        QuestionGroupOrder.objects.create(question_group=question_group, question=question3, order=3)
+
+        data = {u'MultiChoice-MAX_NUM_FORMS': u'1', u'MultiChoice-TOTAL_FORMS': u'1',
+                     u'MultiChoice-INITIAL_FORMS': u'1', u'MultiChoice-0-response': option1.id,
+                     u'Number-INITIAL_FORMS': u'2', u'Number-TOTAL_FORMS': u'2', u'Number-MAX_NUM_FORMS': u'2',
+                     u'Number-0-response': u'2', u'Number-1-response': u'33'}
+
+        initial = self.initial.copy()
+        initial['status'] = Answer.SUBMITTED_STATUS
+        old_primary = MultiChoiceAnswer.objects.create(response=option1, question=question1, **initial)
+        old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=question2, **initial)
+        old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=question3, **initial)
+
+        old_primary.answergroup.create(grouped_question=question_group)
+        old_answer_1.answergroup.create(grouped_question=question_group)
+        old_answer_2.answergroup.create(grouped_question=question_group)
+
+        data_modified = data.copy()
+        data_modified['MultiChoice-0-response'] = option2.id
+        data_modified['Number-1-response'] = '3'
+
+        old_answer = [old_primary, old_answer_1, old_answer_2]
+        questions = [question1, question2, question3]
+
+        return questions, question_group, old_answer, data_modified, section
+
+    def and_given_I_have_other_questions_and_corresponding_answers_in_a_different_section(self):
+        question1_answer = []
+        question2_answer = []
+        question3_answer = []
+        answer_group1 = []
+
+        for index, option in enumerate(self.question1.options.order_by('modified')):
+            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.SUBMITTED_STATUS, response=option, version=self.version))
+            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.SUBMITTED_STATUS, response="ayoyoyo %d"%index, version=self.version))
+            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.SUBMITTED_STATUS, response=index, version=self.version))
+            answer_group1.append(question1_answer[index].answergroup.create(grouped_question=self.question_group, row=index))
+            answer_group1[index].answer.add(question2_answer[index], question3_answer[index])
+
+    def test_post_drafts_duplicates_submitted_answers_and_answer_groups_of_other_sections_and_save_draft_of_section_when_editing_submitted_questionnaire(self):
+        questions, question_group, old_answer, data_modified, section = self.given_I_have_questions_and_corresponding_submitted_answers_in_a_section()
+        self.and_given_I_have_other_questions_and_corresponding_answers_in_a_different_section()
+
+        initial = self.initial.copy()
+        initial['version'] = self.version + 1
+
+        response = self.client.post("/questionnaire/entry/%d/section/%d/"%(self.questionnaire.id, section.id), data=data_modified)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('Draft saved.', response.content)
+
+        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']), question=questions[0], version=self.version+1)
+        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']), question=questions[1], version=self.version+1)
+        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']), question=questions[2], version=self.version+1)
+
+        self.assertNotEqual(old_answer[0].id, primary.id)
+        self.assertNotEqual(old_answer[1].id, answer_1.id)
+        self.assertNotEqual(old_answer[2].id, answer_2.id)
+
+        self.assertEqual(primary.status, Answer.DRAFT_STATUS)
+        self.assertEqual(answer_1.status, Answer.DRAFT_STATUS)
+        self.assertEqual(answer_2.status, Answer.DRAFT_STATUS)
+
+        self.failUnless(primary.answergroup.filter(grouped_question=question_group))
+        self.failUnless(answer_1.answergroup.filter(grouped_question=question_group))
+        self.failUnless(answer_2.answergroup.filter(grouped_question=question_group))
+
+        for index, option in enumerate(self.question1.options.order_by('modified')):
+            question1_answer = MultiChoiceAnswer.objects.filter(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=option, version=self.version+1)
+            question2_answer = TextAnswer.objects.filter(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo %d"%index, version=self.version+1)
+            question3_answer = NumericalAnswer.objects.filter(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=index, version=self.version+1)
+
+            self.failUnless(question1_answer)
+            self.assertEqual(1, question1_answer.count())
+            self.failUnless(question2_answer)
+            self.assertEqual(1, question2_answer.count())
+            self.failUnless(question3_answer)
+            self.assertEqual(1, question3_answer.count())
+
+            answer_group1 = question1_answer[0].answergroup.filter(grouped_question=self.question_group, row=index)
+            self.failUnless(answer_group1)
+            answer_group_answers = answer_group1[0].answer.all().select_subclasses()
+            self.assertEqual(3, answer_group_answers.count())
+            self.assertIn(question2_answer[0], answer_group_answers)
+            self.assertIn(question3_answer[0], answer_group_answers)
 
 
 class QuestionnaireEntrySubmitTest(BaseTest):
