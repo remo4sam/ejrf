@@ -6,7 +6,7 @@ from questionnaire.tests.base_test import BaseTest
 class QuestionnaireClonerServiceTest(BaseTest):
 
     def setUp(self):
-        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan", year=2013)
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan", year=2013, status=Questionnaire.FINALIZED)
         self.section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
                                                       questionnaire=self.questionnaire, name="Reported Cases")
         self.section_2 = Section.objects.create(title="Cured Cases of Measles", order=1,
@@ -54,7 +54,7 @@ class QuestionnaireClonerServiceTest(BaseTest):
         self.assertEqual(2, len(questionnaires))
         self.assertIn(questionnaire, questionnaires)
         self.assertIn(self.questionnaire, questionnaires)
-        self.assertEqual(Questionnaire.DRAFT, self.questionnaire.status)
+        self.assertEqual(Questionnaire.FINALIZED, old.status)
 
     def test_returns_all_a_old_sections_on_the_new_questionnaire_instance_when_clone_is_called(self):
         questionnaire, old = QuestionnaireClonerService(self.questionnaire).clone()

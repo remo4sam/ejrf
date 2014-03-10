@@ -25,8 +25,9 @@ class QuestionnaireClonerService(object):
         return self.questionnaire, self.original_questionnaire
 
     def _set_questionnaire_status(self, questionnaire):
-        questionnaire.status = Questionnaire.PUBLISHED if self.region else Questionnaire.DRAFT
-        questionnaire.save()
+        if self.region:
+            questionnaire.status = Questionnaire.PUBLISHED
+            questionnaire.save()
         return questionnaire
 
     def _clone_sections(self):
