@@ -65,16 +65,21 @@ class FinalizeQuestionnaireViewTest(BaseTest):
         self.url = '/questionnaire/%d/finalize/' % self.questionnaire.id
 
     def test_post_finalizes_questionnaire(self):
-        self.client.post(self.url)
+        referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
+        response = self.client.post(self.url, HTTP_REFERER=referer_url)
         self.assertNotIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.DRAFT).all())
         self.assertIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED).all())
+        self.assertRedirects(response, referer_url)
 
     def test_post_unfinalizes_questionnaire(self):
+        referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
         questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.FINALIZED)
+        section = Section.objects.create(name="haha", questionnaire=questionnaire, order=1)
         url = '/questionnaire/%d/unfinalize/' % questionnaire.id
-        self.client.post(url)
+        response = self.client.post(url, HTTP_REFERER=referer_url)
         self.assertNotIn(questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED).all())
-        self.assertIn(questionnaire, Questionnaire.objects.filter(status=Questionnaire.DRAFT).all())
+        self.assertEqual(Questionnaire.DRAFT, Questionnaire.objects.get(id=questionnaire.id).status)
+        self.assertRedirects(response, referer_url)
 
     def test_post_shows_error_message_when_attempting_to_unfinalize_published_questionnaire(self):
         questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.PUBLISHED)

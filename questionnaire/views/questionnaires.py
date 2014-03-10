@@ -135,7 +135,8 @@ class FinalizeQuestionnaire(View):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
         message = QuestionnaireFinalizeService(questionnaire).finalize()
         messages.success(self.request, message)
-        return HttpResponseRedirect(reverse('manage_jrf_page'))
+        referer_url = request.META['HTTP_REFERER']
+        return HttpResponseRedirect(referer_url)
 
 
 class UnfinalizeQuestionnaire(View):
@@ -143,7 +144,8 @@ class UnfinalizeQuestionnaire(View):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
         message = QuestionnaireFinalizeService(questionnaire).unfinalize()
         messages.success(self.request, message)
-        return HttpResponseRedirect(reverse('manage_jrf_page'))
+        referer_url = request.META.get('HTTP_REFERER', None) or reverse('manage_jrf_page')
+        return HttpResponseRedirect(referer_url)
 
 
 class PublishQuestionnaire(View):

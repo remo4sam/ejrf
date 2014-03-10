@@ -49,6 +49,15 @@
                                 {% with questionnaire.sections.all|first as first_section %}
                                     <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}?preview=1">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                 {% endwith %}
+                                <span class="pull-right">
+                                    {% if questionnaire.is_finalized %}
+                                        <a class="btn btn-xs btn-default" id="id-unfinalize-{{ questionnaire.id }}"
+                                           post="true" phref="/questionnaire/{{ questionnaire.id }}/unfinalize/"
+                                           pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img
+                                                class="glyph-icon" src="/static/img/glyphicons_unlock.png"></span></a>
+                                    {% endif %}
+                                </span>
+
                             </li>
                         {% endfor %}
                         <li class="list-group-item more-toggle">
