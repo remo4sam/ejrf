@@ -20,3 +20,10 @@ def map_question_type_with(orders, mapping, option=''):
     for order in orders:
         order_dict = {'option': option, 'order': order}
         mapping[order.question.answer_type].append(order_dict)
+
+
+def reindex_orders_in(cls, **kwargs):
+    objects = cls.objects.filter(**kwargs).order_by('order')
+    for index, object_ in enumerate(objects):
+        object_.order = index + 1
+        object_.save()

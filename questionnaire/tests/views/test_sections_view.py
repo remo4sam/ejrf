@@ -170,6 +170,14 @@ class DeleteSectionsViewTest(BaseTest):
         message = "Section successfully deleted."
         self.assertIn(message, response.cookies['messages'].value)
 
+    def test_successful_deletion_of_section_reindexes_section_orders(self):
+        referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section_1.id)
+        meta = {'HTTP_REFERER': referer_url}
+        section_3 = Section.objects.create(name="section", questionnaire=self.questionnaire, order=3)
+        Section.objects.create(name="section 2", questionnaire=self.questionnaire, order=4)
+        self.client.post('/section/%d/delete/' % section_3.id, data={}, **meta)
+        self.assertEqual([1, 2, 3], list(Section.objects.values_list('order', flat=True)))
+
 
 class SubSectionsViewTest(BaseTest):
 
@@ -327,3 +335,12 @@ class DeleteSubSectionsViewTest(BaseTest):
         message = "Subsection successfully deleted."
         self.assertIn(message, response.cookies['messages'].value)
 
+    def test_successful_deletion_reindexes_subsections(self):
+        sub_section1 = SubSection.objects.create(title="Cured Cases of Measles 3", order=2, section=self.section)
+        sub_section2 = SubSection.objects.create(title="Cured Cases of Measles 3", order=3, section=self.section)
+        sub_section3 = SubSection.objects.create(title="Cured Cases of Measles 3", order=4, section=self.section)
+
+        referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section.id)
+        meta = {'HTTP_REFERER': referer_url}
+        self.client.post('/subsection/%d/delete/' % sub_section2.id, data={}, **meta)
+        self.assertEqual([1, 2, 3], list(SubSection.objects.values_list('order', flat=True)))

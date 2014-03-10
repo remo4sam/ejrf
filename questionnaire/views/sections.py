@@ -7,6 +7,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.mixins import RegionAndPermissionRequiredMixin
 from questionnaire.models import Section, SubSection
+from questionnaire.utils.model_utils import reindex_orders_in
 
 
 class NewSection(RegionAndPermissionRequiredMixin, CreateView):
@@ -67,6 +68,7 @@ class DeleteSection(DeleteView):
     def __init__(self, *args, **kwargs):
         super(DeleteSection, self).__init__(*args, **kwargs)
         self.model = Section
+        self.object = None
         self.pk_url_kwarg = 'section_id'
         self.success_url = reverse("home_page")
 
@@ -81,9 +83,11 @@ class DeleteSection(DeleteView):
 
     def post(self, request, *args, **kwargs):
         self.success_url = self._set_success_url(request)
+        response = super(DeleteSection, self).post(request, *args, **kwargs)
+        reindex_orders_in(Section, questionnaire=self.object.questionnaire)
         message = "Section successfully deleted."
         messages.success(request, message)
-        return super(DeleteSection, self).post(request, *args, **kwargs)
+        return response
 
 
 class NewSubSection(PermissionRequiredMixin, CreateView):
@@ -161,6 +165,8 @@ class DeleteSubSection(DeleteView):
 
     def post(self, request, *args, **kwargs):
         self.success_url = self._set_success_url()
+        response = super(DeleteSubSection, self).post(request, *args, **kwargs)
+        reindex_orders_in(SubSection, section=self.object.section)
         message = "Subsection successfully deleted."
         messages.success(request, message)
-        return super(DeleteSubSection, self).post(request, *args, **kwargs)
+        return response
