@@ -14,7 +14,7 @@
     {% if printable %}
         <link rel="stylesheet" href="{{ STATIC_URL }}css/print.css" type="text/css" media="all">
     {% endif %}
-    {% if preview %}
+    {% if preview and perms.auth.can_edit_questionnaire %}
         <link rel="stylesheet" href="{{ STATIC_URL }}css/preview.css" type="text/css" media="all">
     {% endif %}
 {% endblock %}
