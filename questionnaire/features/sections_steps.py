@@ -122,4 +122,5 @@ def and_the_section_should_no_longer_appear_in_the_questionnaire(step):
 
 @step(u'And the section numbering should be updated')
 def and_the_section_numbering_should_be_updated(step):
-    assert False, 'This step must be implemented'
+    world.page.click_link_by_partial_href('questionnaire/entry/%s/section/%s' %(world.questionnaire.id, world.section_3.id))
+    world.page.is_text_present('2. %s' % world.section_3.title)

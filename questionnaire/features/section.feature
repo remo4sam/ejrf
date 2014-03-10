@@ -40,5 +40,4 @@ Feature: Section feature
         When I confirm the deletion
         Then I should see a message that the section was deleted
         And the section should no longer appear in the Questionnaire
-        #And the section numbering should be updated
-
+        And the section numbering should be updated
