@@ -46,15 +46,15 @@ class QuestionnaireClonerService(object):
         return question_groups_map
 
     def _assign_sub_groups(self):
-        for old, new in self.question_groups.items():
-            if old.parent:
-                new.parent = self.question_groups.get(old.parent)
-                new.save()
+        for old_group, new_group in self.question_groups.items():
+            if old_group.parent:
+                new_group.parent = self.question_groups.get(old_group.parent)
+                new_group.save()
 
     def _assign_questions_to_groups(self):
-        for old, new in self.question_groups.items():
-            new.question.add(*old.all_questions())
-            if not old.parent:
-                for order in old.question_orders():
-                    QuestionGroupOrder.objects.create(order=order.order, question_group=self.question_groups.get(old),
+        for old_group, new_group in self.question_groups.items():
+            new_group.question.add(*old_group.all_questions())
+            if not old_group.parent:
+                for order in old_group.question_orders():
+                    QuestionGroupOrder.objects.create(order=order.order, question_group=self.question_groups.get(old_group),
                                                       question=order.question)

@@ -84,7 +84,6 @@ class SubmitQuestionnaire(AdvancedMultiplePermissionsRequiredMixin, View):
     GET_permissions = {'any': ('auth.can_submit_responses', 'auth.can_view_users', 'auth.can_edit_questionnaire')}
     POST_permissions = {'any': ('auth.can_submit_responses', )}
 
-
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(status=Questionnaire.PUBLISHED)
         user_questionnaire = UserQuestionnaireService(self.request.user, questionnaire)
@@ -132,8 +131,7 @@ class DuplicateQuestionnaire(View):
 class FinalizeQuestionnaire(View):
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
-        QuestionnaireFinalizeService(questionnaire).finalize()
-        message = "The questionnaire has been finalized successfully."
+        message = QuestionnaireFinalizeService(questionnaire).finalize()
         messages.success(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
 
@@ -141,8 +139,7 @@ class FinalizeQuestionnaire(View):
 class UnfinalizeQuestionnaire(View):
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
-        QuestionnaireFinalizeService(questionnaire).unfinalize()
-        message = "The questionnaire is now in progress."
+        message = QuestionnaireFinalizeService(questionnaire).unfinalize()
         messages.success(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
 

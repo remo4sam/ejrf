@@ -68,10 +68,18 @@ class FinalizeQuestionnaireViewTest(BaseTest):
     def test_post_unfinalizes_questionnaire(self):
         questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.FINALIZED)
         url = '/questionnaire/%d/unfinalize/' % questionnaire.id
-
         self.client.post(url)
         self.assertNotIn(questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED).all())
         self.assertIn(questionnaire, Questionnaire.objects.filter(status=Questionnaire.DRAFT).all())
+
+    def test_post_shows_error_message_when_attempting_to_unfinalize_published_questionnaire(self):
+        questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.PUBLISHED)
+        Section.objects.create(title="Cured Cases of Measles", order=1, questionnaire=questionnaire, name="Cured Cases")
+        url = '/questionnaire/%d/unfinalize/' % questionnaire.id
+        response = self.client.post(url)
+        self.assertRedirects(response, reverse('manage_jrf_page'))
+        message = "The questionnaire could not be unlocked because its published."
+        self.assertIn(message, response.cookies['messages'].value)
 
 
 class PublishQuestionnaireToRegionsViewTest(BaseTest):
