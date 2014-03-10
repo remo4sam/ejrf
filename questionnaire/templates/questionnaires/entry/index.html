@@ -57,18 +57,27 @@
                     {{ form_set.management_form }}
                 {% endfor %}
                 {% for subsection in section.sub_sections.all %}
-                    <h4 class="button-padding">{% if section.has_at_least_two_subsections %}{{ section.order }}.{{ subsection.order }}
-                        .{% endif %} {{ subsection.title }}
-                        {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
-                        <div class="btn-group pull-right">
-                            <a href=""  id="id-assign-{{ subsection.id }}" class="btn btn-sm btn-default" data-toggle="modal" data-target="#assign-question-modal-{{ subsection.id }}">
-                                <span class="cyan"><span class="glyphicon glyphicon-plus-sign"></span> Assign Question</span>
-                            </a>
 
-                            <a href="" class="btn btn-sm btn-default" id="edit-subsection-{{ subsection.id }}" data-toggle="modal" data-target="#edit_subsection_{{ subsection.id }}"><span class="cyan"><span class="glyphicon glyphicon-pencil"></span> Edit</span></a>
-                            <a href="" class="btn btn-sm btn-default" data-toggle="modal" data-target="#delete-subsection-modal-{{ subsection.id }}"><span class="cyan"><span class="glyphicon glyphicon-trash"></span></span></a>
+                    <h4 class="button-padding">
+                        {% if section.has_at_least_two_subsections %}
+                            {{ section.order }}.{{ forloop.counter }}.
+                        {% endif %}
 
-                        </div>
+                        {{ subsection.title }}
+                        {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region%}
+                            <div class="btn-group pull-right">
+                                <a href="" id="id-assign-{{ subsection.id }}" class="btn btn-sm btn-default"
+                                   data-toggle="modal" data-target="#assign-question-modal-{{ subsection.id }}">
+                                    <span class="cyan"><span class="glyphicon glyphicon-plus-sign"></span> Assign Question</span>
+                                </a>
+
+                                <a href="" class="btn btn-sm btn-default" id="edit-subsection-{{ subsection.id }}" data-toggle="modal" data-target="#edit_subsection_{{ subsection.id }}"><span class="cyan"><span class="glyphicon glyphicon-pencil"></span> Edit</span></a>
+                                <a href="" class="btn btn-sm btn-default" data-toggle="modal"
+                                   data-target="#delete-subsection-modal-{{ subsection.id }}"><span class="cyan"><span
+                                        class="glyphicon glyphicon-trash"></span></span></a>
+
+
+                            </div>
                         {% endif %}
                     </h4>
                     {% if subsection.description %}
@@ -78,14 +87,15 @@
                     {% endif %}
                     {% for group in subsection.parent_question_groups %}
                         {% if group and group.grid and group.display_all %}
-                            {% include 'questionnaires/entry/grid.html' with a_group=group section=section sub_section=subsection%}
+                            {% include 'questionnaires/entry/grid.html' with a_group=group section=section sub_section=subsection %}
                         {% else %}
                             <div class="question-group indent">
                                 {% for order in group.question_orders %}
                                     {% if order.question.is_first_in_group %}
-                                        <h5>{% if subsection.has_at_least_two_groups and group.has_at_least_two_questions %}
-                                            {{ section.order }}{% if section.has_at_least_two_subsections %}.
-                                                {{ subsection.order }}{% endif %}.{{ group.order }}.{% endif %}</h5>
+                                        <h5>
+                                            {% if subsection.has_at_least_two_groups and group.has_at_least_two_questions %}
+                                                {{ section.order }}{% if section.has_at_least_two_subsections %}.
+                                                    {{ subsection.order }}{% endif %}.{{ group.order }}.{% endif %}</h5>
                                         {% if order.question.group.name %}
                                             <span class="group-name-instructions"><h5>{{ order.question.group.name }} </h5>
                                                 {% if order.question.group.instructions %}
@@ -103,8 +113,9 @@
                                                 {{ section.order }}{% if section.has_at_least_two_subsections %}.
                                                     {{ subsection.order }}{% endif %}.
                                                 {% if subsection.has_at_least_two_groups %}
-                                                    {{ group.order }}.{% endif %}{% if group.has_at_least_two_questions %}
-                                                {{ forloop.counter }}.{% endif %}
+                                                    {{ group.order }}.{% endif %}
+                                                {% if group.has_at_least_two_questions %}
+                                                    {{ forloop.counter }}.{% endif %}
                                             </div>
                                             <div class="question-text">
                                                 {{ order.question.text }}
@@ -116,12 +127,13 @@
                                                 {% if field.errors %}
                                                     <div class="field-error">
                                                 {% endif %}
-                                                {{ field }}
-                                                {% if field.errors %}
-                                                    </div>
-                                                {% endif %}
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                </div>
+                                            {% endif %}
                                                 {% if order.question.instructions %}
-                                                    <a class="indent instructions" data-toggle="popover" data-html="true"
+                                                    <a class="indent instructions" data-toggle="popover"
+                                                       data-html="true"
                                                        data-placement="bottom" data-trigger="hover"
                                                        data-content="{{ order.question.instructions }}"
                                                        id="question-{{ order.question.id }}-instructions"><i
@@ -139,7 +151,8 @@
                                         <div class="unassign-question-div">
                                             {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
                                                 <a href="" class="unassign-question pull-right red" data-toggle="modal"
-                                                    data-target="#unassign-question-modal-{{ order.question.id }}" id="unassign-question-{{ order.question.id }}">
+                                                   data-target="#unassign-question-modal-{{ order.question.id }}"
+                                                   id="unassign-question-{{ order.question.id }}">
                                                     <i class="glyphicon glyphicon-remove-circle red"></i>
                                                 </a>
                                             {% endif %}
@@ -163,10 +176,12 @@
                 {% if not perms.auth.can_edit_questionnaire %}
                     <div class="form-group top-padding ">
                         <div class="col-sm-offset-8 col-sm-3 pull-right">
-                            <a href="{% url 'home_page' %}" class="btn btn-default" name="cancel_button" id="cancel_button"> <span
+                            <a href="{% url 'home_page' %}" class="btn btn-default" name="cancel_button"
+                               id="cancel_button"> <span
                                     class="red bold"><i class="glyphicon glyphicon-remove"></i> CANCEL</span></a>
                             <button type="submit" class="btn btn-default" id="save_draft_button" name="save_draft"><span
-                                    class="cyan bold"><i class="glyphicon glyphicon-floppy-disk"></i> SAVE</span></button>
+                                    class="cyan bold"><i class="glyphicon glyphicon-floppy-disk"></i> SAVE</span>
+                            </button>
                         </div>
 
                     </div>
@@ -176,12 +191,12 @@
     </div>
     {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
         {% for subsection_ in section.sub_sections.all %}
-            {% include 'base/modals/ajax_modal.html' with action_url=subsection_.id|get_url_with_ids:"edit_subsection_page" object=subsection_  action="edit_subsection" modal_title="Edit SubSection"  btn_label="SAVE" class="edit_subsection"%}
+            {% include 'base/modals/ajax_modal.html' with action_url=subsection_.id|get_url_with_ids:"edit_subsection_page" object=subsection_  action="edit_subsection" modal_title="Edit SubSection"  btn_label="SAVE" class="edit_subsection" %}
             {% include 'base/modals/_delete.html' with object_type='Subsection' title='Confirm Delete' action="delete" url=subsection_.id|get_url_with_ids:"delete_subsection_page" object=subsection_ confirm='Yes' %}
             {% include 'questionnaires/assign_questions_modal.html' with subsection=subsection_ %}
             {% for group in subsection_.parent_question_groups %}
                 {% for order in group.question_orders %}
-                    {% include 'base/modals/_delete.html' with object_type='Question' title='Confirm Unassign' action="unassign" url=subsection_.id|add_string:order.question.id|get_url_with_ids:"unassign_question_page" object=order.question  confirm='Yes'%}
+                    {% include 'base/modals/_delete.html' with object_type='Question' title='Confirm Unassign' action="unassign" url=subsection_.id|add_string:order.question.id|get_url_with_ids:"unassign_question_page" object=order.question  confirm='Yes' %}
                 {% endfor %}
             {% endfor %}
         {% endfor %}
