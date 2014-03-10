@@ -176,3 +176,14 @@ class RegionalQuestionsViewTest(BaseTest):
         self.assertRedirects(response, self.url)
         self.failUnless(Question.objects.get(region=self.user.user_profile.region, **self.form_data))
         self.assertIn("Question successfully created.", response.cookies['messages'].value)
+
+    def test_delete_question(self):
+        data = {'text': 'B. Number of cases tested',
+                'instructions': "Enter the total number of cases",
+                'UID': '00001', 'answer_type': 'Number'}
+        question = Question.objects.create(region=self.region, **data)
+        response = self.client.post('/questions/%s/delete/' % question.id, {})
+        self.assertRedirects(response, self.url)
+        self.assertRaises(Question.DoesNotExist, Question.objects.get, **data)
+        message = "Question was deleted successfully"
+        self.assertIn(message, response.cookies['messages'].value)
