@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import CreateView, DeleteView, View
 from questionnaire.forms.questions import QuestionForm
+from questionnaire.mixins import RegionAndPermissionRequiredMixin
 from questionnaire.models import Question, Questionnaire
 
 
@@ -64,17 +65,12 @@ class CreateQuestion(PermissionRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class DeleteQuestion(PermissionRequiredMixin, DeleteView):
+class DeleteQuestion(RegionAndPermissionRequiredMixin, DeleteView):
     permission_required = 'auth.can_edit_questionnaire'
-
     model = Question
 
     def post(self, *args, **kwargs):
         question = self.model.objects.get(pk=kwargs['question_id'])
-        user_region = self.request.user.user_profile.region
-        if question.region != user_region:
-            message = "Sorry, Question was deleted successfully, Because it belongs to %s" % question.region.name
-            return self.redirect_and_render_error_message(message)
         if question.can_be_deleted():
             question.delete()
             message = "Question was deleted successfully"

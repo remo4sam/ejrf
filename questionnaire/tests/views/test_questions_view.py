@@ -1,3 +1,4 @@
+from urllib import quote
 from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.questions import QuestionForm
@@ -189,13 +190,21 @@ class RegionalQuestionsViewTest(BaseTest):
         self.assertIn(message, response.cookies['messages'].value)
 
     def test_delete_question_question_not_belonging_to_their_region_shows_error(self):
+        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
+                                                                                        country_name="China",
+                                                                                        region_name="ASEAN")
         data = {'text': 'B. Number of cases tested',
                 'instructions': "Enter the total number of cases",
                 'UID': '00001', 'answer_type': 'Number'}
         paho = Region.objects.create(name="paho")
         question = Question.objects.create(region=paho, **data)
-        response = self.client.post('/questions/%s/delete/' % question.id, {})
-        self.assertRedirects(response, self.url)
+        self.assert_permission_required(self.url)
+        self.assign('can_edit_questionnaire', user_not_in_same_region)
+        self.client.logout()
+        self.client.login(username='asian_chic', password='pass')
+
+        url = '/questions/%s/delete/' % question.id
+        response = self.client.post(url)
+
         self.failUnless(Question.objects.filter(id=question.id))
-        message = "Sorry, Question was deleted successfully, Because it belongs to %s" % paho.name
-        self.assertIn(message, response.cookies['messages'].value)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(url))
