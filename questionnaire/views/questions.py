@@ -72,15 +72,20 @@ class DeleteQuestion(PermissionRequiredMixin, DeleteView):
     def post(self, *args, **kwargs):
         question = self.model.objects.get(pk=kwargs['question_id'])
         user_region = self.request.user.user_profile.region
-        print question.region
-        print user_region
         if question.region != user_region:
             message = "Sorry, Question was deleted successfully, Because it belongs to %s" % question.region.name
-            messages.success(self.request, message)
-            return HttpResponseRedirect(reverse_lazy('list_questions_page'))
+            return self.redirect_and_render_error_message(message)
         if question.can_be_deleted():
             question.delete()
-            messages.success(self.request, "Question was deleted successfully")
-            return HttpResponseRedirect(reverse_lazy('list_questions_page'))
-        messages.error(self.request, "Question was not deleted because it has responses")
+            message = "Question was deleted successfully"
+            return self.redirect_and_render_success_message(message)
+        message = "Question was not deleted because it has responses"
+        return self.redirect_and_render_error_message(message)
+
+    def redirect_and_render_error_message(self,  message):
+        messages.error(self.request, message)
+        return HttpResponseRedirect(reverse_lazy('list_questions_page'))
+
+    def redirect_and_render_success_message(self, message):
+        messages.success(self.request, message)
         return HttpResponseRedirect(reverse_lazy('list_questions_page'))
