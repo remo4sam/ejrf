@@ -12,15 +12,13 @@ class RegionAndPermissionRequiredMixin(AccessMixin):
             raise ImproperlyConfigured(
                 "'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
-        has_permission = self.get_permissions_from_request()
+        has_permission = self.get_permissions_from_request(request, **kwargs)
 
         if not has_permission:
             if self.raise_exception:
                 raise PermissionDenied
             else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+                return redirect_to_login(request.get_full_path(), self.get_login_url(), self.get_redirect_field_name())
         return super(RegionAndPermissionRequiredMixin, self).dispatch(request, *args, **kwargs)
 
     def get_permissions_from_request(self, request, **kwargs):

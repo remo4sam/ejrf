@@ -9,7 +9,7 @@ class QuestionViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
-        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.user, self.country, self.region = self.create_user_with_no_permissions(region_name=None)
 
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
@@ -140,7 +140,7 @@ class RegionalQuestionsViewTest(BaseTest):
     def setUp(self):
 
         self.client = Client()
-        self.user, self.country, self.region = self.create_user_with_no_permissions(region_name="Afro")
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
         self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
@@ -169,3 +169,10 @@ class RegionalQuestionsViewTest(BaseTest):
         self.assertIn(question2, response.context['questions'])
         self.assertNotIn(question3, response.context['questions'])
         self.assertIsNone(response.context['active_questions'])
+
+    def test_post_create_question_for_region(self):
+        self.assertRaises(Question.DoesNotExist, Question.objects.get, **self.form_data)
+        response = self.client.post(self.url + 'new/', data=self.form_data)
+        self.assertRedirects(response, self.url)
+        self.failUnless(Question.objects.get(region=self.user.user_profile.region, **self.form_data))
+        self.assertIn("Question successfully created.", response.cookies['messages'].value)

@@ -36,8 +36,9 @@
                             {% if perms.auth.can_view_users %}
                                 <li><a href="{% url 'manage_jrf_page' %}" id="id-manage-jrf">MANAGE JRF</a></li>
                                 <li><a href="{% url 'list_users_page' %}">USERS</a></li>
-                                <li><a href="{% url 'list_questions_page' %}" id="id-question-bank-link">QUESTION
-                                    BANK</a></li>
+                            {% endif %}
+                            {% if perms.auth.can_view_users or perms.auth.can_edit_questionnaire %}
+                                <li><a href="{% url 'list_questions_page' %}" id="id-question-bank-link">QUESTION BANK</a></li>
                             {% endif %}
                             {% if perms.auth.can_submit_responses %}
                                 {% if preview %}

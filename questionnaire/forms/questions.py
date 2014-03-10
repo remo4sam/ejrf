@@ -7,8 +7,9 @@ from questionnaire.models import Question, QuestionOption, QuestionTextHistory
 class QuestionForm(ModelForm):
     options = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, region=None, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
+        self.region = region
         self.fields['answer_type'].choices = self._set_answer_type_choices()
         self.fields['answer_type'].label = 'Response Type'
         self.fields['text'].label = 'Display label (Online)'
@@ -48,6 +49,8 @@ class QuestionForm(ModelForm):
     def save(self, commit=True):
         question = super(QuestionForm, self).save(commit=False)
         question.UID = Question.next_uid()
+        if self.region:
+            question.region = self.region
         if commit:
             question.save()
             self._save_options_if_multichoice(question)
