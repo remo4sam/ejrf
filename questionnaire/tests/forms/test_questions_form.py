@@ -65,6 +65,17 @@ class QuestionsFormTest(BaseTest):
         self.assertEqual(3, question_options.count())
         [self.assertIn(question_option.text, options[0].split(',')) for question_option in question_options]
 
+    def test_assigns_region_on_save_if_region_is_given(self):
+        global_admin, country, region = self.create_user_with_no_permissions()
+        form = {'text': 'How many kids were immunised this year?',
+                'instructions': 'Some instructions',
+                'short_instruction': 'short version',
+                'export_label': 'blah',
+                'answer_type': 'Text'}
+        question_form = QuestionForm(region=region, data=form)
+        question = question_form.save(commit=True)
+        self.assertEqual(region, question.region)
+
     def test_form_invalid_if_multichoice_question_and_no_options_in_data_options(self):
         form = {'text': 'How many kids were immunised this year?',
                 'instructions': 'Some instructions',

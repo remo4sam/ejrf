@@ -26,7 +26,7 @@ class QuestionList(PermissionRequiredMixin, View):
 
     def get_questions_for_user(self):
         if self.request.user.has_perm('auth.can_view_users'):
-            return self.model.objects.all()
+            return self.model.objects.filter(region=None)
         return self.model.objects.filter(region=self.request.user.user_profile.region)
 
 
