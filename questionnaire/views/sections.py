@@ -90,7 +90,7 @@ class DeleteSection(DeleteView):
         return response
 
 
-class NewSubSection(PermissionRequiredMixin, CreateView):
+class NewSubSection(RegionAndPermissionRequiredMixin, CreateView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, **kwargs):
@@ -107,15 +107,18 @@ class NewSubSection(PermissionRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         questionnaire_id = kwargs.get('questionnaire_id')
         section_id = kwargs.get('section_id')
-        section = Section.objects.get(id=section_id)
-        self.form = SubSectionForm(instance=SubSection(section=section), data=request.POST)
+        self.section = Section.objects.get(id=section_id)
+        self.form = SubSectionForm(instance=SubSection(section=self.section), data=request.POST)
         self.referer_url = reverse('questionnaire_entry_page', args=(questionnaire_id, section_id))
         if self.form.is_valid():
             return self._form_valid()
         return self._form_invalid()
 
     def _form_valid(self):
-        self.form.save()
+        subsection = self.form.save(commit=False)
+        subsection.order = SubSection.get_next_order(self.section.id)
+        subsection.region = self.request.user.user_profile.region
+        subsection.save()
         messages.success(self.request, "Subsection successfully created." )
         return HttpResponseRedirect(self.referer_url)
 

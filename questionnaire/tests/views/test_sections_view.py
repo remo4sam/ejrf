@@ -5,10 +5,9 @@ from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.models import Questionnaire, Section, SubSection
 from questionnaire.tests.base_test import BaseTest
 from urllib import quote
- 
+
 
 class SectionsViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -38,7 +37,8 @@ class SectionsViewTest(BaseTest):
         section = Section.objects.get(**self.form_data)
         self.failUnless(section)
         self.assertEqual(self.region, section.region)
-        self.assertRedirects(response, expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id ,section.id))
+        self.assertRedirects(response,
+                             expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id, section.id))
 
     def test_post_with_form_increments_order_before_saving(self):
         Section.objects.create(name="Some", order=1, questionnaire=self.questionnaire)
@@ -48,12 +48,15 @@ class SectionsViewTest(BaseTest):
         response = self.client.post(self.url, data=form_data)
         section = Section.objects.get(order=2, name=form_data['name'])
         self.failUnless(section)
-        self.assertRedirects(response, expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id ,section.id))
+        self.assertRedirects(response,
+                             expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id, section.id))
 
     def test_permission_required_for_create_section(self):
         self.assert_permission_required(self.url)
 
-        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic", country_name="China", region_name="ASEAN")
+        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
+                                                                                        country_name="China",
+                                                                                        region_name="ASEAN")
         self.assign('can_edit_questionnaire', user_not_in_same_region)
 
         self.client.logout()
@@ -78,7 +81,6 @@ class SectionsViewTest(BaseTest):
 
 
 class EditSectionsViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -91,7 +93,7 @@ class EditSectionsViewTest(BaseTest):
         self.form_data = {'name': 'section',
                           'description': 'funny section',
                           'title': 'some title',
-                          'order':1,
+                          'order': 1,
                           'questionnaire': self.questionnaire.id}
         self.create_form_data = self.form_data.copy()
         del self.create_form_data['questionnaire']
@@ -115,7 +117,8 @@ class EditSectionsViewTest(BaseTest):
         response = self.client.post(self.url, data=data)
         section = Section.objects.get(**data)
         self.failUnless(section)
-        self.assertRedirects(response, expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id ,section.id))
+        self.assertRedirects(response,
+                             expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id, section.id))
         self.assertIn('Section updated successfully.', response.cookies['messages'].value)
 
     def test_permission_required_for_edit_section(self):
@@ -134,7 +137,6 @@ class EditSectionsViewTest(BaseTest):
 
 
 class DeleteSectionsViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -164,7 +166,7 @@ class DeleteSectionsViewTest(BaseTest):
         self.assertRedirects(response, reverse('home_page'), target_status_code=302)
 
     def test_successful_post_display_success_message(self):
-        referer_url = '/questionnaire/entry/%d/section/%d/'%(self.questionnaire.id, self.section_1.id)
+        referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section_1.id)
         meta = {'HTTP_REFERER': referer_url}
         response = self.client.post(self.url, data={}, **meta)
         message = "Section successfully deleted."
@@ -180,7 +182,6 @@ class DeleteSectionsViewTest(BaseTest):
 
 
 class SubSectionsViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -188,17 +189,13 @@ class SubSectionsViewTest(BaseTest):
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
-        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
-        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
         self.url = '/questionnaire/entry/%s/section/%s/subsection/new/' % (self.questionnaire.id, self.section.id)
         self.form_data = {
-                          'description': 'funny section',
-                          'title': 'some title',
-                        }
-
-    def test_permission_required_for_create_section(self):
-        self.assert_login_required(self.url)
-        self.assert_permission_required(self.url)
+            'description': 'funny section',
+            'title': 'some title',
+        }
 
     def test_get_create_subsection(self):
         response = self.client.get(self.url)
@@ -216,7 +213,8 @@ class SubSectionsViewTest(BaseTest):
         self.failUnless(subsection)
         self.assertEqual(1, subsection.count())
         self.assertIn('Subsection successfully created.', response.cookies['messages'].value)
-        self.assertRedirects(response,expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id ,self.section.id))
+        self.assertRedirects(response, expected_url='/questionnaire/entry/%s/section/%s/' % (
+        self.questionnaire.id, self.section.id))
 
     def test_post_with_form_increments_order_before_saving(self):
         SubSection.objects.create(title="Some", order=1, section=self.section)
@@ -227,7 +225,22 @@ class SubSectionsViewTest(BaseTest):
         subsection = SubSection.objects.filter(order=2, title=form_data['title'])
         self.failUnless(subsection)
         self.assertEqual(1, subsection.count())
-        self.assertRedirects(response, expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id ,self.section.id))
+        self.assertRedirects(response, expected_url='/questionnaire/entry/%s/section/%s/' % (
+        self.questionnaire.id, self.section.id))
+
+    def test_permission_required_for_create_section(self):
+        self.assert_permission_required(self.url)
+
+        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
+                                                                                        country_name="China",
+                                                                                        region_name="ASEAN")
+        self.assign('can_edit_questionnaire', user_not_in_same_region)
+
+        self.client.logout()
+        self.client.login(username='asian_chic', password='pass')
+        response = self.client.get(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
+                             status_code=302, target_status_code=200, msg_prefix='')
 
     def test_post_invalid(self):
         SubSection.objects.create(title="Some", order=1, section=self.section)
@@ -244,7 +257,6 @@ class SubSectionsViewTest(BaseTest):
 
 
 class EditSubSectionsViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -301,7 +313,6 @@ class EditSubSectionsViewTest(BaseTest):
 
 
 class DeleteSubSectionsViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
