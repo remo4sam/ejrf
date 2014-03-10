@@ -101,29 +101,32 @@ class AssignQuestionViewTest(BaseTest):
         self.client.logout()
         self.client.login(username='asian_chic', password='pass')
         response = self.client.get(self.url)
-        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
-                             status_code=302, target_status_code=200, msg_prefix='')
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url))
+        response = self.client.post(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url))
+
 
 class UnAssignQuestionViewTest(BaseTest):
 
     def setUp(self):
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
         self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
-        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1)
-        self.question1 = Question.objects.create(text='Q1', UID='C00003', answer_type='Number')
-        self.question2 = Question.objects.create(text='Q2', UID='C00002', answer_type='Number')
-        self.question_group = self.question1.question_group.create(subsection=self.subsection)
-        self.question1.orders.create(question_group=self.question_group, order=1)
-        self.question_group.question.add(self.question2)
-        self.question2.orders.create(question_group=self.question_group, order=2)
-
-        self.url = '/subsection/%d/question/%d/unassign/'%(self.subsection.id, self.question1.id)
 
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
+
+        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1, region=self.region)
+        self.question1 = Question.objects.create(text='Q1', UID='C00003', answer_type='Number', region=self.region)
+        self.question2 = Question.objects.create(text='Q2', UID='C00002', answer_type='Number', region=self.region)
+        self.question_group = self.question1.question_group.create(subsection=self.subsection)
+        self.question1.orders.create(question_group=self.question_group, order=1)
+        self.question_group.question.add(self.question2)
+        self.question2.orders.create(question_group=self.question_group, order=2)
+
+        self.url = '/subsection/%d/question/%d/unassign/'%(self.subsection.id, self.question1.id)
 
     def test_post_unassign_question_to_group_and_removes_question_order(self):
         meta = {'HTTP_REFERER': '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section.id)}
@@ -149,5 +152,24 @@ class UnAssignQuestionViewTest(BaseTest):
     def test_login_required(self):
         self.assert_login_required(self.url)
 
-    def test_permission_required(self):
+    def test_permission_required_for_create_section(self):
         self.assert_permission_required(self.url)
+
+        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
+                                                                                        country_name="China",
+                                                                                        region_name="ASEAN")
+        self.assign('can_edit_questionnaire', user_not_in_same_region)
+
+        self.client.logout()
+        self.client.login(username='asian_chic', password='pass')
+        response = self.client.post(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url))
+
+    def test_permission_denied_if_subsection_belongs_to_a_user_but_question_to_another_user(self):
+        core_question = Question.objects.create(text='core Q', UID='C000C2', answer_type='Number', region=None)
+        self.question_group.question.add(core_question)
+
+        url = '/subsection/%d/question/%d/unassign/'%(self.subsection.id, core_question.id)
+
+        response = self.client.post(url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(url))

@@ -1,7 +1,7 @@
 from braces.views import AccessMixin, MultiplePermissionsRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from questionnaire.models import Questionnaire, Region, SubSection
+from questionnaire.models import Questionnaire, Region, SubSection, Question
 
 
 class RegionAndPermissionRequiredMixin(AccessMixin):
@@ -15,18 +15,26 @@ class RegionAndPermissionRequiredMixin(AccessMixin):
 
     def get_permissions_from_request(self, request, **kwargs):
         user = request.user
-        region = self.get_region(kwargs)
-        return user.has_perm(self.permission_required) and user.user_profile and user.user_profile.region == region
+        regions = self.get_region(kwargs)
+        return user.has_perm(self.permission_required) and self._from_same_region(user, regions)
 
     def get_region(self, kwargs):
-        if 'questionnaire_id' in kwargs:
-            return Questionnaire.objects.get(id=kwargs['questionnaire_id']).region
-        if 'region_id' in kwargs:
-            return Region.objects.get(id=kwargs['region_id'])
+        regions = []
+        if 'question_id' in kwargs:
+            question = Question.objects.get(id=kwargs['question_id'])
+            regions.append(question.region)
         if 'subsection_id' in kwargs:
             subsection = SubSection.objects.get(id=kwargs['subsection_id'])
-            return subsection.region or subsection.section.region or subsection.section.questionnaire.region
-        return None
+            regions.append(subsection.region or subsection.section.region or subsection.section.questionnaire.region)
+        if 'questionnaire_id' in kwargs:
+            regions.append(Questionnaire.objects.get(id=kwargs['questionnaire_id']).region)
+        if 'region_id' in kwargs:
+            regions.append(Region.objects.get(id=kwargs['region_id']))
+        return regions
+
+    def _from_same_region(self, user, regions):
+        same_region_check = [user.user_profile.region == region for region in regions]
+        return same_region_check.count(True) == len(regions)
 
 
 class AdvancedMultiplePermissionsRequiredMixin(MultiplePermissionsRequiredMixin):

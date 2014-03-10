@@ -35,7 +35,7 @@ class AssignQuestion(RegionAndPermissionRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
-class UnAssignQuestion(PermissionRequiredMixin, View):
+class UnAssignQuestion(RegionAndPermissionRequiredMixin, View):
     permission_required = 'auth.can_edit_questionnaire'
 
     def post(self, request, *args, **kwargs):

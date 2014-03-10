@@ -151,7 +151,7 @@
 
                                         </div>
                                         <div class="unassign-question-div">
-                                            {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
+                                            {% if perms.auth.can_edit_questionnaire and  user.user_profile.region == questionnaire.region and user.user_profile.region == order.question.region %}
                                                 <a href="" class="unassign-question pull-right red" data-toggle="modal"
                                                    data-target="#unassign-question-modal-{{ order.question.id }}"
                                                    id="unassign-question-{{ order.question.id }}">
