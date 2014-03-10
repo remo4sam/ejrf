@@ -73,7 +73,8 @@ class CreateUser(PermissionRequiredMixin, CreateView):
                         'title': "Create new user",
                         'organizations': Organization.objects.all(),
                         'regions': Region.objects.all(),
-                        'countries': Country.objects.all()}
+                        'countries': Country.objects.all(),
+                        'cancel_url': reverse('list_users_page')}
         context.update(context_vars)
         return context
 

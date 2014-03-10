@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.questions import QuestionForm
 from questionnaire.models import Question, QuestionGroup, Questionnaire, Section, SubSection, Country, Answer
@@ -58,6 +59,7 @@ class SectionsViewTest(BaseTest):
         self.assertIsNotNone(response.context['form'])
         self.assertEqual('CREATE', response.context['btn_label'])
         self.assertEqual("id-new-question-form", response.context['id'])
+        self.assertEqual(reverse('list_questions_page'), response.context['cancel_url'])
 
     def test_post_create_question(self):
         self.assertRaises(Question.DoesNotExist, Question.objects.get, **self.form_data)

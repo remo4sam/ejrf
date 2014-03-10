@@ -1,6 +1,7 @@
 import json
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.filter import UserFilterForm
 from questionnaire.forms.user_profile import UserProfileForm, EditUserProfileForm
@@ -58,6 +59,7 @@ class UsersViewTest(BaseTest):
         self.assertIn(self.organization, response.context['organizations'])
         self.assertIn(self.afro, response.context['regions'])
         self.assertIn(self.uganda, response.context['countries'])
+        self.assertEqual(reverse('list_users_page'), response.context['cancel_url'])
 
     def test_post_new_user(self):
         response = self.client.post('/users/new/', data=self.form_data)

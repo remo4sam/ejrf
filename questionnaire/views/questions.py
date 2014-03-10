@@ -36,7 +36,7 @@ class CreateQuestion(PermissionRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateQuestion, self).get_context_data(**kwargs)
-        context.update({'btn_label': 'CREATE', 'id': 'id-new-question-form'})
+        context.update({'btn_label': 'CREATE', 'id': 'id-new-question-form', 'cancel_url': reverse('list_questions_page')})
         return context
 
     def post(self, request, *args, **kwargs):
