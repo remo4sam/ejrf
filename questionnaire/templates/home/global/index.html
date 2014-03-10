@@ -23,7 +23,7 @@
                         {% for questionnaire in draft_questionnaires %}
                             <li class="list-group-item">
                                 {% with questionnaire.sections.all|first as first_section %}
-                                    <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                    <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}>{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                 {% endwith %}
                                 <span class="pull-right">
                                     <a href="" class="btn btn-xs btn-default" id="id-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>

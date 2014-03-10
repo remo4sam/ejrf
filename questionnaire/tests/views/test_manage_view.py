@@ -132,4 +132,5 @@ class PublishQuestionnaireToRegionsViewTest(BaseTest):
         self.assertIn('questionnaires/_publish.html', templates)
         self.assertEqual(self.questionnaire, response.context['questionnaire'])
         self.assertIsInstance(response.context['publish_form'], PublishQuestionnaireForm)
-        self.assertEqual( "Publish", response.context['btn_label'])
+        self.assertEqual("Publish", response.context['btn_label'])
+        self.assertEqual(reverse("manage_jrf_page"), response.context['cancel_url'])

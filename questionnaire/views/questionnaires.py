@@ -150,7 +150,9 @@ class PublishQuestionnaire(View):
     def get(self, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
         form = PublishQuestionnaireForm(initial={'questionnaire': questionnaire})
-        context = {'questionnaire': questionnaire, 'publish_form': form, 'btn_label': "Publish"}
+        context = {'questionnaire': questionnaire,
+                   'publish_form': form, 'btn_label': "Publish",
+                   'cancel_url': reverse('manage_jrf_page')}
         return render(self.request, self.template_name, context)
 
     def post(self, *args, **kwargs):
