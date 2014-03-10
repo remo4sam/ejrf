@@ -162,7 +162,10 @@ class PublishQuestionnaire(View):
             form.save()
             message = "The questionnaire has been published to %s" % ", ".join([region.name for region in form.cleaned_data['regions']])
             messages.success(self.request, message)
+            return HttpResponseRedirect(reverse('manage_jrf_page'))
         else:
             message = "Questionnaire could not be published see errors below"
             messages.error(self.request, message)
-        return HttpResponseRedirect(reverse('manage_jrf_page'))
+        context = {'questionnaire': questionnaire, 'publish_form': form, 'btn_label': "Publish",
+                   'cancel_url': reverse('manage_jrf_page')}
+        return render(self.request, self.template_name, context)

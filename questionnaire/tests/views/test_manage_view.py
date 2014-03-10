@@ -121,9 +121,9 @@ class PublishQuestionnaireToRegionsViewTest(BaseTest):
     def test_post_publishes_questionnaire_with_errors(self):
         data = {'regions': []}
         response = self.client.post(self.url, data=data)
-        self.assertRedirects(response, reverse('manage_jrf_page'))
+        self.assertEqual(200, response.status_code)
         message = "Questionnaire could not be published see errors below"
-        self.assertIn(message, response.cookies['messages'].value)
+        self.assertIn(message, str(response.content))
 
     def test_get_publish(self):
         response = self.client.get("/questionnaire/%d/publish/" % self.questionnaire.id)
