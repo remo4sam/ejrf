@@ -48,3 +48,12 @@ class HomePageViewTest(BaseTest):
         self.client.login(username=user.username, password='pass')
         response = self.client.get("/")
         self.assertRedirects(response, expected_url=reverse('manage_jrf_page'))
+
+    def test_homepage_redirects_to_manage_regional_jrf_when_logged_in_as_regional_admin(self):
+        User.objects.all().delete()
+        self.client.logout()
+        user, self.country, self.region = self.create_user_with_no_permissions()
+        self.assign('can_edit_questionnaire', user)
+        self.client.login(username=user.username, password='pass')
+        response = self.client.get("/")
+        self.assertRedirects(response, expected_url=reverse('manage_regional_jrf_page', args=(self.region.id,)))

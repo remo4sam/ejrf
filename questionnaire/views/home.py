@@ -11,13 +11,16 @@ from questionnaire.models import Questionnaire
 class Home(MultiplePermissionsRequiredMixin, View):
     def __init__(self, *args, **kwargs):
         super(Home, self).__init__(*args, **kwargs)
-        self.permissions = {'any': ('auth.can_submit_responses', 'auth.can_view_users')}
+        self.permissions = {'any': ('auth.can_submit_responses', 'auth.can_view_users', 'auth.can_edit_questionnaire')}
         self.template_name = "home/index.html"
         self.questionnaires = Questionnaire.objects.filter(status=Questionnaire.PUBLISHED)
 
     def get(self, *args, **kwargs):
         if self.request.user.has_perm('auth.can_view_users'):
             return HttpResponseRedirect(reverse('manage_jrf_page'))
+        if self.request.user.has_perm('auth.can_edit_questionnaire'):
+            region = self.request.user.user_profile.region
+            return HttpResponseRedirect(reverse('manage_regional_jrf_page', args=(region.id,)))
         if self.questionnaires.exists():
             return self._render_questionnaire_section()
         return self._render_questionnaire_does_not_exist()
