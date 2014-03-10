@@ -123,4 +123,3 @@ def and_the_section_should_no_longer_appear_in_the_questionnaire(step):
 @step(u'And the section numbering should be updated')
 def and_the_section_numbering_should_be_updated(step):
     assert False, 'This step must be implemented'
-
