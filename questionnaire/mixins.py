@@ -1,7 +1,7 @@
 from braces.views import AccessMixin, MultiplePermissionsRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from questionnaire.models import Questionnaire
+from questionnaire.models import Questionnaire, Region
 
 
 class RegionAndPermissionRequiredMixin(AccessMixin):
@@ -13,9 +13,12 @@ class RegionAndPermissionRequiredMixin(AccessMixin):
                 "'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
         user = request.user
-        questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
-        has_permission = user.has_perm(self.permission_required) and user.user_profile and user.user_profile.region == questionnaire.region
-
+        region = None
+        if 'questionnaire_id' in kwargs:
+            region = Questionnaire.objects.get(id=kwargs['questionnaire_id']).region
+        if 'region_id' in kwargs:
+            region = Region.objects.get(id=kwargs['region_id'])
+        has_permission = user.has_perm(self.permission_required) and user.user_profile and user.user_profile.region == region
 
         if not has_permission:
             if self.raise_exception:

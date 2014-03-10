@@ -1,0 +1,62 @@
+{% extends 'base/layout.html' %}
+{% block content %}
+    {% load generic_tags %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{{ region.name }} Questionnaires</h2>
+            <hr/>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span>
+                        <h3 class="panel-title">In Progress</h3>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                        {% for questionnaire in draft_questionnaires %}
+                            <li class="list-group-item">
+                                {% with questionnaire.sections.all|first as first_section %}
+                                    <a id="questionnaire-{{ questionnaire.id }}"
+                                       href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                    <span class="pull-right">
+                                    <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}"
+                                       class="btn btn-xs btn-default" id="id-edit"><span
+                                            class="glyphicon glyphicon-pencil"></span> Edit</a>
+                                    <a class="btn btn-xs btn-default" id="id-finalize-{{ questionnaire.id }}"
+                                       post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/"
+                                       pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img
+                                            class="glyph-icon" src="/static/img/glyphicons_lock.png"></span></a>
+
+                                </span>
+                                {% endwith %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Finalized</h3>
+                </div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                        {% for questionnaire in finalized_questionnaires %}
+                            <li class="list-group-item{% if  forloop.counter > 3 %} hide{% endif %}">
+                                {% with questionnaire.sections.all|first as first_section %}
+                                    <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}?preview=1">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                {% endwith %}
+                            </li>
+                        {% endfor %}
+                        <li class="list-group-item more-toggle">
+                            <a href="" id="id-older-jrf">More</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

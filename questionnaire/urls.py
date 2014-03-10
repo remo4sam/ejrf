@@ -3,7 +3,7 @@ from questionnaire.views.assign_questions import AssignQuestion, UnAssignQuestio
 from questionnaire.views.export_to_text import ExportToTextView, ExportSectionPDF, DownloadSectionPDF
 from questionnaire.views.home import Home
 from questionnaire.views.locations import ListRegions, ListCountries, RegionsForOrganization
-from questionnaire.views.manage import ManageJRF
+from questionnaire.views.manage import ManageJRF, ManageRegionalJRF
 from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
 from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection, DeleteSubSection
 from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion
@@ -22,6 +22,7 @@ urlpatterns = patterns('',
     url(r'^locations/organization/(?P<organization_id>\d+)/region/$', RegionsForOrganization.as_view()),
     url(r'^locations/region/(?P<region_id>\d+)/country/$', ListCountries.as_view(), name="list_country_page"),
     url(r'^manage/$', ManageJRF.as_view(), name='manage_jrf_page'),
+    url(r'^manage/region/(?P<region_id>\d+)/$', ManageRegionalJRF.as_view(), name='manage_regional_jrf_page'),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/(?P<section_id>\d+)/$',Entry.as_view(), name="questionnaire_entry_page"),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/new/$', NewSection.as_view(), name="new_section_page"),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/(?P<section_id>\d+)/subsection/new/$', NewSubSection.as_view(), name="new_subsection_page"),

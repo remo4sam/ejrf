@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.views.generic import View
 from braces.views import MultiplePermissionsRequiredMixin
 from questionnaire.forms.questionnaires import QuestionnaireFilterForm
+from questionnaire.mixins import RegionAndPermissionRequiredMixin
 from questionnaire.models import Questionnaire, Region
 
 
@@ -34,3 +35,19 @@ class ManageJRF(MultiplePermissionsRequiredMixin, View):
                         'drafts': regional_questionnaires.filter(region=region, status=Questionnaire.DRAFT)}}
             questionnaire_region_map.update(regional)
         return questionnaire_region_map
+
+
+class ManageRegionalJRF(RegionAndPermissionRequiredMixin, View):
+    permission_required = 'auth.can_edit_questionnaire'
+
+    def __init__(self, *args, **kwargs):
+        super(ManageRegionalJRF, self).__init__(**kwargs)
+        self.template_name = 'home/regional/index.html'
+
+    def get(self, *args, **kwargs):
+        region = Region.objects.get(id=kwargs['region_id'])
+        questionnaires = region.questionnaire.all()
+        context = {'region': region,
+                   'finalized_questionnaires': questionnaires.filter(status__in=[Questionnaire.FINALIZED, Questionnaire.PUBLISHED]),
+                   'draft_questionnaires': questionnaires.filter(status=Questionnaire.DRAFT),}
+        return render(self.request, self.template_name, context)

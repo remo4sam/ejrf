@@ -20,7 +20,7 @@ class BaseTest(TestCase):
         uganda = Country.objects.create(name=country_name)
         region = None
         if region_name:
-            region = Region.objects.create(description=region_name)
+            region = Region.objects.create(name=region_name)
         UserProfile.objects.create(user=user, country=uganda, region=region)
         user.set_password("pass")
         user.save()

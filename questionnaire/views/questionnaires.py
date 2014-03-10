@@ -62,7 +62,7 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
                                                  edit_after_submit=user_questionnaire_service.edit_after_submit)
 
         context = {'questionnaire': questionnaire, 'section': section,
-                   'formsets': formsets, 'ordered_sections': Section.objects.order_by('order')}
+                   'formsets': formsets, 'ordered_sections': Section.objects.filter(questionnaire=questionnaire).order_by('order')}
 
         if formsets.is_valid():
             return self._form_valid(request, formsets, user_questionnaire_service, context)
