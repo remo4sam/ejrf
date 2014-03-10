@@ -35,3 +35,6 @@ class Questionnaire(BaseModel):
         for subsection in self.sub_sections():
             all_groups.extend(subsection.question_group.all())
         return all_groups
+
+    def is_finalized(self):
+        return self.status == Questionnaire.FINALIZED

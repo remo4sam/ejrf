@@ -48,8 +48,8 @@ class QuestionnaireClonerServiceTest(BaseTest):
 
     def test_returns_all_a_new_questionnaire_instance_when_clone_is_called(self):
         questionnaire, old = QuestionnaireClonerService(self.questionnaire).clone()
-        self.assertEqual(questionnaire, self.questionnaire)
-        self.assertNotEqual(old, questionnaire)
+        self.assertEqual(old, self.questionnaire)
+        self.assertNotEqual(self.questionnaire, questionnaire)
         questionnaires = Questionnaire.objects.all()
         self.assertEqual(2, len(questionnaires))
         self.assertIn(questionnaire, questionnaires)

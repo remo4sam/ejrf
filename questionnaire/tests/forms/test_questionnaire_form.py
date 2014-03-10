@@ -93,7 +93,7 @@ class PublishQuestionnaireFormTest(BaseTest):
         self.assertIn((self.paho.id, self.paho.name), region_choices)
         self.assertNotIn((self.afro.id, self.afro.name), region_choices)
 
-    def test_creates_copies_regions_on_save(self):
+    def test_creates_copies_for_regions_on_save(self):
         Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED, year=2013, region=self.afro)
         pacific = Region.objects.create(name="haha", organization=self.who)
         asia = Region.objects.create(name="hehe", organization=self.who)
@@ -107,3 +107,5 @@ class PublishQuestionnaireFormTest(BaseTest):
         self.assertEqual(5, questionnaires.count())
         [self.assertEqual(1, region.questionnaire.all().count()) for region in [self.paho, pacific, asia]]
         self.assertEqual(1, self.afro.questionnaire.all().count())
+        questionnaire = Questionnaire.objects.filter(id=self.questionnaire.id)[0]
+        self.assertEqual(questionnaire.status, Questionnaire.PUBLISHED)

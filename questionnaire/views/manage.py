@@ -17,7 +17,7 @@ class ManageJRF(MultiplePermissionsRequiredMixin, View):
 
     def get(self, *args, **kwargs):
         core_questionnaires = self.questionnaires.filter(region__isnull=True)
-        context = {'finalized_questionnaires': core_questionnaires.filter(status=Questionnaire.FINALIZED),
+        context = {'finalized_questionnaires': core_questionnaires.filter(status__in=[Questionnaire.FINALIZED, Questionnaire.PUBLISHED]),
                    'draft_questionnaires': core_questionnaires.filter(status=Questionnaire.DRAFT),
                    'filter_form': QuestionnaireFilterForm(),
                    'regions_questionnaire_map': self.map_region_with_questionnaires(),

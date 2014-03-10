@@ -24,12 +24,12 @@
                             <li class="list-group-item">
                                 {% with questionnaire.sections.all|first as first_section %}
                                     <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
-                                {% endwith %}
                                 <span class="pull-right">
-                                    <a href="" class="btn btn-xs btn-default" id="id-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+                                    <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}" class="btn btn-xs btn-default" id="id-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
                                     <a class="btn btn-xs btn-default" id="id-finalize-{{ questionnaire.id }}" post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_lock.png"></span></a>
 
                                 </span>
+                                {% endwith %}
                             </li>
                         {% endfor %}
                     </ul>
@@ -52,7 +52,9 @@
                                     <a href="{% url 'publish_questionnaire_page' questionnaire.id %}" class="btn btn-default btn-xs"  id="id-publish-questionnaire-{{ questionnaire.id }}">
                                         <span class="glyphicon glyphicon-send"></span> Send to Regions
                                     </a>
-                                    <a class="btn btn-xs btn-default" id="id-unfinalize-{{ questionnaire.id }}" post="true" phref="/questionnaire/{{ questionnaire.id }}/unfinalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_unlock.png"></span></a>
+                                    {% if questionnaire.is_finalized %}
+                                        <a class="btn btn-xs btn-default" id="id-unfinalize-{{ questionnaire.id }}" post="true" phref="/questionnaire/{{ questionnaire.id }}/unfinalize/" pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img class="glyph-icon" src="/static/img/glyphicons_unlock.png"></span></a>
+                                    {% endif %}
                                 </span>
                             </li>
                         {% endfor %}
@@ -83,7 +85,7 @@
                             {% get_questionnaire_from region regions_questionnaire_map=regions_questionnaire_map status='drafts' as drafts%}
                             {% for questionnaire in drafts %}
                                 {% with questionnaire.sections.all|first as first_section %}
-                                    <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                    <li class="list-group-item">{{ questionnaire.name }} {{ questionnaire.year }}</li>
                                 {% endwith %}
                             {% endfor %}
                         </ul>
@@ -100,7 +102,9 @@
                             {% get_questionnaire_from region regions_questionnaire_map=regions_questionnaire_map status='finalized' as finalized_questionnaires%}
                             {% for questionnaire in finalized_questionnaires %}
                                 {% with questionnaire.sections.all|first as first_section %}
-                                    <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                    <li class="list-group-item">
+                                        <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                    </li>
                                 {% endwith %}
                             {% endfor %}
                         </ul>

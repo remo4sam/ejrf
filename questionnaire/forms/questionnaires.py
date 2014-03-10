@@ -37,4 +37,5 @@ class PublishQuestionnaireForm(forms.Form):
     def save(self):
         regions = self.cleaned_data['regions']
         for region in regions:
-            QuestionnaireClonerService(self.initial['questionnaire'], region).clone()
+            questionnaire = self.initial['questionnaire']
+            QuestionnaireClonerService(questionnaire, region).clone()

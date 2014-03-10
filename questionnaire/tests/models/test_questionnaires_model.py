@@ -70,3 +70,9 @@ class QuestionnaireTest(BaseTest):
         self.assertEqual(1, len(self.questionnaire.all_groups()))
         self.assertIn(self.sub_group, self.questionnaire.all_groups())
         self.assertNotIn(another_group, self.questionnaire.all_groups())
+
+    def test_questionnaire_knows_its_finalized(self):
+        self.assertFalse(self.questionnaire.is_finalized())
+
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.FINALIZED)
+        self.assertTrue(questionnaire.is_finalized())

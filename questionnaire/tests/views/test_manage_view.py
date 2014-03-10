@@ -20,6 +20,8 @@ class ManageJRFViewTest(BaseTest):
     def test_get_returns_only_core_and_region_specific_questionnaires(self):
         core1 = Questionnaire.objects.create(name="JRF Jamaica core", description="bla", year=2012,
                                              status=Questionnaire.FINALIZED)
+        core1_publish = Questionnaire.objects.create(name="JRF Jamaica core", description="bla", year=2011,
+                                             status=Questionnaire.PUBLISHED)
         core2 = Questionnaire.objects.create(name="JRF Brazil core", description="bla", year=2013,
                                              status=Questionnaire.DRAFT)
         questionnaire1 = Questionnaire.objects.create(name="JRF Jamaica paho", description="bla", year=2012,
@@ -30,12 +32,14 @@ class ManageJRFViewTest(BaseTest):
         Section.objects.create(title="section", order=1, questionnaire=core1, name="section")
         Section.objects.create(title="section", order=1, questionnaire=questionnaire1, name="section")
         Section.objects.create(title="section", order=1, questionnaire=questionnaire2, name="section")
+        Section.objects.create(title="section", order=1, questionnaire=core1_publish, name="section")
 
         response = self.client.get("/manage/")
         self.assertEqual(200, response.status_code)
         templates = [template.name for template in response.templates]
         self.assertIn('home/global/index.html', templates)
         self.assertIn(core1, response.context['finalized_questionnaires'])
+        self.assertIn(core1_publish, response.context['finalized_questionnaires'])
         self.assertIn(core2, response.context['draft_questionnaires'])
         self.assertIsInstance(response.context['filter_form'], QuestionnaireFilterForm)
         self.assertEqual(reverse('duplicate_questionnaire_page'), response.context['action'])
