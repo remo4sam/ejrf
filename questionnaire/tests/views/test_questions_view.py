@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.questions import QuestionForm
-from questionnaire.models import Question, Questionnaire, Section, SubSection, Country, Answer
+from questionnaire.models import Question, Questionnaire, Section, SubSection, Country, Answer, Region
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -186,4 +186,16 @@ class RegionalQuestionsViewTest(BaseTest):
         self.assertRedirects(response, self.url)
         self.assertRaises(Question.DoesNotExist, Question.objects.get, **data)
         message = "Question was deleted successfully"
+        self.assertIn(message, response.cookies['messages'].value)
+
+    def test_delete_question_question_not_belonging_to_their_region_shows_error(self):
+        data = {'text': 'B. Number of cases tested',
+                'instructions': "Enter the total number of cases",
+                'UID': '00001', 'answer_type': 'Number'}
+        paho = Region.objects.create(name="paho")
+        question = Question.objects.create(region=paho, **data)
+        response = self.client.post('/questions/%s/delete/' % question.id, {})
+        self.assertRedirects(response, self.url)
+        self.failUnless(Question.objects.filter(id=question.id))
+        message = "Sorry, Question was deleted successfully, Because it belongs to %s" % paho.name
         self.assertIn(message, response.cookies['messages'].value)

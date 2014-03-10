@@ -26,7 +26,7 @@ class QuestionList(PermissionRequiredMixin, View):
 
     def get_questions_for_user(self):
         if self.request.user.has_perm('auth.can_view_users'):
-            return self.model.objects.filter(region=None)
+            return self.model.objects.filter(region=None).order_by('created')
         return self.model.objects.filter(region=self.request.user.user_profile.region)
 
 
@@ -71,6 +71,13 @@ class DeleteQuestion(PermissionRequiredMixin, DeleteView):
 
     def post(self, *args, **kwargs):
         question = self.model.objects.get(pk=kwargs['question_id'])
+        user_region = self.request.user.user_profile.region
+        print question.region
+        print user_region
+        if question.region != user_region:
+            message = "Sorry, Question was deleted successfully, Because it belongs to %s" % question.region.name
+            messages.success(self.request, message)
+            return HttpResponseRedirect(reverse_lazy('list_questions_page'))
         if question.can_be_deleted():
             question.delete()
             messages.success(self.request, "Question was deleted successfully")
