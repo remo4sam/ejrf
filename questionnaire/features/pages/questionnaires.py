@@ -29,6 +29,10 @@ class QuestionnairePage(PageObject):
         self.is_element_present_by_css(".alert-danger")
 
     def validate_responses(self, data):
-        self.is_element_present_by_value(data.values()[0])
-        for i in range(1, 7):
-            self.is_text_present(str(data.values()[i]))
+        data_keys = data.keys()
+        numerical = filter(lambda key: 'Number' in key, data_keys)
+        text = filter(lambda key: 'Text' in key, data_keys)
+        for key in numerical:
+            self.is_element_present_by_value(data[key])
+        for key in text:
+            self.is_text_present(str(data[key]))

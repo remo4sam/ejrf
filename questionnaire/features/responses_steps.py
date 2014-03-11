@@ -1,3 +1,4 @@
+from time import sleep
 from django.contrib.auth.models import User
 from lettuce import step, world
 from questionnaire.features.pages.questionnaires import QuestionnairePage
