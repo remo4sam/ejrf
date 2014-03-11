@@ -1,7 +1,5 @@
-from time import sleep
 from lettuce import step, world
-from questionnaire.features.pages.questionnaires import QuestionnairePage
-from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionGroupOrder, QuestionOption
+from questionnaire.models import Question, QuestionGroup, QuestionGroupOrder, QuestionOption
 
 @step(u'And I have a grid group with all options of the primary question showable')
 def and_i_have_a_grid_group_with_all_options_of_the_primary_question_showable(step):
@@ -48,14 +46,12 @@ def and_i_have_a_sub_group_in_that_group_with_two_questions(step):
 def _create_correct_responses(world):
     data ={ }
     counter =0
-    for index, option in  enumerate(world.question1.options.all()):
+    for index, option in enumerate(world.question1.options.all()):
         data['MultiChoice-%d-response'%index] = option.id
         for i in range(4):
             data['Number-%d-response'%counter] = counter
             counter +=1
     return data
-
-
 
 @step(u'When I respond the questions')
 def when_i_respond_the_questions(step):
