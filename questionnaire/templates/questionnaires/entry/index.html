@@ -1,7 +1,5 @@
 {% extends 'base/layout.html' %}
 {% block javascripts %}
-    <script src="{{ STATIC_URL }}js/preview_questionnaire.js" type="text/javascript" charset="utf-8"
-            xmlns="http://www.w3.org/1999/html"></script>
     {% if printable %}
         <script src="{{ STATIC_URL }}js/printable.js" type="text/javascript" charset="utf-8"></script>
     {% endif %}
