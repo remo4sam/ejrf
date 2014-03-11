@@ -167,11 +167,11 @@ def and_i_have_two_finalised_questionnaires(step):
     world.questionnaire7 = Questionnaire.objects.create(name="JRF Kampala Test version1", description="description",
                                                         year=2014, status=Questionnaire.FINALIZED)
 
-    Section.objects.create(title="School Based Section1", order=0, questionnaire=world.questionnaire1, name="Name")
+    Section.objects.create(title="School Based Section1", order=0, questionnaire=world.questionnaire7, name="Name")
 
     world.questionnaire8 = Questionnaire.objects.create(name="JRF Brazil Test version1", description="description",
                                                         year=2015, status=Questionnaire.FINALIZED)
-    Section.objects.create(title="School Section1", order=0, questionnaire=world.questionnaire2, name="Section1 name")
+    Section.objects.create(title="School Section1", order=0, questionnaire=world.questionnaire8, name="Section1 name")
 
     world.org = Organization.objects.create(name="WHO")
     world.afro = Region.objects.create(name="AFRO", organization=world.org)
@@ -212,23 +212,25 @@ def and_i_should_be_able_to_confirm_that_the_core_questionnaire_is_published_to_
 @step(u'And I should be able to confirm that the region to which I published the questionnaire is not on the list')
 def and_i_should_be_able_to_confirm_that_the_region_to_which_i_published_the_questionnaire_is_not_on_the_list(step):
     world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire7.id)
-    world.page.is_text_not_present("%s" % world.afro.name)
+    world.page.is_text_present("%s" % world.afro.name, status=False)
 
-@step(u'And I should be able to select two regions to which to publish the finalised Core Questionnaire')
-def and_i_should_be_able_to_select_two_regions_to_which_to_publish_the_finalised_core_questionnaire(step):
-    world.page.check("%s" % world.amer.id)
-    world.page.check("%s" % world.asia.id)
-    world.page.click_by_css('button.submit')
+@step(u'And I select two regions to which to publish the finalised Core Questionnaire')
+def and_i_select_two_regions_to_which_to_publish_the_finalised_core_questionnaire(step):
+    world.page.check(world.amer.id)
+    world.page.check(world.asia.id)
+
+@step(u'When I click publish button')
+def when_i_click_publish_button(step):
+    world.page.click_by_css('.submit')
 
 @step(u'And I should be able to confirm that the Core Questionnaire is published to the regions I selected')
 def and_i_should_be_able_to_confirm_that_the_core_questionnaire_is_published_to_the_regions_i_selected(step):
     world.page.is_text_present("The questionnaire has been published to %s, %s" % (world.amer.name, world.asia.name))
     world.page.is_text_present("%s" % world.amer.name)
     world.page.is_text_present("%s" % world.asia.name)
-    world.page.is_element_present_by_id("%s" % world.questionnaire8.id)
 
 @step(u'And I should be able to confirm that the regions to which I published the questionnaire is not on the list')
 def and_i_should_be_able_to_confirm_that_the_regions_to_which_i_published_the_questionnaire_is_not_on_the_list(step):
-    world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire8.id)
-    world.page.is_text_not_present("%s" % world.amer.name)
-    world.page.is_text_not_present("%s" % world.asia.name)
+    world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire7.id)
+    world.page.is_text_present("%s" % world.amer.name, status=False)
+    world.page.is_text_present("%s" % world.asia.name, status=False)

@@ -100,7 +100,7 @@ def when_i_unassign_a_question_from_the_questionnaire(step):
 
 @step(u'And that question should no longer appear in the questionnaire')
 def then_that_question_should_no_longer_appear_in_the_questionnaire(step):
-    world.page.is_text_not_present(world.question3.text)
+    world.page.is_text_present(world.question3.text, status=False)
 
 @step(u'And I confirm my actions')
 def and_i_confirm_my_actions(step):

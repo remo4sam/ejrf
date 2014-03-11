@@ -73,6 +73,7 @@ Feature: Manage JRF
         And I see finalized questionnaires
         When I choose option to send core questionnaire to regions
         Then I should see an interface to choose the regions to which to publish the finalised Core Questionnaire
-        And I should be able to select two regions to which to publish the finalised Core Questionnaire
+        And I select two regions to which to publish the finalised Core Questionnaire
+        When I click publish button
         And I should be able to confirm that the Core Questionnaire is published to the regions I selected
         And I should be able to confirm that the regions to which I published the questionnaire is not on the list

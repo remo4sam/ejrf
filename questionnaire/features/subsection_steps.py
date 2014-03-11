@@ -42,9 +42,9 @@ def then_i_should_see_an_edit_subsection_modal(step):
 
 @step(u'When I update the subsection details')
 def when_i_update_the_subsection_details(step):
-    data = {'title': 'New SubSection Name',
-            'description': 'New SubSection Title'}
-    world.page.fill_this_form('#edit_subsection_%s_modal_form' % world.sub_section.id, data)
+    world.data = {'title': 'New SubSection Name',
+                  'description': 'New SubSection description'}
+    world.page.fill_this_form('#edit_subsection_%s_modal_form' % world.sub_section.id, world.data)
 
 @step(u'And I save the changes to the subsection')
 def and_i_save_the_changes_to_the_subsection(step):
@@ -56,5 +56,4 @@ def then_i_should_see_a_message_that_the_subsection_was_updated(step):
 
 @step(u'And I should see the changes I made to the subsection in the questionnaire')
 def and_i_should_see_the_changes_i_made_to_the_subsection_in_the_questionnaire(step):
-    world.page.is_text_present('New SubSection Name')
-    world.page.is_text_present('New SubSection Title')
+    world.page.is_text_present(world.data['title'])

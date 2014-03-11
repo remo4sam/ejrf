@@ -34,13 +34,10 @@ def when_i_choose_to_exit_the_preview(step):
 
 @step(u'Then I should see my questionnaire again with options for saving')
 def then_i_should_see_my_questionnaire_again(step):
-    world.page.is_text_not_present('Preview Questionnaire')
+    time.sleep(2)
+    world.page.is_text_present('Preview Questionnaire', status=False)
     world.page.is_element_present_by_id('save_draft_button')
     world.page.is_element_present_by_id('cancel_button')
-
-@step(u'And the response fields should now be active')
-def and_the_response_fields_should_now_be_active(step):
-    assert False, 'This step must be implemented'
 
 @step(u'Then I should be able to see an option to preview the questionnaire')
 def then_i_should_be_able_to_see_an_option_to_preview_the_questionnaire(step):
