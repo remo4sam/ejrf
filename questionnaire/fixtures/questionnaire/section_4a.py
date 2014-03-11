@@ -110,7 +110,7 @@ QuestionGroupOrder.objects.create(question=question32, question_group=parent5, o
 sub_section4 = SubSection.objects.create(order=4, section=section_1, title="HPV Vaccine Doses administered: 2013",
                                          description="Report the number of HPV vaccinations given to females by their age at time of administration for each of the three recommended doses of HPV vaccine. If age is unknown but can be estimated, report for the estimated age. For example, if vaccination is offered exclusively to girls in the 6th school form and most girls in the 6th school form are eleven years of age, vaccinations by dose may be reported as vaccinations for girls eleven years of age.")
 
-question41 = Question.objects.create(text="Vaccine administered (age in years)", UID='C00057', answer_type='MultiChoice')
+question41 = Question.objects.create(text="Vaccine administered (age in years)", UID='C00057', answer_type='MultiChoice', is_primary=True)
 QuestionOption.objects.create(text="9", question=question41)
 QuestionOption.objects.create(text="10", question=question41)
 QuestionOption.objects.create(text="11", question=question41)
@@ -124,7 +124,7 @@ question42 = Question.objects.create(text="1st dose", UID='C00058', answer_type=
 question43 = Question.objects.create(text="2d dose", UID='C00059', answer_type='Number')
 question44 = Question.objects.create(text="3d dose", UID='C00060', answer_type='Number')
 
-parent7 = QuestionGroup.objects.create(subsection=sub_section4, order=1, allow_multiples=True)
+parent7 = QuestionGroup.objects.create(subsection=sub_section4, order=1, allow_multiples=False, grid=True, display_all=True)
 parent7.question.add(question41, question42, question43, question44)
 QuestionGroupOrder.objects.create(question=question41, question_group=parent7, order=1)
 QuestionGroupOrder.objects.create(question=question42, question_group=parent7, order=2)
