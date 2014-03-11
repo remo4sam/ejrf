@@ -27,12 +27,10 @@ class PublishQuestionnaireForm(forms.Form):
         self.fields['regions'].queryset = self._set_region_choices()
 
     def _set_region_choices(self):
-        questionnaire = self.initial.get('questionnaire', None)
+        questionnaire = self.initial.get('questionnaire')
         regions = Region.objects.filter(organization__name="WHO")
         regions_with_questionnaire = Questionnaire.objects.filter(year=questionnaire.year, region__isnull=False).values_list('region', flat=True)
-        if questionnaire:
-            return regions.exclude(id__in=regions_with_questionnaire)
-        return regions
+        return regions.exclude(id__in=regions_with_questionnaire)
 
     def save(self):
         regions = self.cleaned_data['regions']

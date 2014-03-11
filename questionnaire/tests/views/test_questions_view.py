@@ -33,6 +33,25 @@ class QuestionViewTest(BaseTest):
         self.assertIn(questions, response.context['questions'])
         self.assertIsNone(response.context['active_questions'])
 
+    def test_get_list_returns_questions_that_do_not_belong_regions_if_user_is_global_admin(self):
+        user = self.assign('can_view_users', self.user)
+        region = Region.objects.create(name="some region")
+        question1 = Question.objects.create(text='question 1', UID='00001', answer_type='Number', region=region)
+        question2 = Question.objects.create(text='question 2', UID='00002', answer_type='Number')
+        question3 = Question.objects.create(text='question 3', UID='00003', answer_type='Number')
+        self.client.logout()
+
+        client = Client()
+        client.login(username=user.username, password="pass")
+
+        response = client.get(self.url)
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn('questions/index.html', templates)
+        self.assertNotIn(question1, response.context['questions'])
+        self.assertIn(question2, response.context['questions'])
+        self.assertIn(question3, response.context['questions'])
+
     def test_get_list_question_has_active_questions_from_finalized_questionnaire_in_context(self):
         questions = Question.objects.create(text='B. Number of cases tested', UID='00001', answer_type='Number')
 

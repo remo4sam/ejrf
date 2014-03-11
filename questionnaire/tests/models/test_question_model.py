@@ -161,6 +161,13 @@ class QuestionTest(BaseTest):
         self.assertEqual(question1_answer_2, question1.latest_answer(self.parent_group, country_2))
         self.assertEqual(question2_answer_2, question2.latest_answer(self.parent_group, country_2))
 
+    def test_none_if_no_latest_answer_exists_for_given_group_and_country(self):
+        question1 = Question.objects.create(text='question1', UID='C00015', answer_type='Number', is_primary=True)
+        question2 = Question.objects.create(text='question2', UID='C00016', answer_type='Number')
+        self.parent_group.question.add(question1, question2)
+        self.assertIsNone(question1.latest_answer(self.parent_group, self.country))
+        self.assertIsNone(question2.latest_answer(self.parent_group, self.country))
+
     def test_get_next_uid_given_given_largest_uid_question(self):
         self.assertEqual('00004', Question.next_uid())
 
