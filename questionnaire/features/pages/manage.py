@@ -14,6 +14,7 @@ class AssignModal(PageObject):
         for question in questions:
             self.is_text_present(question.export_label)
 
+
 class QuestionnairePreviewModal(PageObject):
     def validate_questions(self, *questions):
         self.is_element_present_by_css('modal-content')
