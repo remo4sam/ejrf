@@ -14,7 +14,7 @@ class ManageJRFViewTest(BaseTest):
         self.unicef = Organization.objects.create(name="UNICEF")
         self.paho = Region.objects.create(name="The Paho", organization=self.who)
         self.pacific = Region.objects.create(name="haha", organization=self.who)
-        self.assign('can_edit_questionnaire', self.user)
+        self.assign('can_view_users', self.user)
         self.client.login(username=self.user.username, password='pass')
 
     def test_get_returns_only_core_and_region_specific_questionnaires(self):
@@ -51,13 +51,17 @@ class ManageJRFViewTest(BaseTest):
         self.assertEqual(0, len(question_map[self.pacific]['drafts']))
         self.assertEqual(0, len(question_map[self.pacific]['finalized']))
 
+    def test_permission_reguired(self):
+        self.assert_permission_required("/manage/")
+
 
 class FinalizeQuestionnaireViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
-        self.assign('can_edit_questionnaire', self.user)
+        self.assign('can_view_users', self.user)
+
         self.client.login(username=self.user.username, password='pass')
 
         self.questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.DRAFT)
@@ -66,6 +70,7 @@ class FinalizeQuestionnaireViewTest(BaseTest):
 
     def test_post_finalizes_questionnaire(self):
         referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
+        self.assign('can_edit_questionnaire', self.user)
         response = self.client.post(self.url, HTTP_REFERER=referer_url)
         self.assertNotIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.DRAFT).all())
         self.assertIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED).all())
@@ -73,6 +78,7 @@ class FinalizeQuestionnaireViewTest(BaseTest):
 
     def test_post_unfinalizes_questionnaire(self):
         referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
+        self.assign('can_edit_questionnaire', self.user)
         questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.FINALIZED)
         section = Section.objects.create(name="haha", questionnaire=questionnaire, order=1)
         url = '/questionnaire/%d/unfinalize/' % questionnaire.id
@@ -90,13 +96,16 @@ class FinalizeQuestionnaireViewTest(BaseTest):
         message = "The questionnaire could not be unlocked because its published."
         self.assertIn(message, response.cookies['messages'].value)
 
+    def test_permission_reguired(self):
+        self.assert_permission_required("/manage/")
+
 
 class PublishQuestionnaireToRegionsViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
-        self.assign('can_edit_questionnaire', self.user)
+        self.assign('can_view_users', self.user)
         self.client.login(username=self.user.username, password='pass')
 
         self.questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.FINALIZED)
@@ -143,3 +152,6 @@ class PublishQuestionnaireToRegionsViewTest(BaseTest):
         self.assertIsInstance(response.context['publish_form'], PublishQuestionnaireForm)
         self.assertEqual("Publish", response.context['btn_label'])
         self.assertEqual(reverse("manage_jrf_page"), response.context['cancel_url'])
+
+    def test_permission_reguired(self):
+        self.assert_permission_required("/manage/")

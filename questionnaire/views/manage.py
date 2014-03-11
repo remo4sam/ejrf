@@ -8,7 +8,7 @@ from questionnaire.models import Questionnaire, Region
 
 
 class ManageJRF(MultiplePermissionsRequiredMixin, View):
-    permissions = {'any': ('auth.can_edit_questionnaire', 'auth.can_view_users')}
+    permissions = {'any': ('auth.can_view_users',)}
 
     def __init__(self, *args, **kwargs):
         super(ManageJRF, self).__init__(**kwargs)

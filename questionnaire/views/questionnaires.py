@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 from django.views.generic import View
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, MultiplePermissionsRequiredMixin
 from questionnaire.forms.questionnaires import QuestionnaireFilterForm, PublishQuestionnaireForm
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
@@ -113,7 +113,9 @@ class SubmitQuestionnaire(AdvancedMultiplePermissionsRequiredMixin, View):
         return "%s?preview=1" % redirect_url
 
 
-class DuplicateQuestionnaire(View):
+class DuplicateQuestionnaire(MultiplePermissionsRequiredMixin, View):
+    permissions = {'any': ('auth.can_view_users',)}
+
     def post(self, *args, **kwargs):
         form = QuestionnaireFilterForm(self.request.POST)
         if form.is_valid():
@@ -130,7 +132,9 @@ class DuplicateQuestionnaire(View):
         return HttpResponseRedirect(reverse('manage_jrf_page'))
 
 
-class FinalizeQuestionnaire(View):
+class FinalizeQuestionnaire(MultiplePermissionsRequiredMixin, View):
+    permissions = {'any': ('auth.can_view_users','auth.can_edit_questionnaire')}
+
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
         message = QuestionnaireFinalizeService(questionnaire).finalize()
@@ -139,7 +143,9 @@ class FinalizeQuestionnaire(View):
         return HttpResponseRedirect(referer_url)
 
 
-class UnfinalizeQuestionnaire(View):
+class UnfinalizeQuestionnaire(MultiplePermissionsRequiredMixin, View):
+    permissions = {'any': ('auth.can_view_users', 'auth.can_edit_questionnaire')}
+
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
         message = QuestionnaireFinalizeService(questionnaire).unfinalize()
@@ -148,7 +154,8 @@ class UnfinalizeQuestionnaire(View):
         return HttpResponseRedirect(referer_url)
 
 
-class PublishQuestionnaire(View):
+class PublishQuestionnaire(MultiplePermissionsRequiredMixin, View):
+    permissions = {'any': ('auth.can_view_users',)}
     template_name = 'questionnaires/_publish.html'
 
     def get(self, *args, **kwargs):

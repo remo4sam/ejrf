@@ -676,7 +676,7 @@ class QuestionnaireCloneViewTest(BaseTest):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
 
-        self.assign('can_edit_questionnaire', self.user)
+        self.assign('can_view_users', self.user)
         self.client.login(username=self.user.username, password='pass')
 
     def test_post_clone_questionnaire(self):
@@ -725,3 +725,7 @@ class QuestionnaireCloneViewTest(BaseTest):
         self.assertRedirects(response, url)
         messages = "Questionnaire could not be duplicated see errors below"
         self.assertIn(messages, response.cookies['messages'].value)
+
+    def test_permission_reguired(self):
+        self.assert_permission_required("/manage/")
+
