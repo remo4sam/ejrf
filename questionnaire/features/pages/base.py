@@ -85,5 +85,14 @@ class PageObject(object):
         else:
             return True
 
+    def is_element_not_present_by_id(self, id):
+        return not self.is_element_present_by_id(id)
+
     def confirm_delete(self, model):
         self.is_text_present("Confirm Delete", "Are you sure you want to delete this %s?" % model)
+
+    def is_element_with_id_disabled(self, id):
+        assert self.browser.find_by_id(id).first['disabled']
+
+    def is_element_with_id_enabled(self, id):
+        assert (self.browser.find_by_id(id).first['disabled'], False)

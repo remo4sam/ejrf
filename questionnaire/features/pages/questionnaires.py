@@ -12,9 +12,9 @@ class QuestionnairePage(PageObject):
         assert self.browser.find_by_name("Number-0-response")
         assert self.browser.find_by_name("Number-1-response")
         assert self.browser.find_by_name("MultiChoice-0-response")
-        self.browser.is_element_present_by_id('cancel_button')
-        self.browser.is_element_present_by_id('save_draft_button')
-        self.browser.is_element_present_by_id('submit_modal_button')
+        assert self.browser.is_element_present_by_id('cancel_button')
+        assert self.browser.is_element_present_by_id('save_draft_button')
+        assert self.browser.is_element_present_by_id('submit_questionnaire_btn')
 
     def validate_instructions(self, question):
         self.click_by_css("#question-%d-instructions" % question.id)
@@ -39,3 +39,11 @@ class QuestionnairePage(PageObject):
 
     def hover(self, name):
         self.browser.find_by_name(name).mouse_over()
+
+    def validate_fields_disabled(self, data):
+        for key in data:
+            self.is_element_with_id_disabled('id_%s' % key)
+
+    def validate_fields_enabled(self, data):
+        for key in data:
+            self.is_element_with_id_enabled('id_%s' % key)

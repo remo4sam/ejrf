@@ -24,7 +24,7 @@ def given_i_am_a_logged_in_user_with_a_user_profile(step):
 
 @step(u'And I have a questionnaire with questions')
 def given_i_have_a_questionnaire_with_questions(step):
-    world.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan")
+    world.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan", status=Questionnaire.PUBLISHED)
 
     world.section_1 = Section.objects.create(order=0,
                         title="WHO/UNICEF Joint Reporting Form on Immunization for the Period January-December, 2013",
@@ -85,7 +85,7 @@ def and_i_enter_valid_responses_to_the_questions(step):
         'Number-0-response': '200'}
     world.page.fill_form(world.valid_responses)
 
-@step(u'And I click the save button')
+@step(u'I click the save button')
 def when_i_click_the_save_button(step):
     world.page.click_by_id('save_draft_button')
 
@@ -118,6 +118,48 @@ def when_i_enter_invalid_responses_to_the_questions(step):
 def then_i_should_see_a_save_draft_error_message(step):
     world.page.validate_alert_error()
 
-@step(u'And I switch to another section')
+@step(u'I switch to another section')
 def and_i_switch_to_another_section(step):
     world.page.click_link_by_partial_href('section/2')
+
+@step(u'When I choose to submit my responses')
+def when_i_choose_to_submit_my_responses(step):
+    world.page.click_by_id('submit_questionnaire_btn')
+
+@step(u'Then I should see a preview')
+def then_i_should_see_a_preview(step):
+    world.page.is_text_present('Preview Questionnaire')
+
+@step(u'When I choose to submit the responses in the preview')
+def when_i_choose_to_submit_the_responses_in_the_preview(step):
+    world.page.browser.execute_script('document.getElementById("submit_button").click();')
+
+@step(u'Then I should see a message that the submission was successful')
+def then_i_should_see_a_message_that_the_submission_was_successful(step):
+    world.page.is_text_present('Questionnaire Submitted')
+
+@step(u'And the response fields should be disabled')
+def and_the_response_fields_should_be_disabled(step):
+    world.page.validate_fields_disabled(world.valid_responses)
+
+@step(u'And the action for submit should be replaced with edit')
+def and_the_action_for_submit_should_be_replaced_with_edit(step):
+    assert world.page.is_element_not_present_by_id('submit_questionnaire_btn')
+    assert world.page.is_element_present_by_id('edit_questionnaire_link')
+
+@step(u'And I should see my submitted responses')
+def and_i_should_see_my_submitted_responses(step):
+    world.page.validate_responses(world.valid_responses)
+
+@step(u'When I select the option to edit my responses')
+def when_i_select_the_option_to_edit_my_responses(step):
+    world.page.click_by_id('edit_questionnaire_link')
+
+@step(u'Then the response fields should be enabled')
+def then_the_response_fields_should_be_enabled(step):
+    world.page.validate_fields_enabled(world.valid_responses)
+
+@step(u'Then the action for edit should be replaced with submit')
+def then_the_action_for_edit_should_be_replaced_with_submit(step):
+    assert world.page.is_element_present_by_id('submit_questionnaire_btn')
+    assert world.page.is_element_not_present_by_id('edit_questionnaire_link')
