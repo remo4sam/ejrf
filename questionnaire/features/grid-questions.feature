@@ -16,3 +16,11 @@ Feature: Grid questions display all
         Then I should see a message that a draft of my responses has been saved
         I should see my responses filled out
 
+    Scenario: Response to Grid -- Failure
+        When I respond wrongly questions
+        And I click the save button
+        Then I should see a save draft error message
+        And the rest of my correct responses
+        When I hover the errored cell
+        Then I should see the cell error message
+

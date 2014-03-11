@@ -36,3 +36,6 @@ class QuestionnairePage(PageObject):
             self.is_element_present_by_value(data[key])
         for key in text:
             self.is_text_present(str(data[key]))
+
+    def hover(self, name):
+        self.browser.find_by_name(name).mouse_over()

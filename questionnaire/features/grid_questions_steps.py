@@ -45,8 +45,7 @@ def and_i_have_a_sub_group_in_that_group_with_two_questions(step):
                                              instructions="Include only those cases found positive.")
     sub_group.question.add(world.question3, world.question4)
 
-@step(u'When I respond the questions')
-def when_i_respond_the_questions(step):
+def _create_correct_responses(world):
     data ={ }
     counter =0
     for index, option in  enumerate(world.question1.options.all()):
@@ -54,10 +53,32 @@ def when_i_respond_the_questions(step):
         for i in range(4):
             data['Number-%d-response'%counter] = counter
             counter +=1
-    world.valid_responses = data.copy()
+    return data
 
+
+
+@step(u'When I respond the questions')
+def when_i_respond_the_questions(step):
+    data = _create_correct_responses(world)
+    world.valid_responses = data.copy()
     world.page.fill_form(data)
 
-@step(u'And I should see my responses in the form')
-def and_i_should_see_my_responses_in_the_form(step):
-    assert False, 'This step must be implemented'
+@step(u'When I respond wrongly questions')
+def when_i_respond_wrongly_questions(step):
+    data = _create_correct_responses(world)
+    data['Number-0-response'] = 'something that is not a number'
+    world.valid_responses = data.copy()
+    world.page.fill_form(data)
+
+@step(u'And the rest of my correct responses')
+def and_the_rest_of_my_correct_responses(step):
+    del world.valid_responses['Number-0-response']
+    world.page.validate_responses(world.valid_responses)
+
+@step(u'When I hover the errored cell')
+def when_i_hover_the_errored_cell(step):
+    world.page.hover('Number-0-response')
+
+@step(u'Then I should see the cell error message')
+def then_i_should_see_the_cell_error_message(step):
+    world.page.is_text_present('Enter a number.')
