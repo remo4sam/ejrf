@@ -33,15 +33,13 @@ class CoreSubSectionFormTest(BaseTest):
         subsection_form = SubSectionForm(initial={'section': self.section.id}, data=self.form_data)
         self.assertTrue(subsection_form.is_valid())
 
-    def test_empty_title_is_invalid(self):
+    def test_empty_title_is_valid(self):
         data = self.form_data.copy()
         data['title'] = ''
 
         subsection_form = SubSectionForm(initial={'section': self.section.id}, data=data)
 
-        self.assertFalse(subsection_form.is_valid())
-        message = 'This field is required.'
-        self.assertEqual([message], subsection_form.errors['title'])
+        self.assertTrue(subsection_form.is_valid())
 
     def test_empty_description_is_invalid(self):
         data = self.form_data.copy()

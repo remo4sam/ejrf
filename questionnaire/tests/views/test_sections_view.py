@@ -249,11 +249,8 @@ class SubSectionsViewTest(BaseTest):
         self.failIf(SubSection.objects.filter(section=self.section, **form_data))
         response = self.client.post(self.url, data=form_data)
         subsection = SubSection.objects.filter(order=2, title=form_data['title'])
-        self.failIf(subsection)
-        self.assertIn('Subsection NOT created. See errors below.', response.content)
-        self.assertIsInstance(response.context['form'], SubSectionForm)
-        self.assertEqual("new-subsection-modal", response.context['id'])
-        self.assertEqual("CREATE", response.context['btn_label'])
+        self.failUnless(subsection)
+        self.assertEqual('', subsection[0].title)
 
 
 class EditSubSectionsViewTest(BaseTest):
@@ -306,11 +303,8 @@ class EditSubSectionsViewTest(BaseTest):
         self.failIf(SubSection.objects.filter(**form_data))
         response = self.client.post(self.url, data=form_data)
         section = SubSection.objects.filter(**form_data)
-        self.failIf(section)
-        self.assertIn('SubSection NOT updated. See errors below.', response.content)
-        self.assertIsInstance(response.context['form'], SubSectionForm)
-        self.assertEqual("SAVE", response.context['btn_label'])
-
+        self.failUnless(section)
+        self.assertEqual('', section[0].title)
 
 class DeleteSubSectionsViewTest(BaseTest):
     def setUp(self):

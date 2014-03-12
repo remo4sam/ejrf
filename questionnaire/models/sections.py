@@ -47,7 +47,7 @@ class Section(BaseModel):
 
 
 class SubSection(BaseModel):
-    title = models.CharField(max_length=256, blank=False, null=False)
+    title = models.CharField(max_length=256, blank=True, null=True)
     order = models.IntegerField(blank=False, null=False)
     section = models.ForeignKey(Section, blank=False, null=False, related_name="sub_sections")
     description = models.TextField(blank=True, null=True)
