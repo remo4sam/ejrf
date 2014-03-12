@@ -64,3 +64,16 @@ Feature: Section feature
     When I confirm the deletion
     Then I should see a message that the section was deleted
     And the section should no longer appear in the Questionnaire
+
+  Scenario: Update Section in Regional Questionnaire
+    Given I am logged in as a regional admin
+    And I have a regional questionnaire with sections and subsections
+    And I visit that questionnaires section page
+    Then I should not see edit icon for core sections
+    And I choose to update a section
+    Then I should see an edit section modal
+    When I update the section details
+    And I save the changes to the section
+    Then I should see a message that the section was updated
+    And I should see the changes I made to the regional section in the questionnaire
+

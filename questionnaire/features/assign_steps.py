@@ -182,7 +182,5 @@ def and_i_should_see_question_numbers_with_region_name(step):
     last_order = world.question4.orders.all()[0].order
     question_number1 = '%s - %d. %d.'%(world.region.name, world.section1.order, last_order+1)
     question_number2 = '%s - %d. %d.'%(world.region.name, world.section1.order, last_order+2)
-    print question_number1, question_number2
-    print question_number1, question_number2
     world.page.is_text_present(question_number1)
     world.page.is_text_present(question_number2)

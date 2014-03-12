@@ -88,7 +88,7 @@ class EditSectionsViewTest(BaseTest):
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
-        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
 
         self.form_data = {'name': 'section',
                           'description': 'funny section',
@@ -97,7 +97,7 @@ class EditSectionsViewTest(BaseTest):
                           'questionnaire': self.questionnaire.id}
         self.create_form_data = self.form_data.copy()
         del self.create_form_data['questionnaire']
-        self.section = Section.objects.create(questionnaire=self.questionnaire, **self.create_form_data)
+        self.section = Section.objects.create(region=self.region, questionnaire=self.questionnaire, **self.create_form_data)
         self.url = '/section/%d/edit/' % self.section.id
 
     def test_get_edit_section(self):
@@ -121,8 +121,19 @@ class EditSectionsViewTest(BaseTest):
                              expected_url='/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id, section.id))
         self.assertIn('Section updated successfully.', response.cookies['messages'].value)
 
-    def test_permission_required_for_edit_section(self):
+    def test_permission_required_for_create_section(self):
         self.assert_permission_required(self.url)
+
+        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
+                                                                                        country_name="China",
+                                                                                        region_name="ASEAN")
+        self.assign('can_edit_questionnaire', user_not_in_same_region)
+
+        self.client.logout()
+        self.client.login(username='asian_chic', password='pass')
+        response = self.client.post(self.url, data=self.create_form_data)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
+                             status_code=302, target_status_code=200, msg_prefix='')
 
     def test_post_invalid(self):
         form_data = self.form_data.copy()

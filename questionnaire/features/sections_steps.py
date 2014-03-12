@@ -154,3 +154,12 @@ def then_i_should_see_the_regional_section_i_created(step):
 @step(u'And I choose to delete one of the section from the questionnaire')
 def and_i_choose_to_delete_one_of_the_section_from_the_questionnaire(step):
     world.page.click_by_id("id-delete-section-%s" % world.section_2.id)
+
+@step(u'Then I should not see edit icon for core sections')
+def then_i_should_not_see_edit_icon_for_core_sections(step):
+    world.page.find_by_id("id-edit-section-%d"%world.section_3.id, False)
+
+@step(u'And I should see the changes I made to the regional section in the questionnaire')
+def and_i_should_see_the_changes_i_made_to_the_regional_section_in_the_questionnaire(step):
+    world.page.is_text_present('%s - %s' % (world.region.name, 'New Section Name'))
+    world.page.is_text_present('%s - %s' % (world.region.name, 'New Section Title'))

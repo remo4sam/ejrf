@@ -6,7 +6,7 @@
                    href="{% url 'questionnaire_entry_page' questionnaire.id section_.id %}{% if preview %}?preview=1{% endif %}"
                    id="section-{{ section_.id }}"> {% if section_.region %}{{ section_.region.name }} - {% endif %}
                         {{ section_.name }}</a>
-                {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
+                {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region and user.user_profile.region == section_.region%}
                     <a id="id-edit-section-{{ section_.id }}" href="#"
                        class="{% if section_.id == section.id %}current {% endif %} col-md-1 edit-section"
                        data-toggle="modal" data-target="#edit_section_{{ section_.id }}"> <span

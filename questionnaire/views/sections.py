@@ -39,7 +39,7 @@ class NewSection(RegionAndPermissionRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class EditSection(PermissionRequiredMixin, UpdateView):
+class EditSection(RegionAndPermissionRequiredMixin, UpdateView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, *args, **kwargs):

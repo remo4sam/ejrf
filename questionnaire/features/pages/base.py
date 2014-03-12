@@ -80,10 +80,7 @@ class PageObject(object):
 
     def is_element_present_by_id(self, id):
         found = self.browser.find_by_id(id)
-        if len(found) == 0:
-            return False
-        else:
-            return True
+        return not len(found) == 0
 
     def is_element_not_present_by_id(self, id):
         return not self.is_element_present_by_id(id)
@@ -96,3 +93,6 @@ class PageObject(object):
 
     def is_element_with_id_enabled(self, id):
         assert (self.browser.find_by_id(id).first['disabled'], False)
+
+    def find_by_id(self, id, status=True):
+        assert_equals(status, self.is_element_present_by_id(id))

@@ -18,12 +18,13 @@ def and_i_have_a_questionnaire_with_sections_and_subsections(step):
 
 @step(u'And I have a regional questionnaire with sections and subsections')
 def and_i_have_a_questionnaire_with_sections_and_subsections(step):
+    region = Region.objects.get(name='AFR')
     world.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan",
-                                                       status=Questionnaire.PUBLISHED, region=Region.objects.get(name='AFR'))
+                                                       status=Questionnaire.PUBLISHED, region=region)
     world.section_1 = Section.objects.create(title="Section 1 Title Sample", order=1, questionnaire=world.questionnaire, name="Section 1 Name Sample",
-                                             description="Section 1 Description")
+                                             description="Section 1 Description", region=region)
     world.section_2 = Section.objects.create(title="Section 2 Title Sample", order=2, questionnaire=world.questionnaire, name="Section 2 Name Sample",
-                                             description="Section 2 Description")
+                                             description="Section 2 Description", region=region)
     world.section_3 = Section.objects.create(title="Section 3 Title Sample", order=3, questionnaire=world.questionnaire, name="Section 3 Name Sample",
                                              description="Section 3 Description")
     world.sub_section = SubSection.objects.create(title="Subsection Title Sample", order=1, section=world.section_1)
