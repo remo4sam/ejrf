@@ -41,3 +41,13 @@ Feature: Section feature
         Then I should see a message that the section was deleted
         And the section should no longer appear in the Questionnaire
         And the section numbering should be updated
+
+    Scenario: Create a Regional Section
+        Given I am logged in as a regional admin
+        And I have a regional questionnaire with sections and subsections
+        And I visit that questionnaires section page
+        And I click add new section link
+        Then I should see a new section modal
+        When i fill in the section data
+        And I save the regional section
+        Then I should see the regional section I created

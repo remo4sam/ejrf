@@ -4,7 +4,8 @@
             <li class="section-list">
                 <a class="{% if section_.id == section.id %}current {% endif %} section_tab col-md-10"
                    href="{% url 'questionnaire_entry_page' questionnaire.id section_.id %}{% if preview %}?preview=1{% endif %}"
-                   id="section-{{ section_.id }}"> {{ section_.name }}</a>
+                   id="section-{{ section_.id }}"> {% if section_.region %}{{ section_.region.name }} - {% endif %}
+                        {{ section_.name }}</a>
                 {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
                     <a id="id-edit-section-{{ section_.id }}" href="#"
                        class="{% if section_.id == section.id %}current {% endif %} col-md-1 edit-section"

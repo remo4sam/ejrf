@@ -1,13 +1,25 @@
 from time import sleep
 from lettuce import step, world
 from questionnaire.features.pages.questionnaires import QuestionnairePage
-from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionGroupOrder, QuestionOption
+from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionGroupOrder, QuestionOption, Region
 
 
 @step(u'And I have a questionnaire with sections and subsections')
 def and_i_have_a_questionnaire_with_sections_and_subsections(step):
     world.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan",
                                                        status=Questionnaire.PUBLISHED)
+    world.section_1 = Section.objects.create(title="Section 1 Title Sample", order=1, questionnaire=world.questionnaire, name="Section 1 Name Sample",
+                                             description="Section 1 Description")
+    world.section_2 = Section.objects.create(title="Section 2 Title Sample", order=2, questionnaire=world.questionnaire, name="Section 2 Name Sample",
+                                             description="Section 2 Description")
+    world.section_3 = Section.objects.create(title="Section 3 Title Sample", order=3, questionnaire=world.questionnaire, name="Section 3 Name Sample",
+                                             description="Section 3 Description")
+    world.sub_section = SubSection.objects.create(title="Subsection Title Sample", order=1, section=world.section_1)
+
+@step(u'And I have a regional questionnaire with sections and subsections')
+def and_i_have_a_questionnaire_with_sections_and_subsections(step):
+    world.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan",
+                                                       status=Questionnaire.PUBLISHED, region=Region.objects.get(name='AFR'))
     world.section_1 = Section.objects.create(title="Section 1 Title Sample", order=1, questionnaire=world.questionnaire, name="Section 1 Name Sample",
                                              description="Section 1 Description")
     world.section_2 = Section.objects.create(title="Section 2 Title Sample", order=2, questionnaire=world.questionnaire, name="Section 2 Name Sample",

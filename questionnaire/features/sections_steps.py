@@ -5,7 +5,7 @@ from lettuce import step, world
 from questionnaire.features.pages.questionnaires import QuestionnairePage
 from questionnaire.features.pages.sections import CreateSectionPage
 from questionnaire.features.pages.users import LoginPage
-from questionnaire.models import Country, UserProfile
+from questionnaire.models import Country, UserProfile, Region, Organization
 
 
 @step(u'Given I am logged in as a global admin')
@@ -37,11 +37,11 @@ def then_i_should_see_a_new_section_modal(step):
 @step(u'When i fill in the section data')
 def when_i_fill_in_the_section_data(step):
     world.page.fill_form({'name': 'Some section'})
-    sleep(5)
+    sleep(2)
     world.page.fill_form({'title': 'Some title'})
-    sleep(5)
+    sleep(2)
     world.page.fill_form({'description': 'some description'})
-    sleep(5)
+    sleep(2)
 
 @step(u'Then I should see the section I created')
 def then_i_should_see_the_section_i_created(step):
@@ -124,3 +124,29 @@ def and_the_section_should_no_longer_appear_in_the_questionnaire(step):
 def and_the_section_numbering_should_be_updated(step):
     world.page.click_link_by_partial_href('questionnaire/entry/%s/section/%s' %(world.questionnaire.id, world.section_3.id))
     world.page.is_text_present('2. %s' % world.section_3.title)
+
+@step(u'Given I am logged in as a regional admin')
+def given_i_am_logged_in_as_a_regional_admin(step):
+    user = User.objects.create_user('Rajni', 'rajni@kant.com', 'pass')
+    who_organization = Organization.objects.create(name="WHO")
+    world.region = Region.objects.create(name="AFR", organization=who_organization)
+    UserProfile.objects.create(user=user, organization=who_organization, region=world.region)
+
+    auth_content = ContentType.objects.get_for_model(Permission)
+    group = Group.objects.create(name='Regional Admin')
+    permission_edit_questionnaire, out = Permission.objects.get_or_create(codename='can_edit_questionnaire',
+                                                                          content_type=auth_content)
+    group.permissions.add(permission_edit_questionnaire)
+    group.user_set.add(user)
+
+    world.page = LoginPage(world.browser)
+    world.page.visit()
+    world.page.login(user, "pass")
+
+@step(u'And I save the regional section')
+def and_i_save_the_regional_section(step):
+    and_i_save_the_section(step)
+
+@step(u'Then I should see the regional section I created')
+def then_i_should_see_the_regional_section_i_created(step):
+    world.page.is_text_present('%s - %s' % (world.region.name, 'Some section'))

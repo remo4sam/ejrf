@@ -33,7 +33,7 @@
         {% include 'questionnaires/entry/section_breadcrumps_wizzard.html' %}
         {% include 'base/modals/_create.html' with a_form=form action=action modal_id="new-section-modal" modal_title="New Section" %}
         <div class="form-content">
-            <h3 class="button-padding">{{ section.order }}. {{ section.title | safe }}
+            <h3 class="button-padding">{{ section.order }}. {% if section.region %}{{ section.region.name }} - {% endif %} {{ section.title | safe }}
                 {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
                     <a href="" id="new-subsection" class="btn btn-default pull-right" data-toggle="modal"
                        data-target="#new-subsection-modal"><span class="cyan"><span
