@@ -45,7 +45,7 @@ def then_i_should_see_a_prompt_to_confirm_deleting_the_question(step):
 
 @step(u'When I confirm the regional question deletion')
 def when_i_confirm_the_regional_question_deletion(step):
-    world.page.click_by_id('confirm-delete-%s' % world.question2.id)
+    world.page.click_by_id('confirm-delete-question-%s' % world.question2.id)
 
 @step(u'Then that question should not appear in the Question bank')
 def then_that_question_should_not_appear_in_the_question_bank(step):

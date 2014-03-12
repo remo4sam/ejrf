@@ -105,7 +105,7 @@ def then_that_question_should_no_longer_appear_in_the_questionnaire(step):
 @step(u'And I confirm my actions')
 def and_i_confirm_my_actions(step):
     time.sleep(2)
-    world.page.click_by_id('confirm-unassign-%s' % world.question3.id)
+    world.page.click_by_id('confirm-unassign-question-%s' % world.question3.id)
 
 @step(u'Then I should see a message that the question was unassigned')
 def then_i_should_see_a_message_that_the_question_was_unassigned(step):

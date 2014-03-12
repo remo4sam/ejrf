@@ -136,6 +136,7 @@ def when_i_choose_to_submit_the_responses_in_the_preview(step):
 
 @step(u'Then I should see a message that the submission was successful')
 def then_i_should_see_a_message_that_the_submission_was_successful(step):
+    sleep(3)
     world.page.is_text_present('Questionnaire Submitted')
 
 @step(u'And the response fields should be disabled')

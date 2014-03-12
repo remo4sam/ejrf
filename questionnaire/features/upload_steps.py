@@ -83,7 +83,7 @@ def then_i_should_see_a_warning_dialog(step):
 
 @step(u'When I click confirm')
 def when_i_click_confirm(step):
-    world.page.click_by_id('confirm-delete-%s' % world.document.id)
+    world.page.click_by_id('confirm-delete-document-%s' % world.document.id)
 
 @step(u'Then I should see that file was deleted')
 def then_i_should_see_that_file_was_deleted(step):

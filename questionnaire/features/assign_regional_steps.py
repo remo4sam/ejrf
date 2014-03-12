@@ -114,7 +114,7 @@ def then_i_should_see_a_prompt_to_confirm_unassign_of_the_question(step):
 
 @step(u'When I confirm unassign of the question')
 def when_i_confirm_unassign_of_the_question(step):
-    world.page.click_by_id('confirm-unassign-%s' % world.question4.id)
+    world.page.click_by_id('confirm-unassign-question-%s' % world.question4.id)
 
 
 @step(u'Then the unassigned question should not appear in the questionnaire')

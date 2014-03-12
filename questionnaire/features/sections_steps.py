@@ -110,7 +110,7 @@ def then_i_should_see_a_confirmation_message(step):
 
 @step(u'When I confirm the deletion')
 def when_i_confirm_the_deletion(step):
-    world.page.click_by_id('confirm-delete-%s' % world.section_2.id)
+    world.page.click_by_id('confirm-delete-section-%s' % world.section_2.id)
 
 @step(u'Then I should see a message that the section was deleted')
 def then_i_should_see_a_message_that_the_section_was_deleted(step):
