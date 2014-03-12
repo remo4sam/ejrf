@@ -86,7 +86,7 @@ class DeleteQuestion(DoesNotExistExceptionHandlerMixin, RegionAndPermissionRequi
             return self.redirect_and_render_success_message()
         return self.redirect_and_render_error_message()
 
-    def redirect_and_render_error_message(self, mesage=""):
+    def redirect_and_render_error_message(self, message=None):
         message = "Question was not deleted because it has responses"
         messages.error(self.request, message)
         return HttpResponseRedirect(self.does_not_exist_url)
