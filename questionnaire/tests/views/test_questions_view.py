@@ -227,3 +227,29 @@ class RegionalQuestionsViewTest(BaseTest):
 
         self.failUnless(Question.objects.filter(id=question.id))
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(url))
+
+
+class Question500ExceptionViewTest(BaseTest):
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
+        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1, region=self.region)
+        self.assign('can_edit_questionnaire', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.url = '/questions/'
+        self.form_data = {'text': 'How many kids were immunised this year?',
+                          'instructions': 'Some instructions',
+                          'export_label': 'blah',
+                          'answer_type': 'Number'}
+
+    def test_get_regional_questions(self):
+        unexisting_id_question = 123
+        url = '/questions/%d/delete/' % unexisting_id_question
+        response = self.client.post(url)
+        message = "Sorry, You tried to delete a question does not exist"
+        self.assertRedirects(response, expected_url=reverse('list_questions_page'))
+        self.assertIn(message, response.cookies['messages'].value)

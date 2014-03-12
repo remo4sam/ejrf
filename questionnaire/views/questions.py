@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import CreateView, DeleteView, View
 from questionnaire.forms.questions import QuestionForm
-from questionnaire.mixins import RegionAndPermissionRequiredMixin
+from questionnaire.mixins import DoesNotExistExceptionHandlerMixin, RegionAndPermissionRequiredMixin
 from questionnaire.models import Question, Questionnaire
 
 
@@ -65,23 +65,33 @@ class CreateQuestion(PermissionRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class DeleteQuestion(RegionAndPermissionRequiredMixin, DeleteView):
-    permission_required = 'auth.can_edit_questionnaire'
-    model = Question
+class DeleteQuestion(DoesNotExistExceptionHandlerMixin, RegionAndPermissionRequiredMixin, DeleteView):
+    def __init__(self, *args, **kwargs):
+        super(DeleteQuestion, self).__init__(*args, **kwargs)
+        self.permission_required = 'auth.can_edit_questionnaire'
+        self.pk_url_kwarg = 'question_id'
+        self.success_url = reverse("home_page")
+        self.model = Question
+        self.does_not_exist_url = reverse_lazy('list_questions_page')
+        self.error_message = "Sorry, You tried to delete a question does not exist."
 
     def post(self, *args, **kwargs):
         question = self.model.objects.get(pk=kwargs['question_id'])
+        user_region = self.request.user.user_profile.region
+        if question.region != user_region:
+            message = "Sorry, Question was deleted successfully, Because it belongs to %s" % question.region.name
+            return self.redirect_and_render_error_message(message)
         if question.can_be_deleted():
             question.delete()
-            message = "Question was deleted successfully"
-            return self.redirect_and_render_success_message(message)
+            return self.redirect_and_render_success_message()
+        return self.redirect_and_render_error_message()
+
+    def redirect_and_render_error_message(self, mesage=""):
         message = "Question was not deleted because it has responses"
-        return self.redirect_and_render_error_message(message)
-
-    def redirect_and_render_error_message(self,  message):
         messages.error(self.request, message)
-        return HttpResponseRedirect(reverse_lazy('list_questions_page'))
+        return HttpResponseRedirect(self.does_not_exist_url)
 
-    def redirect_and_render_success_message(self, message):
+    def redirect_and_render_success_message(self):
+        message = "Question was deleted successfully"
         messages.success(self.request, message)
-        return HttpResponseRedirect(reverse_lazy('list_questions_page'))
+        return HttpResponseRedirect(self.does_not_exist_url)
