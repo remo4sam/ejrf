@@ -54,7 +54,7 @@ Feature: Section feature
     Then I should see the regional section I created
 
   Scenario: Delete Regional Section from a regional Questionnaire
-    Given I have a Regional Admin
+    Given I am a Regional Admin
     And I have a questionnaire for my region with sections and subsections
     And I have regional questions already assigned to my questionnaire
     And I login the regional user
