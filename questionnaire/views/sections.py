@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import CreateView, UpdateView, DeleteView
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
-from questionnaire.mixins import RegionAndPermissionRequiredMixin
+from questionnaire.mixins import RegionAndPermissionRequiredMixin, DoesNotExistExceptionHandlerMixin
 from questionnaire.models import Section, SubSection
 from questionnaire.utils.model_utils import reindex_orders_in
 
@@ -63,7 +63,8 @@ class EditSection(PermissionRequiredMixin, UpdateView):
         return super(EditSection, self).form_invalid(form)
 
 
-class DeleteSection(DeleteView):
+class DeleteSection(DoesNotExistExceptionHandlerMixin, RegionAndPermissionRequiredMixin, DeleteView):
+    permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, *args, **kwargs):
         super(DeleteSection, self).__init__(*args, **kwargs)

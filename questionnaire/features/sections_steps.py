@@ -150,3 +150,7 @@ def and_i_save_the_regional_section(step):
 @step(u'Then I should see the regional section I created')
 def then_i_should_see_the_regional_section_i_created(step):
     world.page.is_text_present('%s - %s' % (world.region.name, 'Some section'))
+
+@step(u'And I choose to delete one of the section from the questionnaire')
+def and_i_choose_to_delete_one_of_the_section_from_the_questionnaire(step):
+    world.page.click_by_id("id-delete-section-%s" % world.section_2.id)

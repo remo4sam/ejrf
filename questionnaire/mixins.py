@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import HttpResponseRedirect
-from questionnaire.models import Questionnaire, Region, SubSection, Question
+from questionnaire.models import Questionnaire, Region, SubSection, Question, Section
 
 
 class RegionAndPermissionRequiredMixin(AccessMixin):
@@ -27,7 +27,10 @@ class RegionAndPermissionRequiredMixin(AccessMixin):
             regions.append(question.region)
         if 'subsection_id' in kwargs:
             subsection = SubSection.objects.get(id=kwargs['subsection_id'])
-            regions.append(subsection.region or subsection.section.region or subsection.section.questionnaire.region)
+            regions.append(subsection.region)
+        if 'section_id' in kwargs:
+            section = Section.objects.get(id=kwargs['section_id'])
+            regions.append(section.region)
         if 'questionnaire_id' in kwargs:
             regions.append(Questionnaire.objects.get(id=kwargs['questionnaire_id']).region)
         if 'region_id' in kwargs:

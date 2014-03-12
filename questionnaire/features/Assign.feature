@@ -24,7 +24,7 @@ Feature: Assigning Questions
         And that question should no longer appear in the questionnaire
 
     Scenario: Regional Admin Assign Questions to questionnaire
-        Given I am a logged-in as a Regional Admin
+        Given I have a Regional Admin
         And I have a questionnaire for my region with sections and subsections
         And I have regional questions already assigned to my questionnaire
         And I have regional questions that are not assigned to my questionnaire

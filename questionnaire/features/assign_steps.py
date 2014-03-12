@@ -111,7 +111,7 @@ def and_i_confirm_my_actions(step):
 def then_i_should_see_a_message_that_the_question_was_unassigned(step):
     world.page.is_text_present('Question successfully unassigned from questionnaire')
 
-@step(u'Given I am a logged-in as a Regional Admin')
+@step(u'Given I have a Regional Admin')
 def given_i_am_a_logged_in_as_a_regional_admin(step):
     world.user, world.country, world.region = create_user_with_no_permissions()
     world.user = assign('can_edit_questionnaire', world.user)
@@ -150,8 +150,10 @@ def and_i_have_a_questionnaire_for_my_region_with_sections_and_subsections(step)
                                                        year=2013, status=Questionnaire.DRAFT, region=world.region)
     world.section1 = Section.objects.create(order=0, title="WHO/UNICEF Joint Reporting Form",
                                             questionnaire=world.questionnaire, name="Cover page", region=world.region)
-    world.section2 = Section.objects.create(order=1, title="Another title", description="This is just another one of them",
-                                            questionnaire=world.questionnaire, name="Cover page", region=world.region)
+    world.section_2 = Section.objects.create(order=1, title="Another title", description="This is just another one of them",
+                                            questionnaire=world.questionnaire, name="Section 1", region=world.region)
+    world.section_3 = Section.objects.create(order=1, title="Another title", description="This is just another one of them",
+                                            questionnaire=world.questionnaire, name="Section 2", region=world.region)
     world.sub_section = SubSection.objects.create(order=1, section=world.section1, region=world.region)
 
 @step(u'And I have regional questions that are not assigned to my questionnaire')

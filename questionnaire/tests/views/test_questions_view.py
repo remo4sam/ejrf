@@ -229,7 +229,7 @@ class RegionalQuestionsViewTest(BaseTest):
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(url))
 
 
-class Question500ExceptionViewTest(BaseTest):
+class DoesNotExistExceptionViewTest(BaseTest):
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
