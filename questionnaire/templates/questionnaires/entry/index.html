@@ -76,7 +76,6 @@
                                    data-target="#delete-subsection-modal-{{ subsection.id }}"><span class="cyan"><span
                                         class="glyphicon glyphicon-trash"></span></span></a>
 
-
                             </div>
                         {% endif %}
                     </h4>
@@ -110,6 +109,7 @@
                                     <div class="form-group">
                                         <label class="col-sm-6 control-label">
                                             <div class="question-number">
+                                                {% if order.question.region %}{{ order.question.region.name }} - {% endif %}
                                                 {{ section.order }}{% if section.has_at_least_two_subsections %}.
                                                     {{ subsection.order }}{% endif %}.
                                                 {% if subsection.has_at_least_two_groups %}

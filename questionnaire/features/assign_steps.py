@@ -174,3 +174,13 @@ def and_i_click_done_button(step):
 def then_i_should_see_the_newly_assigned_regional_questions_in_the_questionnaire(step):
     world.page.is_text_present(world.not_assigned_question1.text, world.not_assigned_question2.text)
     world.page.is_text_present("Questions successfully assigned to questionnaire.")
+
+@step(u'And I should see question numbers with region name')
+def and_i_should_see_question_numbers_with_region_name(step):
+    last_order = world.question4.orders.all()[0].order
+    question_number1 = '%s - %d. %d.'%(world.region.name, world.section1.order, last_order+1)
+    question_number2 = '%s - %d. %d.'%(world.region.name, world.section1.order, last_order+2)
+    print question_number1, question_number2
+    print question_number1, question_number2
+    world.page.is_text_present(question_number1)
+    world.page.is_text_present(question_number2)

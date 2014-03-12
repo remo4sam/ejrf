@@ -34,3 +34,4 @@ Feature: Assigning Questions
         When I select the regional questions to assign to the questionnaire
         And I click done button
         Then I should see the newly assigned regional questions in the questionnaire
+        And I should see question numbers with region name
