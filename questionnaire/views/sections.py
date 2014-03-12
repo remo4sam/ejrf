@@ -71,20 +71,20 @@ class DeleteSection(DeleteView):
         self.object = None
         self.pk_url_kwarg = 'section_id'
         self.success_url = reverse("home_page")
+        self.section = None
 
-    def _set_success_url(self, request):
-        referer_url = request.META.get('HTTP_REFERER', None)
-        home_page = reverse("home_page")
-        self.object = self.get_object()
-        section_page = reverse("questionnaire_entry_page", args=(self.object.questionnaire.id, self.object.id))
-        if referer_url and section_page in referer_url:
-            return home_page
-        return referer_url or home_page
+    def get_success_url(self):
+        referer_url = self.request.META.get('HTTP_REFERER', None)
+        section_page = reverse("questionnaire_entry_page", args=(self.section.questionnaire.id, self.section.id))
+        deleting_myself = referer_url and (section_page in referer_url)
+        if deleting_myself:
+            return self.section.questionnaire.absolute_url()
+        return referer_url
 
     def post(self, request, *args, **kwargs):
-        self.success_url = self._set_success_url(request)
+        self.section = self.get_object()
         response = super(DeleteSection, self).post(request, *args, **kwargs)
-        reindex_orders_in(Section, questionnaire=self.object.questionnaire)
+        reindex_orders_in(Section, questionnaire=self.section.questionnaire)
         message = "Section successfully deleted."
         messages.success(request, message)
         return response

@@ -3,6 +3,7 @@ from model_utils.fields import StatusField
 from questionnaire.models.base import BaseModel
 from django.db import models
 from questionnaire.models import Region
+from django.core.urlresolvers import reverse
 
 
 class Questionnaire(BaseModel):
@@ -38,3 +39,10 @@ class Questionnaire(BaseModel):
 
     def is_finalized(self):
         return self.status == Questionnaire.FINALIZED
+
+    def absolute_url(self):
+        args = self.id, self.first_section().id
+        return reverse('questionnaire_entry_page', args=args)
+
+    def first_section(self):
+        return self.sections.order_by('order')[0]
