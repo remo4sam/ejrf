@@ -43,3 +43,15 @@ Feature: Subsection feature
         When i fill in the subsection data
         And I save the subsection
         Then I should see the subsection I just created
+
+    Scenario: Update Subsection in Regional Questionnaire
+        Given that I am logged in as a regional admin
+        And I have a questionnaire for my region with sections and subsections
+        And I visit that questionnaires section page
+        Then I should not see core subsection edit link
+        When I click the edit link for regional subsection
+        Then I should see an edit subsection modal
+        When I update the subsection details
+        And I save the changes to the subsection
+        Then I should see a success message that the subsection was updated
+        And I should see those changes to the regional subsection in the questionnaire

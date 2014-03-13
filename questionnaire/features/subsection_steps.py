@@ -61,3 +61,20 @@ def and_i_should_see_the_changes_i_made_to_the_subsection_in_the_questionnaire(s
 @step(u'And I choose to delete one of the sub sections from the questionnaire')
 def and_i_choose_to_delete_one_of_the_sub_sections_from_the_questionnaire(step):
     world.page.click_by_id('delete-subsection-%s' % world.sub_section.id)
+
+@step(u'Then I should not see core subsection edit link')
+def then_i_should_not_see_core_subsection_edit_link(step):
+    world.page.find_by_id("edit-subsection-%d" % world.core_sub_section.id, False)
+
+@step(u'When I click the edit link for regional subsection')
+def when_i_click_the_edit_link_for_regional_subsection(step):
+    world.page.click_by_id("edit-subsection-%d" % world.sub_section.id)
+
+@step(u'Then I should see a success message that the subsection was updated')
+def then_i_should_see_a_success_message_that_the_subsection_was_updated(step):
+    world.page.is_text_present('SubSection updated successfully')
+
+@step(u'And I should see those changes to the regional subsection in the questionnaire')
+def and_i_should_see_those_changes_to_the_regional_subsection_in_the_questionnaire(step):
+    world.page.is_text_present('New SubSection Name')
+    world.page.is_text_present('New SubSection description')

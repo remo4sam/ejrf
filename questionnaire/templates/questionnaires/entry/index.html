@@ -69,10 +69,10 @@
                                     <span class="cyan"><span class="glyphicon glyphicon-plus-sign"></span> Assign Question</span>
                                 </a>
 
-                                <a href="" id ="edit-subsection-{{ subsection.id }}"class="btn btn-sm btn-default" data-toggle="modal"
-                                   data-target="#edit_subsection_{{ subsection.id }}"><span class="cyan"><span
+                                {% if perms.auth.can_edit_questionnaire and user.user_profile.region == subsection.region%}
+                                    <a href="" id ="edit-subsection-{{ subsection.id }}"class="btn btn-sm btn-default" data-toggle="modal"
+                                       data-target="#edit_subsection_{{ subsection.id }}"><span class="cyan"><span
                                         class="glyphicon glyphicon-pencil"></span> Edit</span></a>
-                                {% if perms.auth.can_view_users or user.user_profile.region == subsection.region%}
                                     <a id="delete-subsection-{{ subsection.id }}" href="" class="btn btn-sm btn-default" data-toggle="modal"
                                        data-target="#delete-subsection-modal-{{ subsection.id }}"><span class="cyan"><span
                                             class="glyphicon glyphicon-trash"></span></span>

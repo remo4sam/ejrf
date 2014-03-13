@@ -52,7 +52,8 @@ def and_i_have_a_questionnaire_for_my_region_with_sections_and_subsections(step)
     world.section4 = Section.objects.create(order=3, title="Core Section",
                                             description="Section 3 description",
                                             questionnaire=world.questionnaire, name="Section 3")
-    world.sub_section = SubSection.objects.create(order=1, section=world.section1, region=world.region)
+    world.sub_section = SubSection.objects.create(title="regional subs", order=1, section=world.section_1, region=world.region)
+    world.core_sub_section = SubSection.objects.create(title="core subs", order=2, section=world.section_1)
 
 
 @step(u'When I open that regional questionnaire for editing')
