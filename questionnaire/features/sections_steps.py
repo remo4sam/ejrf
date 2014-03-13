@@ -2,6 +2,7 @@ from time import sleep
 from django.contrib.auth.models import User, Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from lettuce import step, world
+from questionnaire.features.pages.home import HomePage
 from questionnaire.features.pages.questionnaires import QuestionnairePage
 from questionnaire.features.pages.sections import CreateSectionPage
 from questionnaire.features.pages.users import LoginPage
@@ -176,14 +177,14 @@ def then_i_should_see_the_regional_section_i_created(step):
     world.page.is_text_present('%s - %s' % (world.region.name, 'Some section'))
 
 
-@step(u'And I choose to delete one of the section from the questionnaire')
+@step(u'I choose to delete one of the section from the questionnaire')
 def and_i_choose_to_delete_one_of_the_section_from_the_questionnaire(step):
     world.page.click_by_id("id-delete-section-%s" % world.section_2.id)
 
 
 @step(u'Then I should not see edit icon for core sections')
 def then_i_should_not_see_edit_icon_for_core_sections(step):
-    world.page.find_by_id("id-edit-section-%d" % world.section_3.id, False)
+    world.page.find_by_id("id-edit-section-%d" % world.section4.id, False)
 
 
 @step(u'And I should see the changes I made to the regional section in the questionnaire')
@@ -220,11 +221,45 @@ def and_its_name_and_title_should_be_prefixed_with_the_region_name(step):
     world.page.is_text_present('%s - %s' % (world.region.name, 'Some section'))
     world.page.is_text_present('%s - %s' % (world.region.name, 'Some title'))
 
+
 @step(u'And I should see an option to edit regional sections')
 def and_i_should_see_an_option_to_edit_regional_sections(step):
     world.page.find_by_id("id-edit-section-%d" % world.section_1.id)
     world.page.find_by_id("id-edit-section-%d" % world.section_2.id)
 
+
 @step(u'When I confirm my intention to delete that subsection')
 def when_i_confirm_my_intention_to_delete_that_subsection(step):
     world.page.click_by_id('confirm-delete-subsection-%s' % world.sub_section.id)
+
+
+@step(u'Then I should see options to delete the regional sections')
+def then_i_should_see_options_to_delete_the_regional_sections(step):
+    world.page.find_by_id("id-delete-section-%d" % world.section1.id)
+
+
+@step(u'And I am viewing the manage regional JRF page')
+def and_i_am_viewing_the_manage_regional_jrf_page(step):
+    world.page = HomePage(world.browser)
+    world.page.visit()
+
+
+@step(u'When I choose to delete one of the regional sections')
+def when_i_choose_to_delete_one_of_the_regional_sections(step):
+    world.page.click_by_id('id-delete-section-%s' % world.section1.id)
+
+
+@step(u'When I confirm the regional section deletion')
+def when_i_confirm_the_regional_section_deletion(step):
+    world.page.click_by_id('confirm-delete-section-%s' % world.section1.id)
+
+
+@step(u'And the regional section should no longer appear in the Questionnaire')
+def and_the_regional_section_should_no_longer_appear_in_the_questionnaire(step):
+    world.page.is_text_present(world.section1.name, status=False)
+
+
+@step(u'And the numbering of the remaining sections should be updated')
+def and_the_numbering_of_the_remaining_sections_should_be_updated(step):
+    world.page.click_link_by_partial_href('/questionnaire/entry/%s/section/%s/' %(world.questionnaire.id, world.section3.id))
+    world.page.is_text_present('2. %s - %s' %(world.region, world.section3.name))

@@ -56,20 +56,22 @@ Feature: Section feature
     And its name and title should be prefixed with the region name
 
   Scenario: Delete Regional Section from a regional Questionnaire
-    Given I am a Regional Admin
+    Given that I am logged in as a regional admin
     And I have a questionnaire for my region with sections and subsections
     And I have regional questions already assigned to my questionnaire
-    And I login the regional user
+    And I am viewing the manage regional JRF page
     When I open that regional questionnaire for editing
-    And I choose to delete one of the section from the questionnaire
+    Then I should see options to delete the regional sections
+    When I choose to delete one of the regional sections
     Then I should see a confirmation message
-    When I confirm the deletion
+    When I confirm the regional section deletion
     Then I should see a message that the section was deleted
-    And the section should no longer appear in the Questionnaire
+    And the regional section should no longer appear in the Questionnaire
+    And the numbering of the remaining sections should be updated
 
   Scenario: Update Section in Regional Questionnaire
-    Given I am logged in as a regional admin
-    And I have a regional questionnaire with sections and subsections
+    Given that I am logged in as a regional admin
+    And I have a questionnaire for my region with sections and subsections
     And I visit that questionnaires section page
     Then I should not see edit icon for core sections
     And I should see an option to edit regional sections

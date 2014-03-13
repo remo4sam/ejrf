@@ -42,7 +42,14 @@ def and_i_have_a_questionnaire_for_my_region_with_sections_and_subsections(step)
                                             questionnaire=world.questionnaire, name="Cover page", region=world.region)
     world.section2 = Section.objects.create(order=1, title="Another title",
                                             description="This is just another one of them",
-                                            questionnaire=world.questionnaire, name="Cover page", region=world.region)
+                                            questionnaire=world.questionnaire, name="Reported Cases",
+                                            region=world.region)
+    world.section3 = Section.objects.create(order=2, title="Section 3 Title",
+                                            description="Section 3 description",
+                                            questionnaire=world.questionnaire, name="Section 3", region=world.region)
+    world.section4 = Section.objects.create(order=3, title="Core Section",
+                                            description="Section 3 description",
+                                            questionnaire=world.questionnaire, name="Section 3")
     world.sub_section = SubSection.objects.create(order=1, section=world.section1, region=world.region)
 
 
