@@ -47,3 +47,7 @@ class QuestionnairePage(PageObject):
     def validate_fields_enabled(self, data):
         for key in data:
             self.is_element_with_id_enabled('id_%s' % key)
+
+    def validate_add_new_section_exists(self):
+        self._is_text_present('New Section')
+        assert self.is_element_present_by_id('new-section')

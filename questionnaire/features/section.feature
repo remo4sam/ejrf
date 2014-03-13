@@ -47,11 +47,13 @@ Feature: Section feature
     Given I am logged in as a regional admin
     And I have a regional questionnaire with sections and subsections
     And I visit that questionnaires section page
-    And I click add new section link
+    Then I should see an option to add a new regional section
+    When I click add new section link
     Then I should see a new section modal
     When i fill in the section data
     And I save the regional section
     Then I should see the regional section I created
+    And its name and title should be prefixed with the region name
 
   Scenario: Delete Regional Section from a regional Questionnaire
     Given I am a Regional Admin
