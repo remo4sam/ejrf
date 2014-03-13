@@ -5,15 +5,14 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import HttpResponseRedirect
 from questionnaire.models import Questionnaire, Region, SubSection, Question, Section
 
-
-class RegionAndPermissionRequiredMixin(AccessMixin):
+class RegionalPermissionRequired(AccessMixin):
     permission_required = None
 
     def dispatch(self, request, *args, **kwargs):
         has_permission = self.get_permissions_from_request(request, **kwargs)
         if not has_permission:
             return redirect_to_login(request.get_full_path(), self.get_login_url(), self.get_redirect_field_name())
-        return super(RegionAndPermissionRequiredMixin, self).dispatch(request, *args, **kwargs)
+        return super(RegionalPermissionRequired, self).dispatch(request, *args, **kwargs)
 
     def get_permissions_from_request(self, request, **kwargs):
         user = request.user
@@ -21,25 +20,37 @@ class RegionAndPermissionRequiredMixin(AccessMixin):
         return user.has_perm(self.permission_required) and self._from_same_region(user, regions)
 
     def get_region(self, kwargs):
-        regions = []
-        if 'question_id' in kwargs:
-            question = Question.objects.get(id=kwargs['question_id'])
-            regions.append(question.region)
-        if 'subsection_id' in kwargs:
-            subsection = SubSection.objects.get(id=kwargs['subsection_id'])
-            regions.append(subsection.region)
-        if 'section_id' in kwargs:
-            section = Section.objects.get(id=kwargs['section_id'])
-            regions.append(section.region)
-        if 'questionnaire_id' in kwargs:
-            regions.append(Questionnaire.objects.get(id=kwargs['questionnaire_id']).region)
-        if 'region_id' in kwargs:
-            regions.append(Region.objects.get(id=kwargs['region_id']))
-        return regions
+        pass
 
     def _from_same_region(self, user, regions):
         same_region_check = [user.user_profile.region == region for region in regions]
         return same_region_check.count(True) == len(regions)
+
+
+class RegionAndPermissionRequiredMixin(RegionalPermissionRequired):
+
+    def get_region(self, kwargs):
+        if 'region_id' in kwargs:
+            return [Region.objects.get(id=kwargs['region_id'])]
+        regions = []
+        if 'question_id' in kwargs:
+            regions.append(Question.objects.get(id=kwargs['question_id']).region)
+        if 'subsection_id' in kwargs:
+            regions.append(SubSection.objects.get(id=kwargs['subsection_id']).section.questionnaire.region)
+        if 'section_id' in kwargs:
+            regions.append(Section.objects.get(id=kwargs['section_id']).questionnaire.region)
+        if 'questionnaire_id' in kwargs:
+            regions.append(Questionnaire.objects.get(id=kwargs['questionnaire_id']).region)
+        return regions
+
+
+class OwnerAndPermissionRequiredMixin(RegionalPermissionRequired):
+    def get_region(self, kwargs):
+        if 'subsection_id' in kwargs:
+            return [SubSection.objects.get(id=kwargs['subsection_id']).region]
+        object_ids = filter(lambda key: key.endswith('_id'), kwargs.keys())
+        objects = [ eval(object_id.replace("_id", "").capitalize()).objects.get(id=kwargs[object_id]) for object_id in object_ids]
+        return [object.region for object in objects]
 
 
 class AdvancedMultiplePermissionsRequiredMixin(MultiplePermissionsRequiredMixin):

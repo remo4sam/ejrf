@@ -197,3 +197,4 @@ class SubSectionTest(BaseTest):
     def test_absolute_url(self):
         absolute_url = '/questionnaire/entry/%s/section/%s/' % (self.questionnaire.id, self.sub_section.section.id)
         self.assertEqual(absolute_url, self.sub_section.get_absolute_url())
+

@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import CreateView, UpdateView, DeleteView
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
-from questionnaire.mixins import RegionAndPermissionRequiredMixin, DoesNotExistExceptionHandlerMixin
+from questionnaire.mixins import RegionAndPermissionRequiredMixin, DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequiredMixin
 from questionnaire.models import Section, SubSection
 from questionnaire.utils.model_utils import reindex_orders_in
 
@@ -39,7 +39,7 @@ class NewSection(RegionAndPermissionRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class EditSection(RegionAndPermissionRequiredMixin, UpdateView):
+class EditSection(OwnerAndPermissionRequiredMixin, UpdateView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, *args, **kwargs):
@@ -63,7 +63,7 @@ class EditSection(RegionAndPermissionRequiredMixin, UpdateView):
         return super(EditSection, self).form_invalid(form)
 
 
-class DeleteSection(DoesNotExistExceptionHandlerMixin, RegionAndPermissionRequiredMixin, DeleteView):
+class DeleteSection(DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequiredMixin, DeleteView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, *args, **kwargs):
@@ -130,7 +130,7 @@ class NewSubSection(RegionAndPermissionRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class EditSubSection(PermissionRequiredMixin, UpdateView):
+class EditSubSection(OwnerAndPermissionRequiredMixin, UpdateView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, *args, **kwargs):
@@ -154,7 +154,7 @@ class EditSubSection(PermissionRequiredMixin, UpdateView):
         return super(EditSubSection, self).form_invalid(form)
 
 
-class DeleteSubSection(RegionAndPermissionRequiredMixin, DeleteView):
+class DeleteSubSection(OwnerAndPermissionRequiredMixin, DeleteView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, **kwargs):

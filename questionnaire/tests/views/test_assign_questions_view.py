@@ -8,16 +8,16 @@ from django.test import Client
 class AssignQuestionViewTest(BaseTest):
 
     def setUp(self):
-        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
-        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
-
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
-        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1, region=self.region)
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
+
+        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1)
         self.question1 = Question.objects.create(text='Q1', UID='C00003', answer_type='Number', region=self.region)
         self.question2 = Question.objects.create(text='Q2', UID='C00002', answer_type='Number', region=self.region)
         self.form_data = {'questions': [self.question1.id, self.question2.id]}
@@ -109,16 +109,16 @@ class AssignQuestionViewTest(BaseTest):
 class UnAssignQuestionViewTest(BaseTest):
 
     def setUp(self):
-        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
-        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
-
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
-        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1, region=self.region)
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
+
+        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1)
         self.question1 = Question.objects.create(text='Q1', UID='C00003', answer_type='Number', region=self.region)
         self.question2 = Question.objects.create(text='Q2', UID='C00002', answer_type='Number', region=self.region)
         self.question_group = self.question1.question_group.create(subsection=self.subsection)

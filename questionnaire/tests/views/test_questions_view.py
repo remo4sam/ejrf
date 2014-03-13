@@ -140,6 +140,15 @@ class QuestionViewTest(BaseTest):
         message = "Question was deleted successfully"
         self.assertIn(message, response.cookies['messages'].value)
 
+    def test_does_not_delete_question_when_it_belongs_to_others(self):
+        data = {'text': 'B. Number of cases tested',
+                'instructions': "Enter the total number of cases",
+                'UID': '00001', 'answer_type': 'Number'}
+        question = Question.objects.create(region=Region.objects.create(name="AFR"), **data)
+        delete_url = '/questions/%s/delete/' % question.id
+        response = self.client.post(delete_url, {})
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(delete_url))
+
     def test_does_not_delete_question_when_it_has_answers(self):
         data = {'text': 'B. Number of cases tested',
                 'instructions': "Enter the total number of cases",

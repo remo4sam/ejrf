@@ -146,17 +146,25 @@ class EditSectionsViewTest(BaseTest):
         self.assertIsInstance(response.context['form'], SectionForm)
         self.assertEqual("SAVE", response.context['btn_label'])
 
+    def test_sections_owned_by_others_cannot_be_edited(self):
+        self.section.region = None
+        self.section.save()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s'%self.url)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s'%self.url)
+
 
 class DeleteSectionsViewTest(BaseTest):
     def setUp(self):
         self.client = Client()
-        self.user, self.country, self.region = self.create_user_with_no_permissions(region_name=None)
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
-        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
-        self.section_1 = Section.objects.create(name="section 2", questionnaire=self.questionnaire, order=2)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
+        self.section_1 = Section.objects.create(name="section 2", questionnaire=self.questionnaire, order=2, region=self.region)
         self.url = '/section/%d/delete/' % self.section.id
 
     def test_post_deletes_section(self):
@@ -185,10 +193,18 @@ class DeleteSectionsViewTest(BaseTest):
     def test_successful_deletion_of_section_reindexes_section_orders(self):
         referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section_1.id)
         meta = {'HTTP_REFERER': referer_url}
-        section_3 = Section.objects.create(name="section", questionnaire=self.questionnaire, order=3)
+        section_3 = Section.objects.create(name="section", questionnaire=self.questionnaire, order=3, region=self.region)
         Section.objects.create(name="section 2", questionnaire=self.questionnaire, order=4)
         self.client.post('/section/%d/delete/' % section_3.id, data={}, **meta)
         self.assertEqual([1, 2, 3], list(Section.objects.values_list('order', flat=True)))
+
+    def test_sections_owned_by_others_cannot_be_deleted(self):
+        self.section.region = None
+        self.section.save()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s'%self.url)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s'%self.url)
 
 
 class SubSectionsViewTest(BaseTest):
@@ -200,7 +216,7 @@ class SubSectionsViewTest(BaseTest):
         self.client.login(username=self.user.username, password='pass')
 
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
-        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
         self.url = '/questionnaire/entry/%s/section/%s/subsection/new/' % (self.questionnaire.id, self.section.id)
         self.form_data = {
             'description': 'funny section',
@@ -279,7 +295,7 @@ class EditSubSectionsViewTest(BaseTest):
                           'section': self.section.id}
         self.create_form_data = self.form_data.copy()
         del self.create_form_data['section']
-        self.subsection = SubSection.objects.create(section=self.section, **self.create_form_data)
+        self.subsection = SubSection.objects.create(section=self.section, region=self.region, **self.create_form_data)
         self.url = '/subsection/%d/edit/' % self.subsection.id
 
     def test_get_edit_section(self):
@@ -307,6 +323,14 @@ class EditSubSectionsViewTest(BaseTest):
         self.assert_login_required(self.url)
         self.assert_permission_required(self.url)
 
+    def test_subsections_owned_by_others_cannot_be_edited(self):
+        self.subsection.region = None
+        self.subsection.save()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s'%self.url)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s'%self.url)
+
     def test_post_invalid(self):
         form_data = self.form_data.copy()
         form_data['title'] = ''
@@ -325,7 +349,7 @@ class DeleteSubSectionsViewTest(BaseTest):
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
 
-        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
         self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
         self.form_data = {'description': 'First Section',
                           'title': 'Title for First Section',
@@ -359,6 +383,14 @@ class DeleteSubSectionsViewTest(BaseTest):
         meta = {'HTTP_REFERER': referer_url}
         self.client.post('/subsection/%d/delete/' % sub_section2.id, data={}, **meta)
         self.assertEqual([1, 2, 3], list(SubSection.objects.values_list('order', flat=True)))
+
+    def test_subsections_owned_by_others_cannot_be_deleted(self):
+        self.subsection.region = None
+        self.subsection.save()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s'%self.url)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s'%self.url)
 
 
 class RegionalSectionsViewTest(BaseTest):

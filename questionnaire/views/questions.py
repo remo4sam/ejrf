@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import CreateView, DeleteView, View
 from questionnaire.forms.questions import QuestionForm
-from questionnaire.mixins import DoesNotExistExceptionHandlerMixin, RegionAndPermissionRequiredMixin
+from questionnaire.mixins import DoesNotExistExceptionHandlerMixin, RegionAndPermissionRequiredMixin, OwnerAndPermissionRequiredMixin
 from questionnaire.models import Question, Questionnaire
 
 
@@ -65,7 +65,7 @@ class CreateQuestion(PermissionRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class DeleteQuestion(DoesNotExistExceptionHandlerMixin, RegionAndPermissionRequiredMixin, DeleteView):
+class DeleteQuestion(DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequiredMixin, DeleteView):
     def __init__(self, *args, **kwargs):
         super(DeleteQuestion, self).__init__(*args, **kwargs)
         self.permission_required = 'auth.can_edit_questionnaire'
