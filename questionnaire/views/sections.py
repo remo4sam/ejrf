@@ -154,7 +154,8 @@ class EditSubSection(PermissionRequiredMixin, UpdateView):
         return super(EditSubSection, self).form_invalid(form)
 
 
-class DeleteSubSection(DeleteView):
+class DeleteSubSection(RegionAndPermissionRequiredMixin, DeleteView):
+    permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, **kwargs):
         super(DeleteSubSection, self).__init__(**kwargs)

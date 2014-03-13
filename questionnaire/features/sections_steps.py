@@ -163,3 +163,21 @@ def then_i_should_not_see_edit_icon_for_core_sections(step):
 def and_i_should_see_the_changes_i_made_to_the_regional_section_in_the_questionnaire(step):
     world.page.is_text_present('%s - %s' % (world.region.name, 'New Section Name'))
     world.page.is_text_present('%s - %s' % (world.region.name, 'New Section Title'))
+
+@step(u'Then I should see a delete subsection confirmation message')
+def then_i_should_see_a_delete_subsection_confirmation_message(step):
+    world.page.is_text_present('Confirm Delete Subsection')
+    world.page.is_text_present('Are you sure you want to delete this subsection')
+
+
+@step(u'Then I should see a message that the sub-section was deleted')
+def then_i_should_see_a_message_that_the_sub_section_was_deleted(step):
+    world.page.is_text_present("Subsection successfully deleted.")
+
+@step(u'And the sub section should no longer appear in the Questionnaire')
+def and_the_sub_section_should_no_longer_appear_in_the_questionnaire(step):
+    world.page.is_text_present("%s" % world.sub_section.title, status=False)
+
+@step(u'When I confirm my intention to delete that subsection')
+def when_i_confirm_my_intention_to_delete_that_subsection(step):
+    world.page.click_by_id('confirm-delete-subsection-%s' % world.sub_section.id)

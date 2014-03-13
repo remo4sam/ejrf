@@ -57,3 +57,8 @@ def then_i_should_see_a_message_that_the_subsection_was_updated(step):
 @step(u'And I should see the changes I made to the subsection in the questionnaire')
 def and_i_should_see_the_changes_i_made_to_the_subsection_in_the_questionnaire(step):
     world.page.is_text_present(world.data['title'])
+
+
+@step(u'And I choose to delete one of the sub sections from the questionnaire')
+def and_i_choose_to_delete_one_of_the_sub_sections_from_the_questionnaire(step):
+    world.page.click_by_id('delete-subsection-%s' % world.sub_section.id)

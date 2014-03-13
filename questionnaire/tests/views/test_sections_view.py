@@ -326,14 +326,14 @@ class DeleteSubSectionsViewTest(BaseTest):
         self.client.login(username=self.user.username, password='pass')
 
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
-        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
         self.form_data = {'description': 'First Section',
                           'title': 'Title for First Section',
                           'order': 1,
                           'section': self.section.id}
         self.create_form_data = self.form_data.copy()
         del self.create_form_data['section']
-        self.subsection = SubSection.objects.create(section=self.section, **self.create_form_data)
+        self.subsection = SubSection.objects.create(section=self.section, region=self.region, **self.create_form_data)
         self.url = '/subsection/%d/delete/' % self.subsection.id
 
     def test_post_deletes_subsection(self):
@@ -353,7 +353,7 @@ class DeleteSubSectionsViewTest(BaseTest):
 
     def test_successful_deletion_reindexes_subsections(self):
         sub_section1 = SubSection.objects.create(title="Cured Cases of Measles 3", order=2, section=self.section)
-        sub_section2 = SubSection.objects.create(title="Cured Cases of Measles 3", order=3, section=self.section)
+        sub_section2 = SubSection.objects.create(title="Cured Cases of Measles 3", order=3, section=self.section, region=self.region)
         sub_section3 = SubSection.objects.create(title="Cured Cases of Measles 3", order=4, section=self.section)
         referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section.id)
         meta = {'HTTP_REFERER': referer_url}
@@ -381,7 +381,7 @@ class RegionalSectionsViewTest(BaseTest):
         self.assertRedirects(response, expected_url=self.questionnaire.absolute_url())
         self.assertRaises(Section.DoesNotExist, Section.objects.get, id=self.section.id)
 
-    def test_post_delete_section_spares_section_thats_not_for_your_for_region(self):
+    def test_post_delete_section_spares_section_thats_not_for_your_region(self):
         client = Client()
         user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
                                                   country_name="China", region_name="ASEAN")
@@ -396,4 +396,41 @@ class RegionalSectionsViewTest(BaseTest):
 
         response = client.post(url)
         self.failUnless(Section.objects.filter(id=section.id))
+        self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(url))
+
+
+class RegionalSubSectionsViewTest(BaseTest):
+
+    def setUp(self):
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
+        self.section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
+        self.section1 = Section.objects.create(name="section1", questionnaire=self.questionnaire, order=2, region=self.region)
+        self.subsection = SubSection.objects.create(title="subsection 1", section=self.section, order=1, region=self.region)
+        self.user = self.assign('can_edit_questionnaire', self.user)
+
+    def test_post_deletes_section_that_belongs_to_your_region(self):
+        client = Client()
+        client.login(username=self.user.username, password='pass')
+        url = '/subsection/%s/delete/' % self.subsection.id
+        referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section.id)
+        response = client.post(url, HTTP_REFERER=referer_url)
+        self.assertRaises(SubSection.DoesNotExist, SubSection.objects.get, id=self.section.id)
+        self.assertRedirects(response, expected_url=self.questionnaire.absolute_url())
+
+    def test_post_delete_section_spares_section_thats_not_for_your_region(self):
+        client = Client()
+        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
+                                                  country_name="China", region_name="ASEAN")
+        self.assign('can_edit_questionnaire', self.user)
+        client.login(username=user_not_in_same_region.username, password='pass')
+
+        section = Section.objects.create(name="section", questionnaire=self.questionnaire, order=1, region=self.region)
+        subsection = SubSection.objects.create(title="subsection 1", section=section, order=1, region=self.region)
+
+        url = '/subsection/%s/delete/' % subsection.id
+        self.assert_permission_required(url)
+
+        response = client.post(url)
+        self.failUnless(SubSection.objects.filter(id=subsection.id))
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(url))

@@ -19,3 +19,15 @@ Feature: Subsection feature
         And I save the changes to the subsection
         Then I should see a message that the subsection was updated
         And I should see the changes I made to the subsection in the questionnaire
+
+    Scenario: Delete Regional Subsection from a regional Questionnaire
+        Given I am a Regional Admin
+        And I have a questionnaire for my region with sections and subsections
+        And I have regional questions already assigned to my questionnaire
+        And I login the regional user
+        When I open that regional questionnaire for editing
+        And I choose to delete one of the sub sections from the questionnaire
+        Then I should see a delete subsection confirmation message
+        When I confirm my intention to delete that subsection
+        Then I should see a message that the sub-section was deleted
+        And the sub section should no longer appear in the Questionnaire
