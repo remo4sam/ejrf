@@ -43,7 +43,7 @@ class UserQuestionnaireService(object):
     def set_versions(self):
         self.POST_version = self.answer_version()
         if self.current_answer_status == Answer.SUBMITTED_STATUS:
-            self.GET_version = self.POST_version -1
+            self.GET_version = self.POST_version - 1
         else:
             self.GET_version = self.POST_version
 
@@ -69,6 +69,3 @@ class UserQuestionnaireService(object):
         if self.answers_in_questionnaire.exists():
             return self.answers_in_questionnaire.latest('modified').status == Answer.SUBMITTED_STATUS
         return False
-
-
-
