@@ -10,7 +10,7 @@ def given_i_am_a_logged_in_as_a_regional_admin(step):
     world.user = assign('can_edit_questionnaire', world.user)
 
 
-@step(u'And I login the regional user')
+@step(u'I login the regional user')
 def and_i_login_the_regional_user(step):
     world.page = LoginPage(world.browser)
     world.page.visit()

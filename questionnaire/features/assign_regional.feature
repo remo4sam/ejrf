@@ -25,3 +25,4 @@ Feature: Regional Admin Assigning Questions
         Then the unassigned question should not appear in the questionnaire
         And I should see a message that question is successfully unassigned
         And the question numbering should be updated
+

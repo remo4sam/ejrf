@@ -49,7 +49,7 @@
                         {% for questionnaire in finalized_questionnaires %}
                             <li class="list-group-item{% if  forloop.counter > 3 %} hide{% endif %}">
                                 {% with questionnaire.sections.all|first as first_section %}
-                                    <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}?preview=1">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                    <a id="id-finalized-questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}?preview=1">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                 {% endwith %}
                                 {% if questionnaire.is_published %}
                                     <span class="label label-success pull-right ">Published</span>
