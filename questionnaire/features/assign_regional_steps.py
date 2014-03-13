@@ -19,11 +19,11 @@ def and_i_login_the_regional_user(step):
 
 @step(u'And I have regional questions already assigned to my questionnaire')
 def and_i_have_assigned_regional_questions(step):
-    world.question3 = Question.objects.create(text='Name of UNICEF contact', export_label='UNICEF Contact',
+    world.question3 = Question.objects.create(text='question 3', export_label='UNICEF Contact',
                                               UID='00026', answer_type='Text', region=world.region)
-    world.question4 = Question.objects.create(text='Name of WHO contact', export_label='WHO Contact', UID='00028',
+    world.question4 = Question.objects.create(text='question 4', export_label='WHO Contact', UID='00028',
                                               answer_type='Text', region=world.region)
-    world.question5 = Question.objects.create(text='Name of WHO contact', export_label='WHO Contact', UID='000928',
+    world.question5 = Question.objects.create(text='question 5', export_label='WHO Contact', UID='000928',
                                               answer_type='Text', region=world.region)
 
     group = QuestionGroup.objects.create(subsection=world.sub_section, order=1)
@@ -38,10 +38,10 @@ def and_i_have_assigned_regional_questions(step):
 def and_i_have_a_questionnaire_for_my_region_with_sections_and_subsections(step):
     world.questionnaire = Questionnaire.objects.create(name="JRF Bolivia version", description="some more description",
                                                        year=2013, status=Questionnaire.DRAFT, region=world.region)
-    world.section1 = Section.objects.create(order=0, title="WHO/UNICEF Joint Reporting Form",
-                                            questionnaire=world.questionnaire, name="Cover page", region=world.region)
+    world.section1 = Section.objects.create(order=0, title="section 1",
+                                            questionnaire=world.questionnaire, name="section 1", region=world.region)
     world.section_1 = Section.objects.create(order=2, title="section_1",
-                                            questionnaire=world.questionnaire, name="Cover page")
+                                            questionnaire=world.questionnaire, name="section_1")
     world.section2 = Section.objects.create(order=1, title="Another title",
                                             description="This is just another one of them",
                                             questionnaire=world.questionnaire, name="Reported Cases",
@@ -52,7 +52,8 @@ def and_i_have_a_questionnaire_for_my_region_with_sections_and_subsections(step)
     world.section4 = Section.objects.create(order=3, title="Core Section",
                                             description="Section 3 description",
                                             questionnaire=world.questionnaire, name="Section 3")
-    world.sub_section = SubSection.objects.create(title="regional subs", order=1, section=world.section_1, region=world.region)
+    world.sub_section = SubSection.objects.create(title="regional subs", order=1, section=world.section1, region=world.region)
+    world.sub_section_1 = SubSection.objects.create(title="other R subs", order=1, section=world.section_1, region=world.region)
     world.core_sub_section = SubSection.objects.create(title="core subs", order=2, section=world.section_1)
 
 
@@ -139,4 +140,4 @@ def and_i_should_see_a_message_that_question_is_successfully_unassigned(step):
 
 @step(u'And the question numbering should be updated')
 def and_the_question_numbering_should_be_updated(step):
-    world.page.is_text_present('0. 1. 2. %s' % world.question4.text)
+    world.page.is_text_present('0. 1. 2. %s' % (world.question5.text))

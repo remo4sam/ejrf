@@ -2,6 +2,7 @@ from time import sleep
 from lettuce import step, world
 from questionnaire.features.pages.questionnaires import QuestionnairePage
 from questionnaire.features.pages.sections import CreateSubSectionPage
+from questionnaire.models import SubSection, Section, Questionnaire
 
 
 @step(u'And I click add new subsection link')
@@ -78,3 +79,24 @@ def then_i_should_see_a_success_message_that_the_subsection_was_updated(step):
 def and_i_should_see_those_changes_to_the_regional_subsection_in_the_questionnaire(step):
     world.page.is_text_present('New SubSection Name')
     world.page.is_text_present('New SubSection description')
+
+@step(u'And I have a questionnaire in a region with sections and subsections')
+def and_i_have_a_questionnaire_in_a_region_with_sections_and_subsections(step):
+    world.questionnaire = Questionnaire.objects.create(name="JRF Bolivia version", description="some more description",
+                                                       year=2013, status=Questionnaire.DRAFT, region=world.region)
+    world.section1 = Section.objects.create(order=0, title="WHO/UNICEF Joint Reporting Form",
+                                            questionnaire=world.questionnaire, name="Cover page", region=world.region)
+    world.section_1 = Section.objects.create(order=2, title="section_1",
+                                            questionnaire=world.questionnaire, name="Cover page")
+    world.section2 = Section.objects.create(order=1, title="Another title",
+                                            description="This is just another one of them",
+                                            questionnaire=world.questionnaire, name="Reported Cases",
+                                            region=world.region)
+    world.section3 = Section.objects.create(order=2, title="Section 3 Title",
+                                            description="Section 3 description",
+                                            questionnaire=world.questionnaire, name="Section 3", region=world.region)
+    world.section4 = Section.objects.create(order=3, title="Core Section",
+                                            description="Section 3 description",
+                                            questionnaire=world.questionnaire, name="Section 3")
+    world.sub_section = SubSection.objects.create(title="other R subs", order=1, section=world.section_1, region=world.region)
+    world.core_sub_section = SubSection.objects.create(title="core subs", order=2, section=world.section_1)

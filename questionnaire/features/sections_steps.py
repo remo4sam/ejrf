@@ -77,7 +77,7 @@ def then_i_should_see_error_messages_against_the_fields(step):
 
 @step(u'I choose to update a section')
 def and_i_choose_to_update_a_section(step):
-    world.page.click_by_id('id-edit-section-%s' % world.section_1.id)
+    world.page.click_by_id('id-edit-section-%s' % world.section1.id)
 
 
 @step(u'Then I should see an edit section modal')
@@ -95,7 +95,7 @@ def when_i_update_the_section_details(step):
 
 @step(u'And I save the changes to the section')
 def and_i_save_the_changes_to_the_section(step):
-    world.page.click_by_id('submit_edit_section_%s' % world.section_1.id)
+    world.page.click_by_id('submit_edit_section_%s' % world.section1.id)
 
 
 @step(u'Then I should see a message that the section was updated')
@@ -224,9 +224,7 @@ def and_its_name_and_title_should_be_prefixed_with_the_region_name(step):
 
 @step(u'And I should see an option to edit regional sections')
 def and_i_should_see_an_option_to_edit_regional_sections(step):
-    world.page.find_by_id("id-edit-section-%d" % world.section_1.id)
-    world.page.find_by_id("id-edit-section-%d" % world.section_2.id)
-
+    world.page.find_by_id("id-edit-section-%d" % world.section1.id)
 
 @step(u'When I confirm my intention to delete that subsection')
 def when_i_confirm_my_intention_to_delete_that_subsection(step):
@@ -262,4 +260,4 @@ def and_the_regional_section_should_no_longer_appear_in_the_questionnaire(step):
 @step(u'And the numbering of the remaining sections should be updated')
 def and_the_numbering_of_the_remaining_sections_should_be_updated(step):
     world.page.click_link_by_partial_href('/questionnaire/entry/%s/section/%s/' %(world.questionnaire.id, world.section3.id))
-    world.page.is_text_present('2. %s - %s' %(world.region, world.section3.name))
+    world.page.is_text_present('3. %s - %s' %(world.region, world.section3.name))

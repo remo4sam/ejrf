@@ -46,7 +46,7 @@ Feature: Subsection feature
 
     Scenario: Update Subsection in Regional Questionnaire
         Given that I am logged in as a regional admin
-        And I have a questionnaire for my region with sections and subsections
+        And I have a questionnaire in a region with sections and subsections
         And I visit that questionnaires section page
         Then I should not see core subsection edit link
         When I click the edit link for regional subsection
