@@ -191,7 +191,6 @@ def and_i_should_see_the_changes_i_made_to_the_regional_section_in_the_questionn
     world.page.is_text_present('%s - %s' % (world.region.name, 'New Section Name'))
     world.page.is_text_present('%s - %s' % (world.region.name, 'New Section Title'))
 
-
 @step(u'Then I should see a delete subsection confirmation message')
 def then_i_should_see_a_delete_subsection_confirmation_message(step):
     world.page.is_text_present('Confirm Delete Subsection')
@@ -202,11 +201,9 @@ def then_i_should_see_a_delete_subsection_confirmation_message(step):
 def then_i_should_see_a_message_that_the_sub_section_was_deleted(step):
     world.page.is_text_present("Subsection successfully deleted.")
 
-
 @step(u'And the sub section should no longer appear in the Questionnaire')
 def and_the_sub_section_should_no_longer_appear_in_the_questionnaire(step):
     world.page.is_text_present("%s" % world.sub_section.title, status=False)
-
 
 @step(u'When I confirm my intention to delete that subsection')
 def when_i_confirm_my_intention_to_delete_that_subsection(step):
@@ -227,3 +224,7 @@ def and_its_name_and_title_should_be_prefixed_with_the_region_name(step):
 def and_i_should_see_an_option_to_edit_regional_sections(step):
     world.page.find_by_id("id-edit-section-%d" % world.section_1.id)
     world.page.find_by_id("id-edit-section-%d" % world.section_2.id)
+
+@step(u'When I confirm my intention to delete that subsection')
+def when_i_confirm_my_intention_to_delete_that_subsection(step):
+    world.page.click_by_id('confirm-delete-subsection-%s' % world.sub_section.id)
