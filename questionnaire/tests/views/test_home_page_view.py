@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import Client
-from questionnaire.models import Questionnaire, Section
+from questionnaire.models import Questionnaire, Section, Country, Region
+from questionnaire.models.answers import AnswerStatus
 from questionnaire.tests.base_test import BaseTest
 
 

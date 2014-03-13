@@ -1,6 +1,7 @@
 from questionnaire.models import Question, QuestionGroup, Questionnaire, SubSection, Section, Country, \
     Organization, Region, QuestionOption, MultiChoiceAnswer, NumericalAnswer, AnswerGroup, Answer
-from questionnaire.services.questionnaire_status import QuestionnaireStatusService, Status
+from questionnaire.models.answers import AnswerStatus
+from questionnaire.services.questionnaire_status import QuestionnaireStatusService
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -39,9 +40,9 @@ class QuestionnaireStatusServiceTest(BaseTest):
         self.paho.countries.add(self.peru, self.argentina)
 
     def test_returns_not_started_for_all_regions_if_none_has_answered(self):
-        paho_status = {self.argentina: Status.options[None], self.peru: Status.options[None]}
-        afro_status = {self.rwanda: Status.options[None], self.uganda: Status.options[None]}
-        asean_status = {self.malyasia: Status.options[None], self.singapore: Status.options[None]}
+        paho_status = {self.argentina: AnswerStatus.options[None], self.peru: AnswerStatus.options[None]}
+        afro_status = {self.rwanda: AnswerStatus.options[None], self.uganda: AnswerStatus.options[None]}
+        asean_status = {self.malyasia: AnswerStatus.options[None], self.singapore: AnswerStatus.options[None]}
         questionnaire_statuses = QuestionnaireStatusService(self.questionnaire).region_country_status_map()
 
         self.assertEqual(afro_status, questionnaire_statuses[self.afro])
@@ -58,9 +59,9 @@ class QuestionnaireStatusServiceTest(BaseTest):
         NumericalAnswer.objects.create(question=self.question2, country=self.singapore,
                                        status=Answer.DRAFT_STATUS, response=1)
 
-        paho_status = {self.argentina: Status.options['Submitted'], self.peru: Status.options['Draft']}
-        afro_status = {self.rwanda: Status.options[None], self.uganda: Status.options['Submitted']}
-        asean_status = {self.malyasia: Status.options[None], self.singapore: Status.options['Draft']}
+        paho_status = {self.argentina: AnswerStatus.options['Submitted'], self.peru: AnswerStatus.options['Draft']}
+        afro_status = {self.rwanda: AnswerStatus.options[None], self.uganda: AnswerStatus.options['Submitted']}
+        asean_status = {self.malyasia: AnswerStatus.options[None], self.singapore: AnswerStatus.options['Draft']}
         questionnaire_statuses = QuestionnaireStatusService(self.questionnaire).region_country_status_map()
 
         self.assertEqual(afro_status, questionnaire_statuses[self.afro])

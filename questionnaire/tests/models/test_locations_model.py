@@ -1,3 +1,5 @@
+from questionnaire.models import Questionnaire, Section, QuestionGroup, Question, SubSection, Answer, MultiChoiceAnswer, NumericalAnswer
+from questionnaire.models.answers import AnswerStatus
 from questionnaire.models.locations import Region, Country, Organization
 from questionnaire.tests.base_test import BaseTest
 
@@ -34,8 +36,32 @@ class CountryTest(BaseTest):
         country.regions.add(paho)
         self.failUnless(country.id)
         regions = country.regions.all()
-        self.assertEqual(1,regions.count() )
-        self.assertIn(paho,regions )
+        self.assertEqual(1, regions.count())
+        self.assertIn(paho, regions)
+
+    def test_country_knows_answer_status_given_questionnaire(self):
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
+                                           questionnaire=questionnaire, name="Reported Cases")
+        sub_section = SubSection.objects.create(title="Reported cases for the year 2013", order=1, section=section_1)
+        question2 = Question.objects.create(text='C. Number of cases positive', UID='C00005', answer_type='Number')
+
+        parent = QuestionGroup.objects.create(subsection=sub_section, order=1)
+        parent.question.add(question2)
+        organisation = Organization.objects.create(name="WHO")
+        afro = Region.objects.create(name="Afro", organization=organisation)
+        uganda = Country.objects.create(name="Uganda", code="UGX")
+        afro.countries.add(uganda)
+
+        self.assertEqual(AnswerStatus.options[None], uganda.get_answer_status_in(questionnaire))
+
+        answer = NumericalAnswer.objects.create(question=question2, country=uganda, status=Answer.DRAFT_STATUS,
+                                                response=22)
+        self.assertEqual(AnswerStatus.options['Draft'], uganda.get_answer_status_in(questionnaire))
+
+        answer.status = Answer.SUBMITTED_STATUS
+        answer.save()
+        self.assertEqual(AnswerStatus.options[Answer.SUBMITTED_STATUS], uganda.get_answer_status_in(questionnaire))
 
 
 class OrgTest(BaseTest):

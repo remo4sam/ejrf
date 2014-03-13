@@ -51,3 +51,11 @@ class MultiChoiceAnswer(Answer):
 
     def format_response(self):
         return self.response
+
+
+class AnswerStatus(object):
+    options = {
+        Answer.SUBMITTED_STATUS: Answer.SUBMITTED_STATUS,
+        Answer.DRAFT_STATUS: 'In Progress',
+        None: 'Not Started'
+    }
