@@ -74,7 +74,7 @@ def then_i_should_see_error_messages_against_the_fields(step):
     world.page.is_text_present('This field is required')
 
 
-@step(u'And I choose to update a section')
+@step(u'I choose to update a section')
 def and_i_choose_to_update_a_section(step):
     world.page.click_by_id('id-edit-section-%s' % world.section_1.id)
 
@@ -222,3 +222,8 @@ def then_i_should_see_an_option_to_add_a_new_regional_section(step):
 def and_its_name_and_title_should_be_prefixed_with_the_region_name(step):
     world.page.is_text_present('%s - %s' % (world.region.name, 'Some section'))
     world.page.is_text_present('%s - %s' % (world.region.name, 'Some title'))
+
+@step(u'And I should see an option to edit regional sections')
+def and_i_should_see_an_option_to_edit_regional_sections(step):
+    world.page.find_by_id("id-edit-section-%d" % world.section_1.id)
+    world.page.find_by_id("id-edit-section-%d" % world.section_2.id)

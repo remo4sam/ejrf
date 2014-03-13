@@ -72,10 +72,10 @@ Feature: Section feature
     And I have a regional questionnaire with sections and subsections
     And I visit that questionnaires section page
     Then I should not see edit icon for core sections
-    And I choose to update a section
+    And I should see an option to edit regional sections
+    When I choose to update a section
     Then I should see an edit section modal
     When I update the section details
     And I save the changes to the section
     Then I should see a message that the section was updated
     And I should see the changes I made to the regional section in the questionnaire
-
