@@ -12,6 +12,7 @@ Feature: Regional Admin Assigning Questions
         When I select the regional questions to assign to the questionnaire
         And I click done button
         Then I should see the newly assigned regional questions in the questionnaire
+        And the regional question numbers should be prefixed with the region name
 
     Scenario: Regional Admin Unassign Questions from questionnaire
         And I have core questions assigned to my questionnaire
