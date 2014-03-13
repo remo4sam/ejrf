@@ -52,7 +52,7 @@
                                     <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}?preview=1">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                 {% endwith %}
                                 {% if questionnaire.is_published %}
-                                    <span class="label label-success">Published</span>
+                                    <span class="label label-success pull-right ">Published</span>
                                 {% endif %}
                                 <span class="pull-right">
                                     {% if questionnaire.is_finalized %}
