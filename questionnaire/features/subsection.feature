@@ -31,3 +31,15 @@ Feature: Subsection feature
         When I confirm my intention to delete that subsection
         Then I should see a message that the sub-section was deleted
         And the sub section should no longer appear in the Questionnaire
+
+    Scenario: Create Regional subsection
+        Given I am a Regional Admin
+        And I have a questionnaire for my region with sections and subsections
+        And I have regional questions already assigned to my questionnaire
+        And I login the regional user
+        When I open that regional questionnaire for editing
+        And I click add new subsection link
+        Then I should see a new subsection modal
+        When i fill in the subsection data
+        And I save the subsection
+        Then I should see the subsection I just created

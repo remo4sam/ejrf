@@ -40,6 +40,8 @@ def and_i_have_a_questionnaire_for_my_region_with_sections_and_subsections(step)
                                                        year=2013, status=Questionnaire.DRAFT, region=world.region)
     world.section1 = Section.objects.create(order=0, title="WHO/UNICEF Joint Reporting Form",
                                             questionnaire=world.questionnaire, name="Cover page", region=world.region)
+    world.section_1 = Section.objects.create(order=2, title="section_1",
+                                            questionnaire=world.questionnaire, name="Cover page")
     world.section2 = Section.objects.create(order=1, title="Another title",
                                             description="This is just another one of them",
                                             questionnaire=world.questionnaire, name="Reported Cases",
