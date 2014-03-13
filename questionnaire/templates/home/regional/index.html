@@ -19,7 +19,9 @@
                             <li class="list-group-item">
                                 {% with questionnaire.sections.all|first as first_section %}
                                     <a id="questionnaire-{{ questionnaire.id }}"
-                                       href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                       href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">
+                                        {{ questionnaire.name }} {{ questionnaire.year }}
+                                    </a>
                                     <span class="pull-right">
                                     <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}"
                                        class="btn btn-xs btn-default" id="id-edit"><span
@@ -49,6 +51,9 @@
                                 {% with questionnaire.sections.all|first as first_section %}
                                     <a href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}?preview=1">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                 {% endwith %}
+                                {% if questionnaire.is_published %}
+                                    <span class="label label-success">Published</span>
+                                {% endif %}
                                 <span class="pull-right">
                                     {% if questionnaire.is_finalized %}
                                         <a class="btn btn-xs btn-default" id="id-unfinalize-{{ questionnaire.id }}"

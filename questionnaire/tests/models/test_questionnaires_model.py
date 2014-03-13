@@ -76,3 +76,9 @@ class QuestionnaireTest(BaseTest):
 
         questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.FINALIZED)
         self.assertTrue(questionnaire.is_finalized())
+
+    def test_questionnaire_knows_its_published(self):
+        self.assertFalse(self.questionnaire.is_published())
+
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED)
+        self.assertTrue(questionnaire.is_published())

@@ -77,3 +77,13 @@ Feature: Manage JRF
         When I click publish button
         And I should be able to confirm that the Core Questionnaire is published to the regions I selected
         And I should be able to confirm that the regions to which I published the questionnaire is not on the list
+
+    Scenario: Send finalized regional questionnaire to global admin
+        Given I am a Regional Admin
+        And I have a questionnaire for my region with sections and subsections
+        And I have regional questions already assigned to my questionnaire
+        And I login the regional user
+        And I click finalize my regional questionnaire
+        Then I should see that the questionnaire was sent to the global admin successfully
+        And I should not see the lock icon any more
+        And I should see the unlock icon

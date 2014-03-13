@@ -1,9 +1,7 @@
 from urllib import quote
-
+from django.core.urlresolvers import reverse
 from django.test import Client
-
 from questionnaire.models import Organization, Questionnaire, Section
-
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -15,13 +13,13 @@ class ManageJRFViewTest(BaseTest):
         self.who = Organization.objects.create(name="WHO")
         self.assign('can_edit_questionnaire', self.user)
         self.client.login(username=self.user.username, password='pass')
-        self.url = "/manage/region/%d/" % (self.region.id)
+        self.url = "/manage/region/%d/" % self.region.id
 
     def test_get_returns_region_specific_questionnaires(self):
         finalized_questionnaire = Questionnaire.objects.create(name="JRF Jamaica core", description="bla", year=2012,
-                                             status=Questionnaire.FINALIZED, region=self.region)
+                                                               status=Questionnaire.FINALIZED, region=self.region)
         draft_questionnaire = Questionnaire.objects.create(name="JRF Jamaica core", description="bla", year=2011,
-                                             status=Questionnaire.DRAFT, region=self.region)
+                                                           status=Questionnaire.DRAFT, region=self.region)
         Section.objects.create(title="section", order=1, questionnaire=finalized_questionnaire, name="section", region=self.region)
         Section.objects.create(title="section", order=1, questionnaire=draft_questionnaire, name="section", region=self.region)
 
@@ -44,3 +42,49 @@ class ManageJRFViewTest(BaseTest):
         response = self.client.get(self.url)
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
                              status_code=302, target_status_code=200, msg_prefix='')
+
+
+class FinalizeRegionalQuestionnaireViewTest(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.assign('can_view_users', self.user)
+
+        self.client.login(username=self.user.username, password='pass')
+
+        self.questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.DRAFT)
+        Section.objects.create(title="Cured Cases of Measles", order=1, questionnaire=self.questionnaire, name="Cured Cases")
+        self.url = '/questionnaire/%d/finalize/' % self.questionnaire.id
+
+    def test_post_finalizes_questionnaire(self):
+        referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
+        self.assign('can_edit_questionnaire', self.user)
+        response = self.client.post(self.url, HTTP_REFERER=referer_url)
+        self.assertNotIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.DRAFT).all())
+        self.assertIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED).all())
+        self.assertRedirects(response, referer_url)
+
+    def test_post_unfinalizes_questionnaire(self):
+        referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
+        self.assign('can_edit_questionnaire', self.user)
+        questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.FINALIZED)
+        section = Section.objects.create(name="haha", questionnaire=questionnaire, order=1)
+        url = '/questionnaire/%d/unfinalize/' % questionnaire.id
+        response = self.client.post(url, HTTP_REFERER=referer_url)
+        self.assertNotIn(questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED).all())
+        self.assertEqual(Questionnaire.DRAFT, Questionnaire.objects.get(id=questionnaire.id).status)
+        self.assertRedirects(response, referer_url)
+
+    def test_post_unfinalize_a_published_a_questionnaire_returns_errors(self):
+        referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
+        self.assign('can_edit_questionnaire', self.user)
+        questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.PUBLISHED)
+        Section.objects.create(name="haha", questionnaire=questionnaire, order=1)
+        url = '/questionnaire/%d/unfinalize/' % questionnaire.id
+        response = self.client.post(url, HTTP_REFERER=referer_url)
+        self.assertIn(questionnaire, Questionnaire.objects.filter(status=Questionnaire.PUBLISHED).all())
+        self.assertEqual(Questionnaire.PUBLISHED, Questionnaire.objects.get(id=questionnaire.id).status)
+        self.assertRedirects(response, referer_url)
+        message = "The questionnaire could not be unlocked because its published."
+        self.assertIn(message, response.cookies['messages'].value)

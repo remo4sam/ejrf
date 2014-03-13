@@ -1,6 +1,7 @@
 from lettuce import world, step
 from splinter import Browser
 from questionnaire.features.pages.home import HomePage
+from questionnaire.features.pages.manage import ManageJrfPage
 from questionnaire.features.pages.users import LoginPage
 from questionnaire.models import Questionnaire, Section, Organization, Region
 
@@ -234,3 +235,21 @@ def and_i_should_be_able_to_confirm_that_the_regions_to_which_i_published_the_qu
     world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire7.id)
     world.page.is_text_present("%s" % world.amer.name, status=False)
     world.page.is_text_present("%s" % world.asia.name, status=False)
+
+
+@step(u'And I click finalize my regional questionnaire')
+def and_i_click_finalize_my_regional_questionnaire(step):
+    world.page.click_by_id("id-finalize-%s" % world.questionnaire.id)
+
+@step(u'Then I should see that the questionnaire was sent to the global admin successfully')
+def then_i_should_see_that_the_questionnaire_was_sent_to_the_global_admin_successfully(step):
+    world.page.is_text_present("The questionnaire has been finalized successfully.")
+    world.page = ManageJrfPage(world.browser)
+
+@step(u'And I should not see the lock icon any more')
+def and_i_should_not_see_the_lock_icon_any_more(step):
+    world.page.validate_icon_present("id-finalize-%s" % world.questionnaire.id, status=False)
+
+@step(u'And I should see the unlock icon')
+def and_i_should_see_the_unlock_icon(step):
+    world.page.validate_icon_present("id-unfinalize-%s" % world.questionnaire.id)

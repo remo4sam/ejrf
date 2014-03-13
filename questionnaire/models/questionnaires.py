@@ -40,6 +40,9 @@ class Questionnaire(BaseModel):
     def is_finalized(self):
         return self.status == Questionnaire.FINALIZED
 
+    def is_published(self):
+        return self.status == Questionnaire.PUBLISHED
+
     def absolute_url(self):
         args = self.id, self.first_section().id
         return reverse('questionnaire_entry_page', args=args)
