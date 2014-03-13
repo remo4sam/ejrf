@@ -28,9 +28,7 @@ def given_i_have_a_questionnaire_with_questions(step):
 
     world.section_1 = Section.objects.create(order=0,
                         title="WHO/UNICEF Joint Reporting Form on Immunization for the Period January-December, 2013",
-                        description="""If a question is not relevant, enter "NR" (not relevant).<br/>
-                                       If no data are available, enter "ND" (no data).<br/>
-                                        If the number of cases is zero, enter 0.""",
+                        description="0",
                         questionnaire=world.questionnaire, name="Cover page")
     world.section_2 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
                                               questionnaire=world.questionnaire, name="Reported Cases")
