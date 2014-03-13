@@ -260,4 +260,4 @@ def and_the_regional_section_should_no_longer_appear_in_the_questionnaire(step):
 @step(u'And the numbering of the remaining sections should be updated')
 def and_the_numbering_of_the_remaining_sections_should_be_updated(step):
     world.page.click_link_by_partial_href('/questionnaire/entry/%s/section/%s/' %(world.questionnaire.id, world.section3.id))
-    world.page.is_text_present('3. %s - %s' %(world.region, world.section3.name))
+    world.page.is_text_present('%d. %s - %s' %(world.section3.order, world.region, world.section3.name))
