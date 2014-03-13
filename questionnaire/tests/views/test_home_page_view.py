@@ -41,15 +41,6 @@ class HomePageViewTest(BaseTest):
     def test_login_required_for_home_get(self):
         self.assert_login_required('/')
 
-    def test_homepage_redirects_to_managejrf_logged_in_as_global_admin(self):
-        User.objects.all().delete()
-        self.client.logout()
-        user, self.country, self.region = self.create_user_with_no_permissions()
-        self.assign('can_view_users', user)
-        self.client.login(username=user.username, password='pass')
-        response = self.client.get("/")
-        self.assertRedirects(response, expected_url=reverse('manage_jrf_page'))
-
     def test_homepage_redirects_to_manage_regional_jrf_when_logged_in_as_regional_admin(self):
         User.objects.all().delete()
         self.client.logout()
@@ -58,3 +49,28 @@ class HomePageViewTest(BaseTest):
         self.client.login(username=user.username, password='pass')
         response = self.client.get("/")
         self.assertRedirects(response, expected_url=reverse('manage_regional_jrf_page', args=(self.region.id,)))
+
+
+class GlobalAdminHomePageViewTestI(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.assign('can_view_users', self.user)
+        self.assign('can_edit_users', self.user)
+        self.client.login(username=self.user.username, password='pass')
+        self.afro = Region.objects.create(name="Afro")
+        self.uganda = Country.objects.create(name="Uganda", code="UGX")
+        self.rwanda = Country.objects.create(name="Rwanda", code="RWA")
+        self.afro.countries.add(self.uganda, self.rwanda)
+
+    def test_get(self):
+        response = self.client.get("/")
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn('home/index.html', templates)
+        afro_status = {self.uganda: 'Not Started', self.rwanda: 'Not Started'}
+        self.assertEqual(afro_status, response.context['region_country_status_map'][self.afro])
+
+    def test_login_required_for_home_get(self):
+        self.assert_login_required('/')

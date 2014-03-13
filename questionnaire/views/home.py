@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from braces.views import MultiplePermissionsRequiredMixin
 
 from questionnaire.models import Questionnaire
+from questionnaire.services.questionnaire_status import QuestionnaireStatusService
 
 
 class Home(MultiplePermissionsRequiredMixin, View):
@@ -17,8 +18,8 @@ class Home(MultiplePermissionsRequiredMixin, View):
 
     def get(self, *args, **kwargs):
         if self.request.user.has_perm('auth.can_view_users'):
-            return HttpResponseRedirect(reverse('manage_jrf_page'))
-        if self.request.user.has_perm('auth.can_edit_questionnaire'):
+            return self._render_global_admin_view()
+        if self.request.user.has_perm('auth.can_edit_questionnaire') and self.request.user.user_profile.region:
             region = self.request.user.user_profile.region
             return HttpResponseRedirect(reverse('manage_regional_jrf_page', args=(region.id,)))
         if self.questionnaires.exists():
@@ -34,3 +35,7 @@ class Home(MultiplePermissionsRequiredMixin, View):
         questionnaire = self.questionnaires.latest('created')
         args = (questionnaire.id, questionnaire.sections.all()[0].id)
         return HttpResponseRedirect(reverse('questionnaire_entry_page', args=args))
+
+    def _render_global_admin_view(self):
+        status_map = QuestionnaireStatusService(self.questionnaires).region_country_status_map()
+        return render(self.request, 'home/index.html', {'region_country_status_map': status_map})
