@@ -213,7 +213,8 @@ def when_i_confirm_my_intention_to_delete_that_subsection(step):
 
 @step(u'Then I should see an option to add a new regional section')
 def then_i_should_see_an_option_to_add_a_new_regional_section(step):
-    world.page.validate_add_new_section_exists()
+    world.page.is_text_present('New Section')
+    assert world.page.is_element_present_by_id('new-section')
 
 
 @step(u'And its name and title should be prefixed with the region name')

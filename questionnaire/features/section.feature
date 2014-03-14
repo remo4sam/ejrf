@@ -44,9 +44,11 @@ Feature: Section feature
     And the section numbering should be updated
 
   Scenario: Create a Regional Section
-    Given I am logged in as a regional admin
-    And I have a regional questionnaire with sections and subsections
-    And I visit that questionnaires section page
+    Given that I am logged in as a regional admin
+    And I have a questionnaire for my region with sections and subsections
+    And I have regional questions already assigned to my questionnaire
+    And I am viewing the manage regional JRF page
+    When I open that regional questionnaire for editing
     Then I should see an option to add a new regional section
     When I click add new section link
     Then I should see a new section modal
