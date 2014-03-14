@@ -4,7 +4,7 @@ from questionnaire.views.export_to_text import ExportToTextView, ExportSectionPD
 from questionnaire.views.home import Home
 from questionnaire.views.locations import ListRegions, ListCountries, RegionsForOrganization
 from questionnaire.views.manage import ManageJRF, ManageRegionalJRF
-from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
+from questionnaire.views.questionnaire_preview import PreviewQuestionnaire, PreviewVersionSpecific
 from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection, DeleteSubSection
 from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion
 from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire, FinalizeQuestionnaire, UnfinalizeQuestionnaire, PublishQuestionnaire
@@ -30,6 +30,7 @@ urlpatterns = patterns('',
     url(r'^questionnaire/(?P<questionnaire_id>\d+)/unfinalize/$', UnfinalizeQuestionnaire.as_view(), name="unfinalize_questionnaire_page"),
     url(r'^questionnaire/(?P<questionnaire_id>\d+)/publish/$', PublishQuestionnaire.as_view(), name="publish_questionnaire_page"),
     url(r'^questionnaire/preview/$', PreviewQuestionnaire.as_view(), name="preview_questionnaire"),
+    url(r'^questionnaire/(?P<questionnaire_id>\d+)/version/(?P<version>\d+)/preview/$', PreviewVersionSpecific.as_view(), name="preview_by_versions"),
     url(r'^questionnaire/(?P<questionnaire_id>\d+)/preview/$', PreviewQuestionnaire.as_view(), name="preview_specific_questionnaire"),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/documents/upload/$', UploadDocument.as_view(), name='upload_document'),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/documents/(?P<document_id>\d+)/download/$', DownloadDocument.as_view(), name='download_document'),

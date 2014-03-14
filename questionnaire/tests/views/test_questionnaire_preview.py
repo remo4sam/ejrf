@@ -1,6 +1,7 @@
 from django.test import Client
-from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionOption, QuestionGroupOrder
+from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionOption, QuestionGroupOrder, NumericalAnswer, MultiChoiceAnswer, AnswerGroup
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
+from questionnaire.services.users import UserQuestionnaireService
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -97,3 +98,47 @@ class QuestionnairePreviewTest(BaseTest):
         self.assertNotIn(self.section_1, response.context['ordered_sections'])
         self.assertEqual(section2, response.context['ordered_sections'][0])
         self.assertEqual(section3, response.context['ordered_sections'][1])
+
+    def test_get_preview_for_version(self):
+        version = 1
+
+        url = '/questionnaire/%s/version/%s/preview/' % (self.questionnaire.id, version)
+        section_2 = Section.objects.create(title="section 2", order=2, questionnaire=self.questionnaire, name="section 2")
+        section_3 = Section.objects.create(title="section 3", order=3, questionnaire=self.questionnaire, name="section 3")
+
+        self.initial = {'country': self.country, 'status': 'Draft', 'version':1, 'code': 'ABC123'}
+
+        version_1_primary_answer = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, **self.initial)
+        version_1_answer_1 = NumericalAnswer.objects.create(response=4, question=self.question2, **self.initial)
+        version_1_answer_2 = NumericalAnswer.objects.create(response=2, question=self.question3, **self.initial)
+
+        answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
+        answer_group.answer.add(version_1_answer_1, version_1_answer_2, version_1_primary_answer)
+
+        response = self.client.get(url)
+        all_section_questionnaires = response.context['all_sections_questionnaires']
+
+        self.assertEqual(3, len(all_section_questionnaires))
+        self.assertIsInstance(all_section_questionnaires[self.section_1], QuestionnaireEntryFormService)
+        self.assertEqual(self.section_1, all_section_questionnaires[self.section_1].section)
+        self.assertIsInstance(all_section_questionnaires[section_2], QuestionnaireEntryFormService)
+        self.assertEqual(section_2, all_section_questionnaires[section_2].section)
+        self.assertIsInstance(all_section_questionnaires[section_3], QuestionnaireEntryFormService)
+        self.assertEqual(section_3, all_section_questionnaires[section_3].section)
+        section1_formsets =  all_section_questionnaires[self.section_1]._formsets()
+
+        self.assertEqual(self.question1, section1_formsets['MultiChoice'][0].initial['question'])
+        self.assertEqual(self.question2, section1_formsets['Number'][0].initial['question'])
+        self.assertEqual(self.question3, section1_formsets['Number'][1].initial['question'])
+
+        self.assertEqual(version_1_primary_answer.response, section1_formsets['MultiChoice'][0].initial['response'])
+        self.assertEqual(version_1_answer_1.response, section1_formsets['Number'][0].initial['response'])
+        self.assertEqual(version_1_answer_2.response, section1_formsets['Number'][1].initial['response'])
+
+        self.assertEqual(version_1_answer_1, section1_formsets['Number'][0].initial['answer'])
+        self.assertEqual(version_1_answer_2, section1_formsets['Number'][1].initial['answer'])
+        self.assertEqual(version_1_primary_answer, section1_formsets['MultiChoice'][0].initial['answer'])
+
+        self.assertIn('answer', section1_formsets['MultiChoice'][0].initial.keys())
+        self.assertIn('answer', section1_formsets['Number'][0].initial.keys())
+        self.assertIn('answer', section1_formsets['Number'][1].initial.keys())

@@ -51,7 +51,7 @@ class HomePageViewTest(BaseTest):
         self.assertRedirects(response, expected_url=reverse('manage_regional_jrf_page', args=(self.region.id,)))
 
 
-class GlobalAdminHomePageViewTestI(BaseTest):
+class GlobalAdminHomePageViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()

@@ -17,7 +17,17 @@ class PreviewQuestionnaire(MultiplePermissionsRequiredMixin, View):
             questionnaire = Questionnaire.objects.get(id=kwargs.get('questionnaire_id'))
         else:
             questionnaire = Questionnaire.objects.get(status=Questionnaire.PUBLISHED)
-        user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
+        user_questionnaire_service = UserQuestionnaireService(self.request.user.user_profile.country, questionnaire)
         context = {'all_sections_questionnaires': user_questionnaire_service.all_sections_questionnaires(),
                    'ordered_sections': questionnaire.sections.order_by('order')}
         return render(request, self.template_name, context)
+
+
+class PreviewVersionSpecific(View):
+    def get(self, *args, **kwargs):
+        questionnaire = Questionnaire.objects.get(id=kwargs.get('questionnaire_id'))
+        country = self.request.user.user_profile.country
+        version = kwargs.get('version')
+        user_questionnaire_service = UserQuestionnaireService(country, questionnaire, version=version)
+        context = {'all_sections_questionnaires': user_questionnaire_service.all_sections_questionnaires()}
+        return render(self.request, "questionnaires/entry/preview.html", context)
