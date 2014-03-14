@@ -62,6 +62,7 @@ def when_i_choose_to_lock_the_draft_questionnaire(step):
 
 @step(u'Then the questionnaire should be finalised')
 def then_the_questionnaire_should_be_finalised(step):
+    world.page.is_text_present('The questionnaire has been finalized successfully')
     assert world.page.is_element_present_by_id('id-finalized-questionnaire-%s' % world.questionnaire_created.id)
 
 
@@ -72,6 +73,7 @@ def when_i_choose_to_unlock_a_finalized_questionnaire(step):
 
 @step(u'Then the finalized questionnaire should move to the in progress column')
 def then_the_finalized_questionnaire_should_move_to_the_in_progress_column(step):
+    world.page.is_text_present('The questionnaire is now in progress')
     assert world.page.is_element_present_by_id("questionnaire-%s" % world.finalized_questionnaire.id)
 
 
