@@ -1,0 +1,75 @@
+{% load questionnaire_entry_tags %}
+{% load generic_tags %}
+
+{% if order.question.is_first_in_group %}
+    <h5>
+        {% if subsection.has_at_least_two_groups and group.has_at_least_two_questions %}
+            {{ section.order }}{% if section.has_at_least_two_subsections %}.
+                {{ subsection.order }}{% endif %}.{{ group.order }}.{% endif %}</h5>
+    {% if order.question.group.name %}
+        <span class="group-name-instructions"><h5>{{ order.question.group.name }} </h5>
+            {% if order.question.group.instructions %}
+                <a class="indent" data-toggle="popover" data-html="true"
+                   data-placement="bottom" data-trigger="hover"
+                   data-content="{{ order.question.group.instructions }}"><i
+                        class="glyphicon glyphicon-info-sign cyan"></i> instructions</a>
+            {% endif %}
+                                        </span>
+    {% endif %}
+{% endif %}
+<div class="form-group">
+    <label class="col-sm-6 control-label">
+        <div class="question-number">
+            {% if order.question.region %}{{ order.question.region.name }} - {% endif %}
+            {{ section.order }}{% if section.has_at_least_two_subsections %}.
+                {{ subsection.order }}{% endif %}.
+            {% if subsection.has_at_least_two_groups %}
+                {{ group.order }}.{% endif %}
+            {% if group.has_at_least_two_questions %}
+                {{ forloop.counter }}.{% endif %}
+        </div>
+        <div class="question-text">
+            {{ order.question.text }}
+        </div>
+    </label>
+
+    <div class="col-sm-5 center-fields">
+        {% for field in order.question|get_form:formsets %}
+            {% if field.errors %}
+                <div class="field-error">
+            {% endif %}
+        {{ field }}
+        {% if field.errors %}
+            </div>
+        {% endif %}
+            {% if order.question.instructions %}
+                <a class="indent instructions" data-toggle="popover"
+                   data-html="true"
+                   data-placement="bottom" data-trigger="hover"
+                   data-content="{{ order.question.instructions }}"
+                   id="question-{{ order.question.id }}-instructions"><i
+                        class="glyphicon glyphicon-info-sign cyan"></i> instructions</a>
+            {% endif %}
+            {% if field.errors %}
+                <a class="indent red" data-toggle="popover" data-placement="bottom"
+                   data-trigger="hover" data-content="{{ field.errors|striptags }}"
+                   id="question-{{ order.question.id }}-instructions"><i
+                        class="glyphicon glyphicon-warning-sign red"></i></a>
+            {% endif %}
+        {% endfor %}
+
+    </div>
+    <div class="unassign-question-div">
+        {% if perms.auth.can_edit_questionnaire and  user.user_profile.region == questionnaire.region and user.user_profile.region == order.question.region %}
+            <a href="" class="unassign-question pull-right red" data-toggle="modal"
+               data-target="#unassign-question-modal-{{ order.question.id }}"
+               id="unassign-question-{{ order.question.id }}">
+                <i class="glyphicon glyphicon-remove-circle red"></i>
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+{% if order.question.group.parent and order.question.is_last_in_group %}
+    <hr/>
+{% endif %}

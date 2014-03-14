@@ -49,7 +49,8 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
                    'form': SectionForm(initial={'questionnaire': questionnaire}),
                    'action': reverse('new_section_page', args=(questionnaire.id, )),
                    'subsection_form': SubSectionForm(),
-                   'subsection_action': reverse('new_subsection_page', args=(questionnaire.id, section.id))}
+                   'subsection_action': reverse('new_subsection_page', args=(questionnaire.id, section.id)),
+                   'documents': user_questionnaire_service.attachments()}
 
         return self.render_to_response(context)
 
@@ -63,7 +64,12 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
                                                  edit_after_submit=user_questionnaire_service.edit_after_submit)
 
         context = {'questionnaire': questionnaire, 'section': section,
-                   'formsets': formsets, 'ordered_sections': Section.objects.filter(questionnaire=questionnaire).order_by('order')}
+                   'formsets': formsets, 'ordered_sections': questionnaire.sections.order_by('order'),
+                   'form': SectionForm(initial={'questionnaire': questionnaire}),
+                   'action': reverse('new_section_page', args=(questionnaire.id, )),
+                   'subsection_form': SubSectionForm(),
+                   'subsection_action': reverse('new_subsection_page', args=(questionnaire.id, section.id)),
+                   'documents': user_questionnaire_service.attachments()}
 
         if formsets.is_valid():
             return self._form_valid(request, formsets, user_questionnaire_service, context)

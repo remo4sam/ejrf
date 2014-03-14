@@ -31,8 +31,6 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class="active"><a href="{% url 'home_page' %}">HOME</a></li>
                             <li class="active"><a href="{% url 'export_page' %}" id="extract-link">EXTRACT</a></li>
-                            <li class="active"><a href="{% url 'upload_document' %}"
-                                                  id="id_attachments">ATTACHMENTS</a></li>
                             {% if perms.auth.can_view_users %}
                                 <li><a href="{% url 'manage_jrf_page' %}" id="id-manage-jrf">MANAGE JRF</a></li>
                                 <li><a href="{% url 'list_users_page' %}">USERS</a></li>

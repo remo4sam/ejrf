@@ -1,0 +1,13 @@
+{% load generic_tags %}
+{% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
+    {% for subsection_ in section.sub_sections.all %}
+        {% include 'base/modals/ajax_modal.html' with action_url=subsection_.id|get_url_with_ids:"edit_subsection_page" object=subsection_  action="edit_subsection" modal_title="Edit SubSection"  btn_label="SAVE" class="edit_subsection" %}
+        {% include 'base/modals/_delete.html' with object_type='Subsection' title='Confirm Delete Subsection' action="delete" url=subsection_.id|get_url_with_ids:"delete_subsection_page" object=subsection_ confirm='Yes' %}
+        {% include 'questionnaires/assign_questions_modal.html' with subsection=subsection_ %}
+        {% for group in subsection_.parent_question_groups %}
+            {% for order in group.question_orders %}
+                {% include 'base/modals/_delete.html' with object_type='Question' title='Confirm Unassign' action="unassign" url=subsection_.id|add_string:order.question.id|get_url_with_ids:"unassign_question_page" object=order.question  confirm='Yes' %}
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}

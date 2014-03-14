@@ -1,5 +1,8 @@
+import os
 from django.contrib.auth.models import User
-from questionnaire.models import Questionnaire, Section, SubSection, QuestionGroup, Question, QuestionGroupOrder, Country, QuestionOption, MultiChoiceAnswer, NumericalAnswer, AnswerGroup, UserProfile, Answer
+from django.core.files import File
+from mock import mock_open, patch
+from questionnaire.models import Questionnaire, Section, SubSection, QuestionGroup, Question, QuestionGroupOrder, Country, QuestionOption, MultiChoiceAnswer, NumericalAnswer, AnswerGroup, UserProfile, Answer, SupportDocument
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
 from questionnaire.services.users import UserQuestionnaireService
 from questionnaire.tests.base_test import BaseTest
@@ -300,3 +303,29 @@ class UserServiceTest(BaseTest):
         self.assertIn(version_2_primary, user_answers)
         self.assertIn(version_2_answer_1, user_answers)
         self.assertIn(version_2_answer_2, user_answers)
+
+    def test_user_knows_its_documents_in_a_questionnaire(self):
+        m = mock_open()
+        with patch('__main__.open', m, create=True):
+            filename = "some_filename.txt"
+            with open(filename, 'w') as document:
+                document.write("Some stuff")
+            self.document = open(filename, 'rb')
+
+
+        document_in = SupportDocument.objects.create(path=File(self.document), country=self.country,
+                                                   questionnaire=self.questionnaire)
+        questionnaire_2 = Questionnaire.objects.create(name="haha", year=2013)
+        document_not_in = SupportDocument.objects.create(path=File(self.document), country=self.country,
+                                                   questionnaire=questionnaire_2)
+
+
+        user_service = UserQuestionnaireService(self.country, self.questionnaire)
+        documents = user_service.attachments()
+
+        self.assertEqual(1, documents.count())
+        self.assertIn(document_in, documents)
+        self.assertNotIn(document_not_in, documents)
+
+        os.system("rm -rf %s" % filename)
+        os.system("rm -rf media/user_uploads/*")

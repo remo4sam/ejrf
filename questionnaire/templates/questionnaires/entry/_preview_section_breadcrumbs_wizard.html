@@ -1,7 +1,8 @@
 <div class="nav-wizard wizard">
     <ul class="nav nav-pills nav-stacked" id="section_tabs">
         {% for section_ in ordered_sections %}
-            <li {% if forloop.first %}class="active"{% endif %}><a  href="#section_{{ section_.id }}" data-toggle="tab">{{ section_.name }}</a></li>
+            <li {% if forloop.first %}class="active"{% endif %}><a href="#section_{{ section_.id }}"
+                                                                   data-toggle="tab">{{ section_.name }}</a></li>
         {% endfor %}
     </ul>
 </div>

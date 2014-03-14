@@ -34,9 +34,9 @@ def and_i_have_two_draft_questionnaires_for_two_years(step):
     Section.objects.create(title="Section1", order=0, questionnaire=world.questionnaire6, name="School Imm. Delivery")
 
 
-@step(u'Then I should see manage JRF, users, question bank, extract and attachments links')
+@step(u'Then I should see manage JRF, users, question bank, extract links')
 def then_i_should_see_manage_jrf_users_question_bank_extract_and_attachments_links(step):
-    world.page.is_text_present("HOME", "EXTRACT", "ATTACHMENTS", "MANAGE JRF", "USERS", "QUESTION BANK")
+    world.page.is_text_present("HOME", "EXTRACT", "MANAGE JRF", "USERS", "QUESTION BANK")
 
 @step(u'Then I should see a list of the three most recent finalised questionnaires')
 def then_i_should_see_a_list_of_the_three_most_recent_finalised_questionnaires(step):

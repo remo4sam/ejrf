@@ -2,64 +2,46 @@
 {% block title %}
     Upload Support Document
 {% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/wizzard.css" type="text/css" media="all">
+{% endblock %}
+{% block javascripts %}
+    {% if preview %}
+        <script src="{{ STATIC_URL }}js/preview.js" type="text/javascript" charset="utf-8"></script>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     {% load questionnaire_entry_tags %}
     {% load generic_tags %}
 
-    <h3>Upload Support Document</h3>
-    <form action="{{ action }}" enctype="multipart/form-data" method="post" accept-charset="utf-8" id="{{ id }}">
-        {% csrf_token %}
-        {% include "base/naked_form.html" with a_form=upload_form %}
-        <div class="form-actions">
-            <button type="submit" class="btn btn-default" name="upload-btn" id="upload-btn"><span class="cyan"><span class="glyphicon glyphicon-open"></span>{{ button_label }}</span></button>
-            <button type="reset" href="#" class="btn btn-default" name="cancel_button"><span class="cyan"> Cancel</span></button>
+    <div class="form-table">
+        {% include 'questionnaires/entry/section_breadcrumps_wizzard.html' %}
+
+        <div class="form-content">
+            <div class="upload_form_content">
+                {% if perms.auth.can_submit_responses %}
+                    {% include 'questionnaires/entry/_upload_form.html' %}
+                {% endif %}
+            </div>
+            <div>
+                {% include 'questionnaires/entry/_attachment_list.html' %}
+            </div>
         </div>
-    </form>
-    <h3>Attachments List</h3>
-    <hr/>
-    <div class="table-responsive">
-      <table class="table table-hover table-bordered table-condensed">
-            <thead>
-            <th>Attachment </th>
-            <th>Actions</th>
-          </thead>
-
-          <tbody>
-          {% if documents %}
-            {% for document in documents %}
-            <tr>
-                <td>
-                    <a href="{% url 'download_document' questionnaire.id document.id %}" >{{ document.path|_filename }}</a>
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <a href="{% url 'download_document' questionnaire.id document.id %}" class="btn btn-default"><span class="cyan"><span class="glyphicon glyphicon-save"></span></span></a>
-                        <button data-target="#delete-document-modal-{{ document.id }}" data-toggle="modal" class="btn btn-default" id="delete-file-{{ document.id }}"><span class="red"><span class="glyphicon glyphicon-trash"></span></span></button>
-                    </div>
-                </td>
-            </tr>
-            {% include 'base/modals/_delete.html' with object_type='Document' title='Confirm Delete' action="delete" object=document  url=document.id|get_url_with_ids:"delete_document"  confirm='Yes'%}
-            {% endfor %}
-          {% else %}
-          <tr>
-              <td colspan="2">{% include 'base/messages.html' with message="You haven't attached any Support Documents yet" %}</td>
-          </tr>
-          {% endif %}
-          </tbody>
-      </table>
     </div>
 
-<script type="text/template" id="file_grt_40_mbs">
-    <div class="alert alert-warning alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <strong>Warning!</strong> That file is is larger than 40Mb, it might take longer to be uploaded.
-    </div>
-</script>
 
-<script type="text/template" id="file_too_large">
-    <div class="alert alert-danger alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <strong>Sorry</strong> That file is too large, Please try a file not larger than 50Mb.
-    </div>
-</script>
+    <script type="text/template" id="file_grt_40_mbs">
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>Warning!</strong> That file is is larger than 40Mb, it might take longer to be uploaded.
+        </div>
+    </script>
+
+    <script type="text/template" id="file_too_large">
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>Sorry</strong> That file is too large, Please try a file not larger than 50Mb.
+        </div>
+    </script>
 {% endblock %}

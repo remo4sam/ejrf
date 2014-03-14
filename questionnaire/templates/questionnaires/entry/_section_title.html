@@ -1,0 +1,14 @@
+<h3 class="button-padding">{{ section.order }}.
+    {% if section.region %}{{ section.region.name }} - {% endif %} {{ section.title | safe }}
+    {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
+        <a href="" id="new-subsection" class="btn btn-default pull-right" data-toggle="modal"
+           data-target="#new-subsection-modal"><span class="cyan"><span
+                class="glyphicon glyphicon-plus-sign"></span> New Subsection</span></a>
+    {% endif %}
+</h3>
+{% include 'base/modals/_create.html' with a_form=subsection_form action=subsection_action modal_id="new-subsection-modal" modal_title="New Subsection" %}
+{% if section.description %}
+    <div class="">
+        {{ section.description| safe }}
+    </div>
+{% endif %}

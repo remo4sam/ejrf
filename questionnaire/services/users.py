@@ -71,3 +71,6 @@ class UserQuestionnaireService(object):
         if self.answers_in_questionnaire.exists():
             return self.answers_in_questionnaire.latest('modified').status == Answer.SUBMITTED_STATUS
         return False
+
+    def attachments(self):
+        return self.questionnaire.support_documents.filter(country=self.country)

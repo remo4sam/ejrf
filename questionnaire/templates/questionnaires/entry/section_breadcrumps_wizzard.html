@@ -5,8 +5,8 @@
                 <a class="{% if section_.id == section.id %}current {% endif %} section_tab col-md-10"
                    href="{% url 'questionnaire_entry_page' questionnaire.id section_.id %}{% if preview %}?preview=1{% endif %}"
                    id="section-{{ section_.id }}"> {% if section_.region %}{{ section_.region.name }} - {% endif %}
-                        {{ section_.name }}</a>
-                {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region and user.user_profile.region == section_.region%}
+                    {{ section_.name }}</a>
+                {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region and user.user_profile.region == section_.region %}
                     <a id="id-edit-section-{{ section_.id }}" href="#"
                        class="{% if section_.id == section.id %}current {% endif %} col-md-1 edit-section"
                        data-toggle="modal" data-target="#edit_section_{{ section_.id }}"> <span
@@ -28,6 +28,14 @@
             </li>
         {% endif %}
     </ul>
+
+    <a class="btn btn-default attachement cyan bold {% if upload_form %}current{% endif %}"
+       href="{% url 'upload_document' questionnaire.id %}" id="id_attachments">ATTACHMENTS
+    {% if documents %}<span class="badge"><span class="cyan bold">{{ documents.count }}</span></span>{% endif %}
+    </a>
+
+
+
 </div>
 {% load generic_tags %}
 {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
@@ -35,4 +43,7 @@
         {% include 'base/modals/ajax_modal.html' with action_url=section_.id|get_url_with_ids:"edit_section_page" object=section_  action="edit_section" modal_title="Edit Section"  btn_label="SAVE" class="edit_section" object_type='section' %}
         {% include 'base/modals/_delete.html' with url=section_.id|get_url_with_ids:"delete_section_page" object=section_  action="delete" title="Delete Section"  btn_label="SAVE" confirm="DELETE" object_type='section' %}
     {% endfor %}
+
+    {% include 'base/modals/_create.html' with a_form=form action=action modal_id="new-section-modal" modal_title="New Section" %}
 {% endif %}
+

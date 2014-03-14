@@ -13,7 +13,7 @@ def and_i_click_the_upload_support_document_link(step):
 
 @step(u'Then I should see the upload form')
 def then_i_should_see_the_upload_form(step):
-    world.page = UploadDocumentPage(world.browser)
+    world.page = UploadDocumentPage(world.browser, world.questionnaire)
     world.page.validate_url()
     world.page.validate_upload_form({'Support document': 'path'})
 

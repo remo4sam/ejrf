@@ -41,9 +41,9 @@
                                                     <h5>
                                                         {% if subsection.has_at_least_two_groups and group.has_at_least_two_questions %}
                                                             {{ section.order }}
-                                                                    {% if section.has_at_least_two_subsections %}
-                                                                        .
-                                                                        {{ subsection.order }}{% endif %}.
+                                                            {% if section.has_at_least_two_subsections %}
+                                                                .
+                                                                {{ subsection.order }}{% endif %}.
                                                             {{ group.order }}
                                                             .{% endif %}</h5>
                                                     {% if order.question.group.name %}

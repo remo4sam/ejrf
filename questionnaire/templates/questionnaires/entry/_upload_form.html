@@ -1,0 +1,18 @@
+<h3>Upload Support Document</h3>
+
+<div class="form-content">
+
+    <form action="{{ action }}" enctype="multipart/form-data" method="post" accept-charset="utf-8"
+          id="{{ id }}">
+        {% csrf_token %}
+        {% include "base/naked_form.html" with a_form=upload_form %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-default" name="upload-btn" id="upload-btn"><span
+                    class="cyan"><span class="glyphicon glyphicon-open"></span>{{ button_label }}</span>
+            </button>
+            <button type="reset" href="#" class="btn btn-default" name="cancel_button"><span
+                    class="cyan"> Cancel</span>
+            </button>
+        </div>
+    </form>
+</div>
