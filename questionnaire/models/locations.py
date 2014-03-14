@@ -44,4 +44,9 @@ class Country(Location):
         submitter_answer = Answer.objects.filter(country=self, question_id=qid).latest('modified')
         if submitter_answer:
             return submitter_answer.textanswer.response
-        return ''
+        return
+
+    def get_versions(self, questionnaire):
+        query_params = {'question__question_group__subsection__section__questionnaire': questionnaire}
+        answers = Answer.objects.filter(country=self, **query_params).select_subclasses()
+        return list(set(answers.values_list('version', flat=True)))

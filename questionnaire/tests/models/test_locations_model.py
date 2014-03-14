@@ -22,6 +22,19 @@ class RegionTest(BaseTest):
 
 
 class CountryTest(BaseTest):
+    def setUp(self):
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
+                                           questionnaire=self.questionnaire, name="Reported Cases")
+        sub_section = SubSection.objects.create(title="Reported cases for the year 2013", order=1, section=section_1)
+        self.question2 = Question.objects.create(text='C. Number of cases positive', UID='C00005', answer_type='Number')
+
+        self.parent = QuestionGroup.objects.create(subsection=sub_section, order=1)
+        self.parent.question.add(self.question2)
+        self.organisation = Organization.objects.create(name="WHO")
+        self.afro = Region.objects.create(name="Afro", organization=self.organisation)
+        self.uganda = Country.objects.create(name="Uganda", code="UGX")
+        self.afro.countries.add(self.uganda)
 
     def test_country_fields(self):
         country = Country()
@@ -40,35 +53,29 @@ class CountryTest(BaseTest):
         self.assertIn(paho, regions)
 
     def test_country_knows_answer_status_given_questionnaire(self):
-        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
-        section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
-                                           questionnaire=questionnaire, name="Reported Cases")
-        sub_section = SubSection.objects.create(title="Reported cases for the year 2013", order=1, section=section_1)
-        question2 = Question.objects.create(text='C. Number of cases positive', UID='C00005', answer_type='Number')
-
-        parent = QuestionGroup.objects.create(subsection=sub_section, order=1)
-        parent.question.add(question2)
-        organisation = Organization.objects.create(name="WHO")
-        afro = Region.objects.create(name="Afro", organization=organisation)
-        uganda = Country.objects.create(name="Uganda", code="UGX")
-        afro.countries.add(uganda)
-
-        self.assertEqual(AnswerStatus.options[None], uganda.get_answer_status_in(questionnaire))
-
-        answer = NumericalAnswer.objects.create(question=question2, country=uganda, status=Answer.DRAFT_STATUS,
+        self.assertEqual(AnswerStatus.options[None], self.uganda.get_answer_status_in(self.questionnaire))
+        answer = NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
                                                 response=22)
-        self.assertEqual(AnswerStatus.options['Draft'], uganda.get_answer_status_in(questionnaire))
+        self.assertEqual(AnswerStatus.options['Draft'], self.uganda.get_answer_status_in(self.questionnaire))
 
         answer.status = Answer.SUBMITTED_STATUS
         answer.save()
-        self.assertEqual(AnswerStatus.options[Answer.SUBMITTED_STATUS], uganda.get_answer_status_in(questionnaire))
+        self.assertEqual(AnswerStatus.options[Answer.SUBMITTED_STATUS], self.uganda.get_answer_status_in(self.questionnaire))
+
+    def test_country_gets_own_versions(self):
+        NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
+                                       response=22)
+        self.assertEqual([1], self.uganda.get_versions(self.questionnaire))
+        NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
+                                       response=22, version=2)
+        self.assertEqual([1, 2], self.uganda.get_versions(self.questionnaire))
 
     def test_country_knows_its_data_submitter(self):
         questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
         section_1 = Section.objects.create(title="Cover PAge", order=1,
                                            questionnaire=questionnaire, name="Cover Pages")
         sub_section = SubSection.objects.create(title="Details", order=1, section=section_1)
-        question = Question.objects.create(text='Name of person in Ministry of Health', UID='C00005', answer_type='Number')
+        question = Question.objects.create(text='Name of person in Ministry of Health', UID='C00054', answer_type='Number')
         parent = QuestionGroup.objects.create(subsection=sub_section, order=1)
         parent.question.add(question)
 
