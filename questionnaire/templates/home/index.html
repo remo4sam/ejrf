@@ -1,5 +1,56 @@
 {% extends 'base/layout.html' %}
-
 {% block content %}
-    <h1>Under construction</h1>
+    {% load generic_tags %}
+    <h3>GLOBAL STATUS</h3>
+    <hr/>
+    <div class="panel-group" id="accordion">
+        {% for region in region_country_status_map.keys %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ region.id }}">
+                            <span class="glyphicon glyphicon-chevron-right cyan"></span>
+                            {{ region.name }}
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse{{ region.id }}" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        {% get_completion_status region country_region_status_map=region_country_status_map as completion_status %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>Country</th>
+                                    <th>Data Submitter</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for country, status in completion_status.items %}
+                                    <tr>
+                                        <td>{{ country }}</td>
+                                        <td>{{ country }}</td>
+                                        <td>{{ status }}</td>
+                                        <td>
+                                            <div class="btn-group pull-right">
+                                                <a href="" class="btn btn-sm btn-default">
+                                                    <span class="glyphicon glyphicon-list-alt"></span> View
+                                                </a>
+                                                <a class="btn btn-sm btn-default">
+                                                    <span class="glyphicon glyphicon-save"></span> Extract
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
