@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from questionnaire.models import Region
 
 
@@ -6,9 +7,9 @@ class QuestionnaireStatusService(object):
         self.questionnaire = questionnaire
 
     def region_country_status_map(self):
-        statuses = {}
+        statuses = OrderedDict()
         for region in Region.objects.order_by('name'):
-            statuses.update({region: {}})
-            for country in region.countries.all():
+            statuses.update({region: OrderedDict()})
+            for country in region.countries.all().order_by('name'):
                 statuses[region].update({country: country.get_answer_status_in(self.questionnaire)})
         return statuses

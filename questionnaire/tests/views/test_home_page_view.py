@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import Client
-from questionnaire.models import Questionnaire, Section, Country, Region
+from questionnaire.models import Questionnaire, Section, Country, Region, Question, SubSection, QuestionGroup
 from questionnaire.models.answers import AnswerStatus
 from questionnaire.tests.base_test import BaseTest
 
@@ -63,6 +63,14 @@ class GlobalAdminHomePageViewTestI(BaseTest):
         self.uganda = Country.objects.create(name="Uganda", code="UGX")
         self.rwanda = Country.objects.create(name="Rwanda", code="RWA")
         self.afro.countries.add(self.uganda, self.rwanda)
+
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        section = Section.objects.create(title="Cover PAge", order=1,
+                                           questionnaire=questionnaire, name="Cover Pages")
+        sub_section = SubSection.objects.create(title="Details", order=1, section=section)
+        question = Question.objects.create(text='Name of person in Ministry of Health', UID='C00005', answer_type='Number')
+        parent = QuestionGroup.objects.create(subsection=sub_section, order=1)
+        parent.question.add(question)
 
     def test_get(self):
         response = self.client.get("/")

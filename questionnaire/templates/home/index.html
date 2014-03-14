@@ -31,7 +31,7 @@
                                 {% for country, status in completion_status.items %}
                                     <tr>
                                         <td>{{ country }}</td>
-                                        <td>{{ country }}</td>
+                                        <td>{{ country.get_data_submitter_in }}</td>
                                         <td>{{ status }}</td>
                                         <td>
                                             <div class="btn-group pull-right">

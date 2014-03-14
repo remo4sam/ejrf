@@ -37,3 +37,11 @@ class Country(Location):
         if answers.exists():
             return AnswerStatus.options[answers.latest('modified').status]
         return AnswerStatus.options[None]
+
+    def get_data_submitter_in(self):
+        from questionnaire.models import Question
+        qid = Question.objects.filter(text__contains="Name of person in Ministry of Health")[0].id
+        submitter_answer = Answer.objects.filter(country=self, question_id=qid).latest('modified')
+        if submitter_answer:
+            return submitter_answer.textanswer.response
+        return ''

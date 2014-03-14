@@ -1,5 +1,5 @@
 from questionnaire.models import Questionnaire, Section, QuestionGroup, Question, SubSection, Answer, MultiChoiceAnswer, NumericalAnswer
-from questionnaire.models.answers import AnswerStatus
+from questionnaire.models.answers import AnswerStatus, TextAnswer
 from questionnaire.models.locations import Region, Country, Organization
 from questionnaire.tests.base_test import BaseTest
 
@@ -62,6 +62,24 @@ class CountryTest(BaseTest):
         answer.status = Answer.SUBMITTED_STATUS
         answer.save()
         self.assertEqual(AnswerStatus.options[Answer.SUBMITTED_STATUS], uganda.get_answer_status_in(questionnaire))
+
+    def test_country_knows_its_data_submitter(self):
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        section_1 = Section.objects.create(title="Cover PAge", order=1,
+                                           questionnaire=questionnaire, name="Cover Pages")
+        sub_section = SubSection.objects.create(title="Details", order=1, section=section_1)
+        question = Question.objects.create(text='Name of person in Ministry of Health', UID='C00005', answer_type='Number')
+        parent = QuestionGroup.objects.create(subsection=sub_section, order=1)
+        parent.question.add(question)
+
+        organisation = Organization.objects.create(name="WHO")
+        afro = Region.objects.create(name="Afro", organization=organisation)
+        uganda = Country.objects.create(name="Uganda", code="UGX")
+        afro.countries.add(uganda)
+
+        TextAnswer.objects.create(question=question,response="jacinta",status=Answer.DRAFT_STATUS,country=uganda)
+
+        self.assertEqual('jacinta', uganda.get_data_submitter_in())
 
 
 class OrgTest(BaseTest):
