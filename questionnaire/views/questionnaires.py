@@ -32,7 +32,8 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
     def get(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
         section = Section.objects.get(id=self.kwargs['section_id'])
-        user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
+        print self.request.user.user_profile.country
+        user_questionnaire_service = UserQuestionnaireService(self.request.user.user_profile.country, questionnaire)
         initial = {'status': 'Draft', 'country': self.request.user.user_profile.country, 'version': user_questionnaire_service.GET_version}
         required_answers = 'show' in request.GET
         formsets = QuestionnaireEntryFormService(section, initial=initial, highlight=required_answers,
@@ -55,7 +56,7 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
         section = Section.objects.get(id=self.kwargs['section_id'])
-        user_questionnaire_service = UserQuestionnaireService(self.request.user, questionnaire)
+        user_questionnaire_service = UserQuestionnaireService(self.request.user.user_profile.country, questionnaire)
         initial = {'country': self.request.user.user_profile.country, 'status': 'Draft',
                    'version': user_questionnaire_service.POST_version}
         formsets = QuestionnaireEntryFormService(section, initial=initial, data=request.POST,
@@ -88,7 +89,7 @@ class SubmitQuestionnaire(AdvancedMultiplePermissionsRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(status=Questionnaire.PUBLISHED)
-        user_questionnaire = UserQuestionnaireService(self.request.user, questionnaire)
+        user_questionnaire = UserQuestionnaireService(self.request.user.user_profile.country, questionnaire)
         if not user_questionnaire.required_sections_answered():
             return self._reload_section_with_required_answers_errors(request, user_questionnaire, *args, **kwargs)
         return self._submit_answers(request, user_questionnaire, *args, **kwargs)

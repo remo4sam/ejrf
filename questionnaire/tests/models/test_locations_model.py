@@ -76,8 +76,7 @@ class CountryTest(BaseTest):
         afro = Region.objects.create(name="Afro", organization=organisation)
         uganda = Country.objects.create(name="Uganda", code="UGX")
         afro.countries.add(uganda)
-
-        TextAnswer.objects.create(question=question,response="jacinta",status=Answer.DRAFT_STATUS,country=uganda)
+        TextAnswer.objects.create(question=question, response="jacinta",status=Answer.DRAFT_STATUS,country=uganda)
 
         self.assertEqual('jacinta', uganda.get_data_submitter_in())
 

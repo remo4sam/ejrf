@@ -59,7 +59,7 @@ class UserServiceTest(BaseTest):
         answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
         answer_group.answer.add(old_primary, old_answer_1, old_answer_2)
 
-        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire)
         user_answers = user_service.all_answers()
 
         self.assertEqual(3, len(user_answers))
@@ -105,7 +105,7 @@ class UserServiceTest(BaseTest):
         answer_group = AnswerGroup.objects.create(grouped_question=question_group)
         answer_group.answer.add(answer_1, answer_2)
 
-        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire)
         user_answers = user_service.questionnaire_answers()
 
         self.assertEqual(5, len(user_answers))
@@ -128,7 +128,7 @@ class UserServiceTest(BaseTest):
         answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
         answer_group.answer.add(old_primary, old_answer_1, old_answer_2)
 
-        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire)
         user_service.submit()
 
         primary = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-0-response']), question=self.question1)
@@ -178,7 +178,7 @@ class UserServiceTest(BaseTest):
         answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
         answer_group.answer.add(old_primary, old_answer_1, old_answer_2)
 
-        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire)
         user_service.submit()
 
         self.assertEqual(self.initial['version']+1, user_service.answer_version())
@@ -200,7 +200,7 @@ class UserServiceTest(BaseTest):
         self.question_group.question.add(required_question)
         QuestionGroupOrder.objects.create(question_group=self.question_group, question=required_question, order=4)
 
-        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire)
 
         self.assertFalse(user_service.answered_required_questions_in(self.section_1))
 
@@ -218,7 +218,7 @@ class UserServiceTest(BaseTest):
         self.question_group.question.add(required_question)
         QuestionGroupOrder.objects.create(question_group=self.question_group, question=required_question, order=4)
 
-        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire)
 
         self.assertFalse(user_service.required_sections_answered())
         self.assertEqual(self.section_1, user_service.unanswered_section)
@@ -227,7 +227,7 @@ class UserServiceTest(BaseTest):
         section_2 = Section.objects.create(title="section 2", order=2, questionnaire=self.questionnaire, name="section 2")
         section_3 = Section.objects.create(title="section 3", order=3, questionnaire=self.questionnaire, name="section 3")
 
-        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire)
         all_section_questionnaires = user_service.all_sections_questionnaires()
 
         self.assertEqual(3, len(all_section_questionnaires))
@@ -247,7 +247,7 @@ class UserServiceTest(BaseTest):
         answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
         answer_group.answer.add(old_primary, old_answer_1, old_answer_2)
 
-        user_service = UserQuestionnaireService(self.user, self.questionnaire)
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire)
 
         self.assertFalse(user_service.preview())
 
@@ -260,3 +260,43 @@ class UserServiceTest(BaseTest):
 
         self.assertTrue(user_service.preview())
 
+    def test_user_knows_answers_given_questionnaire_and_version(self):
+        data = self.data
+        version_1_primary_answer = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, **self.initial)
+        version_1_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=self.question2, **self.initial)
+        version_1_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=self.question3, **self.initial)
+
+        answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
+        answer_group.answer.add(version_1_answer_1, version_1_answer_2, version_1_primary_answer)
+
+        user_service = UserQuestionnaireService(self.user.user_profile.country, self.questionnaire, version=1)
+        user_answers = user_service.questionnaire_answers()
+
+        self.assertEqual(3, len(user_answers))
+
+        self.assertIn(version_1_primary_answer, user_answers)
+        self.assertIn(version_1_answer_1, user_answers)
+        self.assertIn(version_1_answer_2, user_answers)
+
+        version_1_primary_answer.status = Answer.SUBMITTED_STATUS
+        version_1_primary_answer.save()
+        version_1_answer_1.status = Answer.SUBMITTED_STATUS
+        version_1_answer_1.save()
+        version_1_answer_2.status = Answer.SUBMITTED_STATUS
+        version_1_answer_2.save()
+        initial = self.initial.copy()
+        del  initial['version']
+        version_2_primary = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, version=2, **initial)
+        version_2_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=self.question2, version=2, **initial)
+        version_2_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=self.question3, version=2, **initial)
+
+        answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
+        answer_group.answer.add(version_2_primary, version_2_answer_1, version_2_answer_2)
+
+        user_service = UserQuestionnaireService(self.country, self.questionnaire, version=2)
+        user_answers = user_service.questionnaire_answers()
+        self.assertEqual(3, len(user_answers))
+
+        self.assertIn(version_2_primary, user_answers)
+        self.assertIn(version_2_answer_1, user_answers)
+        self.assertIn(version_2_answer_2, user_answers)

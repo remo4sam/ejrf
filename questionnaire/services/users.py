@@ -5,11 +5,10 @@ from questionnaire.services.questionnaire_entry_form_service import Questionnair
 
 class UserQuestionnaireService(object):
 
-    def __init__(self, user, questionnaire):
-        self.user = user
-        self.country = user.user_profile.country
+    def __init__(self, country, questionnaire, version=None):
+        self.version = version
+        self.country = country
         self.questionnaire = questionnaire
-        self.unanswered_section = None
         self.answers_in_questionnaire = self.questionnaire_answers()
         self.current_answer_status = Answer.DRAFT_STATUS
         self.set_versions()
@@ -21,7 +20,10 @@ class UserQuestionnaireService(object):
 
     def questionnaire_answers(self):
         answer_groups = AnswerGroup.objects.filter(grouped_question__subsection__section__questionnaire=self.questionnaire)
-        return Answer.objects.filter(country=self.country, answergroup__in=answer_groups).select_subclasses()
+        answers = Answer.objects.filter(country=self.country, answergroup__in=answer_groups).select_subclasses()
+        if self.version:
+            return answers.filter(version=self.version)
+        return answers
 
     def submit(self):
         for answer in self.answers:
