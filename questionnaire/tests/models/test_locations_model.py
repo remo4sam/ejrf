@@ -53,22 +53,22 @@ class CountryTest(BaseTest):
         self.assertIn(paho, regions)
 
     def test_country_knows_answer_status_given_questionnaire(self):
-        self.assertEqual(AnswerStatus.options[None], self.uganda.get_answer_status_in(self.questionnaire))
+        self.assertEqual(AnswerStatus.options[None], self.uganda.answer_status())
         answer = NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
                                                 response=22)
-        self.assertEqual(AnswerStatus.options['Draft'], self.uganda.get_answer_status_in(self.questionnaire))
+        self.assertEqual(AnswerStatus.options['Draft'], self.uganda.answer_status())
 
         answer.status = Answer.SUBMITTED_STATUS
         answer.save()
-        self.assertEqual(AnswerStatus.options[Answer.SUBMITTED_STATUS], self.uganda.get_answer_status_in(self.questionnaire))
+        self.assertEqual(AnswerStatus.options[Answer.SUBMITTED_STATUS], self.uganda.answer_status())
 
     def test_country_gets_own_versions(self):
         NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
                                        response=22)
-        self.assertEqual([1], self.uganda.get_versions(self.questionnaire))
+        self.assertEqual([1], self.uganda.all_versions(self.questionnaire))
         NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
                                        response=22, version=2)
-        self.assertEqual([1, 2], self.uganda.get_versions(self.questionnaire))
+        self.assertEqual([1, 2], self.uganda.all_versions(self.questionnaire))
 
     def test_country_knows_its_data_submitter(self):
         questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
@@ -85,7 +85,7 @@ class CountryTest(BaseTest):
         afro.countries.add(uganda)
         TextAnswer.objects.create(question=question, response="jacinta",status=Answer.DRAFT_STATUS,country=uganda)
 
-        self.assertEqual('jacinta', uganda.get_data_submitter_in())
+        self.assertEqual('jacinta', uganda.data_submitter())
 
 
 class OrgTest(BaseTest):

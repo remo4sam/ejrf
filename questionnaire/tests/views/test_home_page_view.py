@@ -64,21 +64,13 @@ class GlobalAdminHomePageViewTest(BaseTest):
         self.rwanda = Country.objects.create(name="Rwanda", code="RWA")
         self.afro.countries.add(self.uganda, self.rwanda)
 
-        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
-        section = Section.objects.create(title="Cover PAge", order=1,
-                                           questionnaire=questionnaire, name="Cover Pages")
-        sub_section = SubSection.objects.create(title="Details", order=1, section=section)
-        question = Question.objects.create(text='Name of person in Ministry of Health', UID='C00005', answer_type='Number')
-        parent = QuestionGroup.objects.create(subsection=sub_section, order=1)
-        parent.question.add(question)
-
     def test_get(self):
         response = self.client.get("/")
         self.assertEqual(200, response.status_code)
         templates = [template.name for template in response.templates]
         self.assertIn('home/index.html', templates)
-        afro_status = {self.uganda: 'Not Started', self.rwanda: 'Not Started'}
-        self.assertEqual(afro_status, response.context['region_country_status_map'][self.afro])
+        self.assertIn(self.uganda, response.context['region_country_status_map'][self.afro])
+        self.assertIn(self.rwanda, response.context['region_country_status_map'][self.afro])
 
     def test_login_required_for_home_get(self):
         self.assert_login_required('/')

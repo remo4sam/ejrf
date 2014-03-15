@@ -31,22 +31,20 @@ class Country(Location):
     regions = models.ManyToManyField(Region, blank=False, null=True, related_name="countries")
     code = models.CharField(max_length=5, blank=False, null=True)
 
-    def get_answer_status_in(self, questionnaire):
-        query_params = {'question__question_group__subsection__section__questionnaire': questionnaire}
-        answers = Answer.objects.filter(country=self, **query_params).select_subclasses()
+    def answer_status(self):
+        answers = Answer.objects.filter(country=self).select_subclasses()
         if answers.exists():
             return AnswerStatus.options[answers.latest('modified').status]
         return AnswerStatus.options[None]
 
-    def get_data_submitter_in(self):
-        from questionnaire.models import Question
-        qid = Question.objects.filter(text__contains="Name of person in Ministry of Health")[0].id
-        submitter_answer = Answer.objects.filter(country=self, question_id=qid).latest('modified')
+    def data_submitter(self):
+        data_submitter_name_question = "Name of person in Ministry of Health"
+        submitter_answer = Answer.objects.filter(country=self, question__text__contains=data_submitter_name_question).latest('modified')
         if submitter_answer:
             return submitter_answer.textanswer.response
         return
 
-    def get_versions(self, questionnaire):
+    def all_versions(self, questionnaire):
         query_params = {'question__question_group__subsection__section__questionnaire': questionnaire}
         answers = Answer.objects.filter(country=self, **query_params).select_subclasses()
         return list(set(answers.values_list('version', flat=True)))

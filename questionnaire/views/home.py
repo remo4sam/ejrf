@@ -37,5 +37,5 @@ class Home(MultiplePermissionsRequiredMixin, View):
         return HttpResponseRedirect(reverse('questionnaire_entry_page', args=args))
 
     def _render_global_admin_view(self):
-        status_map = QuestionnaireStatusService(self.questionnaires).region_country_status_map()
+        status_map = QuestionnaireStatusService().region_country_status_map()
         return render(self.request, 'home/index.html', {'region_country_status_map': status_map})

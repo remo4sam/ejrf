@@ -3,13 +3,11 @@ from questionnaire.models import Region
 
 
 class QuestionnaireStatusService(object):
-    def __init__(self, questionnaire):
-        self.questionnaire = questionnaire
+    def __init__(self):
+        self.regions = Region.objects.order_by('name')
 
     def region_country_status_map(self):
-        statuses = OrderedDict()
-        for region in Region.objects.order_by('name'):
-            statuses.update({region: OrderedDict()})
-            for country in region.countries.all().order_by('name'):
-                statuses[region].update({country: country.get_answer_status_in(self.questionnaire)})
-        return statuses
+        region_country_map = OrderedDict()
+        for region in self.regions:
+            region_country_map.update({region: region.countries.order_by('name')})
+        return region_country_map
