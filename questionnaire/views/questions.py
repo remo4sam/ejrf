@@ -77,10 +77,6 @@ class DeleteQuestion(DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequir
 
     def post(self, *args, **kwargs):
         question = self.model.objects.get(pk=kwargs['question_id'])
-        user_region = self.request.user.user_profile.region
-        if question.region != user_region:
-            message = "Sorry, Question was deleted successfully, Because it belongs to %s" % question.region.name
-            return self.redirect_and_render_error_message(message)
         if question.can_be_deleted():
             question.delete()
             return self.redirect_and_render_success_message()

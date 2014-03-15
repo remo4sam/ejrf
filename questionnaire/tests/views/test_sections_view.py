@@ -65,7 +65,6 @@ class SectionsViewTest(BaseTest):
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
                              status_code=302, target_status_code=200, msg_prefix='')
 
-
     def test_post_invalid(self):
         Section.objects.create(name="Some", order=1, questionnaire=self.questionnaire)
         form_data = self.form_data.copy()

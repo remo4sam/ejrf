@@ -113,7 +113,6 @@ class NewSubSection(RegionAndPermissionRequiredMixin, CreateView):
         self.referer_url = reverse('questionnaire_entry_page', args=(questionnaire_id, section_id))
         if self.form.is_valid():
             return self._form_valid()
-        return self._form_invalid()
 
     def _form_valid(self):
         subsection = self.form.save(commit=False)
@@ -122,12 +121,6 @@ class NewSubSection(RegionAndPermissionRequiredMixin, CreateView):
         subsection.save()
         messages.success(self.request, "Subsection successfully created." )
         return HttpResponseRedirect(self.referer_url)
-
-    def _form_invalid(self):
-        messages.error(self.request, "Subsection NOT created. See errors below." )
-        context = {'id':  "new-subsection-modal",
-                   'form': self.form, 'btn_label': "CREATE", }
-        return self.render_to_response(context)
 
 
 class EditSubSection(OwnerAndPermissionRequiredMixin, UpdateView):
