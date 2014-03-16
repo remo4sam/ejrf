@@ -1,14 +1,14 @@
 from django.test import Client
 from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionOption, QuestionGroupOrder, NumericalAnswer, MultiChoiceAnswer, AnswerGroup
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
-from questionnaire.services.users import UserQuestionnaireService
 from questionnaire.tests.base_test import BaseTest
 
 
 class QuestionnairePreviewTest(BaseTest):
     def setUp(self):
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED,
-                                                          description="From dropbox as given by Rouslan")
+                                                          description="From dropbox as given by Rouslan", region=self.region)
 
         self.section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)",
                                                 order=1,
@@ -40,7 +40,6 @@ class QuestionnairePreviewTest(BaseTest):
         self.url = '/questionnaire/preview/'
 
         self.client = Client()
-        self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
@@ -102,11 +101,11 @@ class QuestionnairePreviewTest(BaseTest):
     def test_get_preview_for_version(self):
         version = 1
 
-        url = '/questionnaire/%s/version/%s/preview/' % (self.questionnaire.id, version)
+        url = '/questionnaire/preview/?country=%s&version=%s&region=%s' % (self.country.id, version, self.region.id)
         section_2 = Section.objects.create(title="section 2", order=2, questionnaire=self.questionnaire, name="section 2")
         section_3 = Section.objects.create(title="section 3", order=3, questionnaire=self.questionnaire, name="section 3")
 
-        self.initial = {'country': self.country, 'status': 'Draft', 'version':1, 'code': 'ABC123'}
+        self.initial = {'country': self.country, 'status': 'Draft', 'version': 1, 'code': 'ABC123'}
 
         version_1_primary_answer = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, **self.initial)
         version_1_answer_1 = NumericalAnswer.objects.create(response=4, question=self.question2, **self.initial)
