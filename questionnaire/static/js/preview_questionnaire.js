@@ -9,14 +9,18 @@ $(function(){
     });
 
     $('.preview-btn-url').on('click', function(){
-        var url = $(this).attr('data-href');
-        $('#preview_modal').modal('show');
+        var url = $(this).attr('data-href'),
+            modalId = $('#preview_modal');
+
+        modalId.modal('show');
+        modalId.removeData('bs.modal');
+
         if (form_has_changed){
             $.post( location.pathname, $( "#questionnaire_entry" ).serialize(), function(data1){
-                fill_modal_ajax_content(url);
+                fillModalWithAjaxContent(url);
             });
         }else{
-            fill_modal_ajax_content(url);
+            fillModalWithAjaxContent(url);
         }
     });
     disable_modal_input_fields(editable);
@@ -37,7 +41,7 @@ $(function(){
 
 });
 
-function fill_modal_ajax_content(questionnaire_preview_url){
+function fillModalWithAjaxContent(questionnaire_preview_url){
     $.get(questionnaire_preview_url, function( data ) {
         var $holder = $('<div></div>').append(String(data));
         var content =  $holder.find("#preview-content").html()
