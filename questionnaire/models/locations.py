@@ -42,7 +42,6 @@ class Country(Location):
         submitter_answer = Answer.objects.filter(country=self, question__text__contains=data_submitter_name_question).latest('modified')
         if submitter_answer:
             return submitter_answer.textanswer.response
-        return
 
     def all_versions(self):
         query_params = {'question__question_group__subsection__section__questionnaire__region__countries': self,

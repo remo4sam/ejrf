@@ -7,7 +7,7 @@ from questionnaire.models.locations import Region, Country, Organization
 
 @step(u'Given I am logged in as a data submitter')
 def given_i_am_logged_in(step):
-    world.user, world.uganda, world.afro = create_user_with_no_permissions()
+    world.user, world.uganda, world.region = create_user_with_no_permissions()
     world.user = assign('can_submit_responses', world.user)
 
     world.page = LoginPage(world.browser)

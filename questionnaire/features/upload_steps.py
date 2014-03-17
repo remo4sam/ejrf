@@ -3,6 +3,7 @@ from time import sleep
 from django.core.files import File
 from lettuce import world, step, after
 from mock import mock_open, patch
+from questionnaire.features.pages.questionnaires import QuestionnairePage
 from questionnaire.features.pages.uploads import UploadDocumentPage, DeleteDocumentPage
 from questionnaire.models import SupportDocument
 
@@ -93,3 +94,8 @@ def then_i_should_see_that_file_was_deleted(step):
 @step(u'And I clean up the files')
 def and_i_clean_up_the_files(step):
     os.system("rm -rf %s" % world.filename)
+
+@step(u'And I visit the questionnaire section page')
+def and_i_visit_the_questionnaire_section_page(step):
+    world.page = QuestionnairePage(world.browser, world.section_1)
+    world.page.visit()

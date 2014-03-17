@@ -142,10 +142,6 @@ class EditSubSection(OwnerAndPermissionRequiredMixin, UpdateView):
         messages.success(self.request, "SubSection updated successfully.")
         return super(EditSubSection, self).form_valid(form)
 
-    def form_invalid(self, form):
-        messages.error(self.request, "SubSection NOT updated. See errors below.")
-        return super(EditSubSection, self).form_invalid(form)
-
 
 class DeleteSubSection(OwnerAndPermissionRequiredMixin, DeleteView):
     permission_required = 'auth.can_edit_questionnaire'

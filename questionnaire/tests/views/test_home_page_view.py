@@ -21,7 +21,7 @@ class HomePageViewTest(BaseTest):
         self.assertIn('home/index.html', templates)
 
     def test_homepage_redirects_to_latest_published_questionnaire_logged_in_as_data_submitter(self):
-        questionnaire = Questionnaire.objects.create(name="JRF", description="bla", status=Questionnaire.PUBLISHED)
+        questionnaire = Questionnaire.objects.create(name="JRF", description="bla", status=Questionnaire.PUBLISHED, region=self.region)
         section = Section.objects.create(title="section", order=1, questionnaire=questionnaire, name="section")
         Section.objects.create(title="section", order=2, questionnaire=questionnaire, name="section")
 

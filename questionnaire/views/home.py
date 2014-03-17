@@ -14,7 +14,6 @@ class Home(MultiplePermissionsRequiredMixin, View):
         super(Home, self).__init__(*args, **kwargs)
         self.permissions = {'any': ('auth.can_submit_responses', 'auth.can_view_users', 'auth.can_edit_questionnaire')}
         self.template_name = "home/index.html"
-        self.questionnaires = Questionnaire.objects.filter(status=Questionnaire.PUBLISHED, region__isnull=True)
 
     def get(self, *args, **kwargs):
         if self.request.user.has_perm('auth.can_view_users'):
@@ -22,8 +21,12 @@ class Home(MultiplePermissionsRequiredMixin, View):
         if self.request.user.has_perm('auth.can_edit_questionnaire') and self.request.user.user_profile.region:
             region = self.request.user.user_profile.region
             return HttpResponseRedirect(reverse('manage_regional_jrf_page', args=(region.id,)))
-        if self.questionnaires.exists():
-            return self._render_questionnaire_section()
+
+        questionnaires = Questionnaire.objects.filter(status=Questionnaire.PUBLISHED, region__countries=self.request.user.user_profile.country)
+        if questionnaires.exists():
+            questionnaire = questionnaires.latest('created')
+            args = (questionnaire.id, questionnaire.sections.all()[0].id)
+            return HttpResponseRedirect(reverse('questionnaire_entry_page', args=args))
         return self._render_questionnaire_does_not_exist()
 
     def _render_questionnaire_does_not_exist(self):
@@ -31,14 +34,6 @@ class Home(MultiplePermissionsRequiredMixin, View):
         messages.error(self.request, message)
         return render(self.request, self.template_name)
 
-    def _render_questionnaire_section(self):
-        questionnaire = self.questionnaires.latest('created')
-        args = (questionnaire.id, questionnaire.sections.all()[0].id)
-        return HttpResponseRedirect(reverse('questionnaire_entry_page', args=args))
-
     def _render_global_admin_view(self):
-        questionnaire=None
-        if self.questionnaires:
-            questionnaire = self.questionnaires[0]
         status_map = QuestionnaireStatusService().region_country_status_map()
         return render(self.request, 'home/index.html', {'region_country_status_map': status_map})

@@ -493,8 +493,11 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
 
 class QuestionnaireEntrySubmitTest(BaseTest):
     def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED,
-                                                          description="From dropbox as given by Rouslan")
+                                                          description="From dropbox as given by Rouslan", region=self.region)
 
         self.section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)",
                                                 order=1,
@@ -524,9 +527,6 @@ class QuestionnaireEntrySubmitTest(BaseTest):
         QuestionGroupOrder.objects.create(question_group=self.question_group, question=self.question3, order=3)
 
         self.url = '/submit/'
-
-        self.client = Client()
-        self.user, self.country, self.region = self.create_user_with_no_permissions()
 
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
