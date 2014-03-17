@@ -173,7 +173,7 @@ class ApproveQuestionnaireToDataSubmittersViewTest(BaseTest):
         self.australia = Region.objects.create(name="Australia", organization=self.who)
 
     def test_post_approves_questionnaire(self):
-        referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
+        referer_url = reverse('manage_jrf_page',)
         self.assign('can_view_users', self.user)
         response = self.client.post(self.url, HTTP_REFERER=referer_url)
         self.assertNotIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED, region=self.region).all())

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 from django.views.generic import View
-from braces.views import LoginRequiredMixin, MultiplePermissionsRequiredMixin
+from braces.views import LoginRequiredMixin, MultiplePermissionsRequiredMixin, PermissionRequiredMixin
 from questionnaire.forms.questionnaires import QuestionnaireFilterForm, PublishQuestionnaireForm
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
@@ -160,8 +160,9 @@ class UnfinalizeQuestionnaire(MultiplePermissionsRequiredMixin, View):
         return HttpResponseRedirect(referer_url)
 
 
-class PublishQuestionnaire(MultiplePermissionsRequiredMixin, View):
-    permissions = {'any': ('auth.can_view_users')}
+class PublishQuestionnaire(PermissionRequiredMixin, View):
+    permission_required = 'auth.can_view_users'
+
     template_name = 'questionnaires/_publish.html'
 
     def get(self, *args, **kwargs):

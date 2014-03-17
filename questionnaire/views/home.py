@@ -40,5 +40,5 @@ class Home(MultiplePermissionsRequiredMixin, View):
         questionnaire=None
         if self.questionnaires:
             questionnaire = self.questionnaires[0]
-        status_map = QuestionnaireStatusService(questionnaire).region_country_status_map()
+        status_map = QuestionnaireStatusService().region_country_status_map()
         return render(self.request, 'home/index.html', {'region_country_status_map': status_map})

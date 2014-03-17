@@ -41,13 +41,13 @@
                                     {% for version in country.all_versions %}
                                         <tr class="version-for-{{ country.id }} hide">
                                             <td colspan="3">
-                                                <a data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}" data-toggle="modal" data-target="#preview_modal" class="preview-btn-url" id="preview-version-{{ version }}">
+                                                <a data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}&preview=1" data-toggle="modal" data-target="#preview_modal" class="preview-btn-url" id="preview-version-{{ version }}">
                                                    {{ country.name }} Version {{ version }}
                                                 </a>
                                             </td>
                                             <td>
                                                 <div class="btn-group pull-right">
-                                                    <a data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}" class="btn btn-xs btn-default preview-btn-url" data-toggle="modal">
+                                                    <a data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}&preview=1" class="btn btn-xs btn-default preview-btn-url" data-toggle="modal">
                                                         <span class="glyphicon glyphicon-list-alt"></span> View
                                                     </a>
                                                     <a class="btn btn-xs btn-default">

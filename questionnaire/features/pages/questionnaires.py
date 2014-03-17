@@ -1,4 +1,6 @@
+from time import sleep
 from questionnaire.features.pages.base import PageObject
+from nose.tools import assert_true
 
 
 class QuestionnairePage(PageObject):
@@ -30,12 +32,12 @@ class QuestionnairePage(PageObject):
 
     def validate_responses(self, data):
         data_keys = data.keys()
-        numerical = filter(lambda key: 'Number' in key, data_keys)
-        text = filter(lambda key: 'Text' in key, data_keys)
+        numerical = filter(lambda key_: 'Number' in key_, data_keys)
+        text = filter(lambda key_: 'Text' in key_, data_keys)
         for key in numerical:
-            self.is_element_present_by_value(data[key])
+            assert_true(self.browser.find_by_name(key).first.value in data.values())
         for key in text:
-            self.is_text_present(str(data[key]))
+            assert_true(self.browser.find_by_name(key).first.value in data.values())
 
     def hover(self, name):
         self.browser.find_by_name(name).mouse_over()

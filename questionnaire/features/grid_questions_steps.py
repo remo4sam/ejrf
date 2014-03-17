@@ -43,14 +43,15 @@ def and_i_have_a_sub_group_in_that_group_with_two_questions(step):
                                              instructions="Include only those cases found positive.")
     sub_group.question.add(world.question3, world.question4)
 
+
 def _create_correct_responses(world):
     data ={ }
     counter =0
     for index, option in enumerate(world.question1.options.all()):
-        data['MultiChoice-%d-response'%index] = option.id
+        data['MultiChoice-%d-response' % index] = option.id
         for i in range(4):
-            data['Number-%d-response'%counter] = counter
-            counter +=1
+            data['Number-%d-response' % counter] = str(counter)
+            counter += 1
     return data
 
 @step(u'When I respond the questions')

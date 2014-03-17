@@ -14,7 +14,6 @@ def then_i_should_see_a_preview_layout_of_my_responses(step):
 
 @step(u'And it should contain my responses')
 def and_it_should_contain_my_responses(step):
-    time.sleep(2)
     world.page.validate_responses(world.valid_responses)
 
 @step(u'And the response fields in the preview should be inactive')
