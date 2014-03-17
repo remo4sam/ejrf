@@ -1,3 +1,4 @@
+from time import sleep
 from lettuce import step, world
 from questionnaire.features.pages.step_utils import assign, create_user_with_no_permissions
 from questionnaire.features.pages.users import LoginPage
@@ -145,4 +146,5 @@ def and_the_question_numbering_should_be_updated(step):
 
 @step(u'And the regional question numbers should be prefixed with the region name')
 def and_the_regional_question_numbers_should_be_prefixed_with_the_region_name(step):
+    sleep(2)
     world.page.is_text_present('%s - 0. 4. %s' % (world.region.name, world.not_assigned_question1.text))

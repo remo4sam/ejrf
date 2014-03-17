@@ -102,6 +102,67 @@ class ExportToTextServiceTest(BaseTest):
         self.assertIn(expected_data[4], actual_data)
         self.assertIn(expected_data[5], actual_data)
 
+    def test_exports_specific_version(self):
+        primary_question_answer2 = MultiChoiceAnswer.objects.create(question=self.primary_question, country=self.country,
+                                                                    status=Answer.SUBMITTED_STATUS,  response=self.option2, version=2)
+        question1_answer2 = NumericalAnswer.objects.create(question=self.question1, country=self.country,
+                                                           status=Answer.SUBMITTED_STATUS,  response=4, version=2)
+        question2_answer2 = NumericalAnswer.objects.create(question=self.question2, country=self.country,
+                                                           status=Answer.SUBMITTED_STATUS, response=55, version=2)
+        answer_group2 = primary_question_answer2.answergroup.create(grouped_question=self.parent, row=2)
+        answer_group2_1 = question1_answer2.answergroup.create(grouped_question=self.parent, row=2)
+        answer_group2_2 = question2_answer2.answergroup.create(grouped_question=self.parent, row=2)
+
+
+        question_text = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.primary_question.text)
+        question_text1 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question1.text)
+        question_text_2 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question2.text)
+        answer_id = "C_%s_%s_%s" % (self.primary_question.UID, self.primary_question.UID, self.option2.UID)
+        answer_id_1 = "C_%s_%s_2" % (self.primary_question.UID, self.question1.UID)
+        answer_id_2 = "C_%s_%s_2" % (self.primary_question.UID, self.question2.UID)
+
+        expected_data = [self.headings,
+                         "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id.encode('base64').strip(), question_text, self.option2.text),
+                         "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_1.encode('base64').strip(), question_text1, '4.00'),
+                         "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_2.encode('base64').strip(), question_text_2, '55.00')]
+
+        export_to_text_service = ExportToTextService(self.questionnaire, version=2)
+        actual_data = export_to_text_service.get_formatted_responses()
+        self.assertEqual(len(expected_data), len(actual_data))
+        self.assertIn(expected_data[0], actual_data)
+        self.assertIn(expected_data[1], actual_data)
+
+    def test_exports_specific_country(self):
+        ghana = Country.objects.create(name="Ghana", code="GH")
+        primary_question_answer2 = MultiChoiceAnswer.objects.create(question=self.primary_question, country=ghana,
+                                                                    status=Answer.SUBMITTED_STATUS,  response=self.option2, version=2)
+        question1_answer2 = NumericalAnswer.objects.create(question=self.question1, country=ghana,
+                                                           status=Answer.SUBMITTED_STATUS,  response=4, version=2)
+        question2_answer2 = NumericalAnswer.objects.create(question=self.question2, country=ghana,
+                                                           status=Answer.SUBMITTED_STATUS, response=55, version=2)
+        answer_group2 = primary_question_answer2.answergroup.create(grouped_question=self.parent, row=2)
+        answer_group2_1 = question1_answer2.answergroup.create(grouped_question=self.parent, row=2)
+        answer_group2_2 = question2_answer2.answergroup.create(grouped_question=self.parent, row=2)
+
+
+        question_text = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.primary_question.text)
+        question_text1 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question1.text)
+        question_text_2 = "%s | %s | %s" % (self.section_1.title, self.sub_section.title, self.question2.text)
+        answer_id = "C_%s_%s_%s" % (self.primary_question.UID, self.primary_question.UID, self.option2.UID)
+        answer_id_1 = "C_%s_%s_2" % (self.primary_question.UID, self.question1.UID)
+        answer_id_2 = "C_%s_%s_2" % (self.primary_question.UID, self.question2.UID)
+
+        expected_data = [self.headings,
+                         "%s\t%s\t2013\t%s\t%s\t%s" % (ghana.code, ghana.name, answer_id.encode('base64').strip(), question_text, self.option2.text),
+                         "%s\t%s\t2013\t%s\t%s\t%s" % (ghana.code, ghana.name, answer_id_1.encode('base64').strip(), question_text1, '4.00'),
+                         "%s\t%s\t2013\t%s\t%s\t%s" % (ghana.code, ghana.name, answer_id_2.encode('base64').strip(), question_text_2, '55.00')]
+
+        export_to_text_service = ExportToTextService(self.questionnaire, country=ghana)
+        actual_data = export_to_text_service.get_formatted_responses()
+        self.assertEqual(len(expected_data), len(actual_data))
+        self.assertIn(expected_data[0], actual_data)
+        self.assertIn(expected_data[1], actual_data)
+
     def test_exports_single_question_in_a_group_questionnaire(self):
         Question.objects.all().delete()
         question = Question.objects.create(text='what do you drink?', UID='abc123', answer_type='Text')

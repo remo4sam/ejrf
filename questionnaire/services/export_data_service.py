@@ -4,8 +4,10 @@ from questionnaire.models import AnswerGroup, Answer
 class ExportToTextService:
     HEADERS = "ISO\tCountry\tYear\tField code\tQuestion text\tValue"
 
-    def __init__(self, questionnaire):
+    def __init__(self, questionnaire, version=None, country=None):
         self.questionnaire = questionnaire
+        self.version = version
+        self.country = country
 
     def get_formatted_responses(self):
         formatted_response = [self.HEADERS]
@@ -21,6 +23,14 @@ class ExportToTextService:
             formatted_response.extend(answers_in_group)
         return formatted_response
 
+    def _answer_filter_dict(self, question):
+        filter_dict = {'question': question, 'status': Answer.SUBMITTED_STATUS}
+        if self.version:
+            filter_dict['version'] = self.version
+        if self.country:
+            filter_dict['country'] = self.country
+        return filter_dict
+
     def _answers_in(self, group):
         formatted_response = []
         ordered_questions = group.ordered_questions()
@@ -29,7 +39,8 @@ class ExportToTextService:
         for answer_group in answer_groups:
             answers = answer_group.answer.all().select_subclasses()
             for question in ordered_questions:
-                answer = answers.filter(question=question, status=Answer.SUBMITTED_STATUS)
+                filter_dict = self._answer_filter_dict(question)
+                answer = answers.filter(**filter_dict)
                 if answer.exists():
                     for answer_ in answer:
                         response_row = self._format_response(answer_, question, primary_question.UID, group, int(answer_group.row))

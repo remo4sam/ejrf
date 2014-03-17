@@ -8,7 +8,8 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ region.id }}" id="region-{{ region.id }}-collapse">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ region.id }}"
+                           id="region-{{ region.id }}-collapse">
                             <span class="glyphicon glyphicon-chevron-right cyan"></span>
                             {{ region.name }}
                         </a>
@@ -33,8 +34,10 @@
                                         <td>{{ country.data_submitter }}</td>
                                         <td>{{ country.answer_status }}</td>
                                         <td>
-                                            <a href="" id="region-{{ region.id }}-country-{{ country.id }}-collapse" class="toggle-versions" data-version="version-for-{{ country.id }}">
-                                                <span class="glyphicon glyphicon-circle-arrow-down"></span> Show Versions
+                                            <a href="" id="region-{{ region.id }}-country-{{ country.id }}-collapse"
+                                               class="toggle-versions" data-version="version-for-{{ country.id }}">
+                                                <span class="glyphicon glyphicon-circle-arrow-down"></span> Show
+                                                Versions
                                             </a>
                                         </td>
                                     </tr>
@@ -50,9 +53,12 @@
                                                     <a data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}&preview=1" class="btn btn-xs btn-default preview-btn-url" data-toggle="modal">
                                                         <span class="glyphicon glyphicon-list-alt"></span> View
                                                     </a>
-                                                    <a class="btn btn-xs btn-default">
-                                                        <span class="glyphicon glyphicon-save"></span> Extract
-                                                    </a>
+                                                    <form method="post" action="{% url 'specific_export_page' country.id version %}">
+                                                        {% csrf_token %}
+                                                        <button type=" submit" class="btn btn-xs btn-default">
+                                                            <span class="glyphicon glyphicon-save"></span> Extract
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>

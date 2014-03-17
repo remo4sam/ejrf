@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.views.generic import TemplateView, View
 
 from braces.views import LoginRequiredMixin
-from questionnaire.models import Questionnaire
+from questionnaire.models import Questionnaire, Country
 from questionnaire.services.export_data_service import ExportToTextService
 
 
@@ -27,6 +27,23 @@ class ExportToTextView(LoginRequiredMixin, TemplateView):
         formatted_responses = ExportToTextService(questionnaire).get_formatted_responses()
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="%s-%s.txt"'% (questionnaire.name, questionnaire.year)
+        response.write("\r\n".join(formatted_responses))
+        return response
+
+
+class SpecificExportView(LoginRequiredMixin, TemplateView):
+    template_name = "home/extract.html"
+
+    def post(self, request, *args, **kwargs):
+        country = Country.objects.get(id=kwargs['country_id'])
+        questionnaire = Questionnaire.objects.filter(region__countries=country, status=Questionnaire.PUBLISHED).latest('modified')
+        version = kwargs.get('version_number', None)
+        formatted_responses = ExportToTextService(questionnaire, country=country,
+                                                  version=version).get_formatted_responses()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="%s-%s-%s-%s.txt"'% (questionnaire.name,
+                                                                                     questionnaire.year, country.name,
+                                                                                     version)
         response.write("\r\n".join(formatted_responses))
         return response
 

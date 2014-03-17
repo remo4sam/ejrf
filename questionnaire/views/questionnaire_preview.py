@@ -19,7 +19,7 @@ class PreviewQuestionnaire(MultiplePermissionsRequiredMixin, View):
         elif self.request.user.has_perm('auth.can_submit_responses'):
             user_country = self.request.user.user_profile.country
             questionnaires = self.questionnaires.filter(region__countries=user_country, status=Questionnaire.PUBLISHED)
-            if questionnaires:
+            if questionnaires.exists():
                 questionnaire = questionnaires[0]
 
         user_questionnaire_service = self.get_questionnaire_user_service(questionnaire)
