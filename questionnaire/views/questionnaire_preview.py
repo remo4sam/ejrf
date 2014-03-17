@@ -24,7 +24,9 @@ class PreviewQuestionnaire(MultiplePermissionsRequiredMixin, View):
 
         user_questionnaire_service = self.get_questionnaire_user_service(questionnaire)
         context = {'all_sections_questionnaires': user_questionnaire_service.all_sections_questionnaires(),
-                   'ordered_sections': questionnaire.sections.order_by('order') if questionnaire else None}
+                   'ordered_sections': questionnaire.sections.order_by('order') if questionnaire else None,
+                   'questionnaire': questionnaire,
+                   'documents': user_questionnaire_service.attachments()}
         return render(request, self.template_name, context)
 
     def get_questionnaire_user_service(self, questionnaire):

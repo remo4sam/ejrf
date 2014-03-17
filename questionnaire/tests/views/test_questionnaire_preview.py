@@ -1,5 +1,9 @@
+import os
+from django.core.files import File
 from django.test import Client
-from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionOption, QuestionGroupOrder, NumericalAnswer, MultiChoiceAnswer, AnswerGroup
+from mock import mock_open, patch
+from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionOption, QuestionGroupOrder, NumericalAnswer, MultiChoiceAnswer, AnswerGroup, \
+    SupportDocument
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
 from questionnaire.tests.base_test import BaseTest
 
@@ -49,6 +53,14 @@ class QuestionnairePreviewTest(BaseTest):
                 u'Number-INITIAL_FORMS': u'2', u'Number-TOTAL_FORMS': u'2', u'Number-MAX_NUM_FORMS': u'2',
                 u'Number-0-response': u'2', u'Number-1-response': u'33'}
 
+        m = mock_open()
+        self.filename="haha.pdf"
+        with patch('__main__.open', m, create=True):
+            with open(self.filename, 'w') as document:
+                document.write("Some stuff")
+            self.document = open(self.filename, 'rb')
+
+
     def test_get_questionnaire_preview(self):
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
@@ -64,6 +76,22 @@ class QuestionnairePreviewTest(BaseTest):
         self.assertEqual(self.section_1, response.context['ordered_sections'][0])
         self.assertEqual(section2, response.context['ordered_sections'][1])
         self.assertEqual(section3, response.context['ordered_sections'][2])
+        self.assertEqual(self.questionnaire, response.context['questionnaire'])
+
+    def test_upload_view_has_all_documents_for_questionnaire(self):
+        document_in = SupportDocument.objects.create(path=File(self.document), country=self.country,
+                                                   questionnaire=self.questionnaire)
+        questionnaire_2 = Questionnaire.objects.create(name="haha", year=2013)
+        document_not_in = SupportDocument.objects.create(path=File(self.document), country=self.country,
+                                                   questionnaire=questionnaire_2)
+
+        response = self.client.get(self.url)
+        self.assertEqual(200, response.status_code)
+        documents = response.context['documents']
+        self.assertEqual(1, documents.count())
+        self.assertIn(document_in, documents)
+        self.assertNotIn(document_not_in, documents)
+        os.system("rm -rf %s" % self.filename)
 
     def test_gets_all_section_forms(self):
         section_2 = Section.objects.create(title="section 2", order=2, questionnaire=self.questionnaire, name="section 2")

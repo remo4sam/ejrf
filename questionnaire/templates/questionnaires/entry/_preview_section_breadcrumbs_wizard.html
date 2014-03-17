@@ -4,5 +4,10 @@
             <li {% if forloop.first %}class="active"{% endif %}><a href="#section_{{ section_.id }}"
                                                                    data-toggle="tab">{{ section_.name }}</a></li>
         {% endfor %}
+
+        <li ><a href="#attachments" data-toggle="tab" class="attachement">ATTACHMENTS
+    {% if documents %}<span class="badge"><span class="cyan bold">{{ documents.count }}</span></span>{% endif %}</a></li>
+
+
     </ul>
 </div>
