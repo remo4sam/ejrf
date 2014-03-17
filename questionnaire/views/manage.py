@@ -1,6 +1,8 @@
+from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import View
+from django.views.generic import View, UpdateView
 from braces.views import MultiplePermissionsRequiredMixin
 from questionnaire.forms.questionnaires import QuestionnaireFilterForm
 from questionnaire.mixins import RegionAndPermissionRequiredMixin
@@ -35,6 +37,23 @@ class ManageJRF(MultiplePermissionsRequiredMixin, View):
                         'drafts': regional_questionnaires.filter(region=region, status=Questionnaire.DRAFT)}}
             questionnaire_region_map.update(regional)
         return questionnaire_region_map
+
+
+class EditQuestionnaireNameView(View):
+
+    def __init__(self, *args, **kwargs):
+        super(EditQuestionnaireNameView, self).__init__(*args, **kwargs)
+        self.model = Questionnaire
+        self.template_name = "home/global/index.html"
+        self.pk_url_kwarg = 'questionnaire_id'
+
+    def post(self,*args, **kwargs):
+        questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
+        questionnaire.name = self.request.POST['name']
+        questionnaire.save()
+        message = "Name of Questionnaire updated successfully."
+        messages.success(self.request, message)
+        return HttpResponseRedirect(reverse('manage_jrf_page'))
 
 
 class ManageRegionalJRF(RegionAndPermissionRequiredMixin, View):

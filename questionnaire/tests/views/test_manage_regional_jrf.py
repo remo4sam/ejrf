@@ -6,7 +6,6 @@ from questionnaire.tests.base_test import BaseTest
 
 
 class ManageJRFViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -20,8 +19,10 @@ class ManageJRFViewTest(BaseTest):
                                                                status=Questionnaire.FINALIZED, region=self.region)
         draft_questionnaire = Questionnaire.objects.create(name="JRF Jamaica core", description="bla", year=2011,
                                                            status=Questionnaire.DRAFT, region=self.region)
-        Section.objects.create(title="section", order=1, questionnaire=finalized_questionnaire, name="section", region=self.region)
-        Section.objects.create(title="section", order=1, questionnaire=draft_questionnaire, name="section", region=self.region)
+        Section.objects.create(title="section", order=1, questionnaire=finalized_questionnaire, name="section",
+                               region=self.region)
+        Section.objects.create(title="section", order=1, questionnaire=draft_questionnaire, name="section",
+                               region=self.region)
 
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
@@ -34,7 +35,9 @@ class ManageJRFViewTest(BaseTest):
     def test_permission_required_for_create_section(self):
         self.assert_permission_required(self.url)
 
-        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic", country_name="China", region_name="ASEAN")
+        user_not_in_same_region, country, region = self.create_user_with_no_permissions(username="asian_chic",
+                                                                                        country_name="China",
+                                                                                        region_name="ASEAN")
         self.assign('can_edit_questionnaire', user_not_in_same_region)
 
         self.client.logout()
@@ -44,8 +47,28 @@ class ManageJRFViewTest(BaseTest):
                              status_code=302, target_status_code=200, msg_prefix='')
 
 
-class FinalizeRegionalQuestionnaireViewTest(BaseTest):
+class EditQuestionnaireNameViewTest(BaseTest):
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.who = Organization.objects.create(name="WHO")
+        self.assign('can_edit_questionnaire', self.user)
+        self.assign('can_view_users', self.user)
+        self.client.login(username=self.user.username, password='pass')
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.region)
+        self.url = "/manage/questionnaire/%d/edit_name/" % self.questionnaire.id
 
+    def test_post(self):
+        data = {'name': 'Edit Name Of Questionnaire'}
+        self.failIf(Questionnaire.objects.filter(**data))
+        response = self.client.post(self.url, data=data)
+        questionnaire = Questionnaire.objects.get(**data)
+        self.failUnless(questionnaire)
+        self.assertRedirects(response, expected_url='/manage/')
+        self.assertIn('Name of Questionnaire updated successfully.', response.cookies['messages'].value)
+
+
+class FinalizeRegionalQuestionnaireViewTest(BaseTest):
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -53,8 +76,10 @@ class FinalizeRegionalQuestionnaireViewTest(BaseTest):
 
         self.client.login(username=self.user.username, password='pass')
 
-        self.questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.DRAFT)
-        Section.objects.create(title="Cured Cases of Measles", order=1, questionnaire=self.questionnaire, name="Cured Cases")
+        self.questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013,
+                                                          status=Questionnaire.DRAFT)
+        Section.objects.create(title="Cured Cases of Measles", order=1, questionnaire=self.questionnaire,
+                               name="Cured Cases")
         self.url = '/questionnaire/%d/finalize/' % self.questionnaire.id
 
     def test_post_finalizes_questionnaire(self):
@@ -68,7 +93,8 @@ class FinalizeRegionalQuestionnaireViewTest(BaseTest):
     def test_post_unfinalizes_questionnaire(self):
         referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
         self.assign('can_edit_questionnaire', self.user)
-        questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.FINALIZED)
+        questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013,
+                                                     status=Questionnaire.FINALIZED)
         section = Section.objects.create(name="haha", questionnaire=questionnaire, order=1)
         url = '/questionnaire/%d/unfinalize/' % questionnaire.id
         response = self.client.post(url, HTTP_REFERER=referer_url)
@@ -79,7 +105,8 @@ class FinalizeRegionalQuestionnaireViewTest(BaseTest):
     def test_post_unfinalize_a_published_a_questionnaire_returns_errors(self):
         referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
         self.assign('can_edit_questionnaire', self.user)
-        questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.PUBLISHED)
+        questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013,
+                                                     status=Questionnaire.PUBLISHED)
         Section.objects.create(name="haha", questionnaire=questionnaire, order=1)
         url = '/questionnaire/%d/unfinalize/' % questionnaire.id
         response = self.client.post(url, HTTP_REFERER=referer_url)
