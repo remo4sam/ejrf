@@ -25,20 +25,20 @@ class ExportToTextService:
         formatted_response = []
         ordered_questions = group.ordered_questions()
         primary_question = ordered_questions[0]
-        answer_groups = AnswerGroup.objects.filter(answer__question=primary_question)
-        for index, answer_group in enumerate(answer_groups):
+        answer_groups = AnswerGroup.objects.filter(grouped_question=group)
+        for answer_group in answer_groups:
             answers = answer_group.answer.all().select_subclasses()
             for question in ordered_questions:
                 answer = answers.filter(question=question, status=Answer.SUBMITTED_STATUS)
                 if answer.exists():
-                    answer = answer.latest('modified')
-                    response_row = self._format_response(answer, question, primary_question.UID, group, index)
-                    formatted_response.append(response_row)
+                    for answer_ in answer:
+                        response_row = self._format_response(answer_, question, primary_question.UID, group, int(answer_group.row))
+                        formatted_response.append(response_row)
         return formatted_response
 
-    def _format_response(self, answer, question, primary_question_uid, group, index):
+    def _format_response(self, answer, question, primary_question_uid, group, row):
         question_prefix = 'C' if question.is_core else 'R'
-        answer_id = "%s_%s_%s_%d" % (question_prefix, primary_question_uid, question.UID, index + 1)
+        answer_id = "%s_%s_%s_%d" % (question_prefix, primary_question_uid, question.UID, row)
         if question.is_primary:
             primary_question_uid = question.UID
             question_option = ""
