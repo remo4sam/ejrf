@@ -161,7 +161,7 @@ class UnfinalizeQuestionnaire(MultiplePermissionsRequiredMixin, View):
 
 
 class PublishQuestionnaire(MultiplePermissionsRequiredMixin, View):
-    permissions = {'any': ('auth.can_view_users',)}
+    permissions = {'any': ('auth.can_view_users')}
     template_name = 'questionnaires/_publish.html'
 
     def get(self, *args, **kwargs):
@@ -186,3 +186,20 @@ class PublishQuestionnaire(MultiplePermissionsRequiredMixin, View):
         context = {'questionnaire': questionnaire, 'publish_form': form, 'btn_label': "Publish",
                    'cancel_url': reverse('manage_jrf_page')}
         return render(self.request, self.template_name, context)
+
+class ApproveQuestionnaire(MultiplePermissionsRequiredMixin, View):
+    permissions = {'any': ('auth.can_view_users',)}
+    template_name = 'base/modals/_confirm_submit.html'
+
+    def get(self, *args, **kwargs):
+        questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
+        context = {'questionnaire': questionnaire, 'btn_label': "Approve",
+                   'cancel_url': reverse('manage_jrf_page')}
+        return render(self.request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
+        message = QuestionnaireFinalizeService(questionnaire).approve()
+        messages.success(self.request, message)
+        referer_url = request.META['HTTP_REFERER']
+        return HttpResponseRedirect(referer_url)

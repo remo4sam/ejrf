@@ -31,7 +31,7 @@ class ManageJRF(MultiplePermissionsRequiredMixin, View):
         questionnaire_region_map = {}
         regional_questionnaires = self.questionnaires.filter(region__isnull=False)
         for region in self.regions:
-            regional = {region: {'finalized': regional_questionnaires.filter(region=region, status=Questionnaire.FINALIZED),
+            regional = {region: {'finalized': regional_questionnaires.filter(region=region, status__in=[Questionnaire.FINALIZED, Questionnaire.PUBLISHED]),
                         'drafts': regional_questionnaires.filter(region=region, status=Questionnaire.DRAFT)}}
             questionnaire_region_map.update(regional)
         return questionnaire_region_map

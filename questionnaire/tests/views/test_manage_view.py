@@ -155,3 +155,30 @@ class PublishQuestionnaireToRegionsViewTest(BaseTest):
 
     def test_permission_reguired(self):
         self.assert_permission_required("/manage/")
+
+class ApproveQuestionnaireToDataSubmittersViewTest(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.assign('can_view_users', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.questionnaire = Questionnaire.objects.create(name="JRF Brazil", description="bla", year=2013, status=Questionnaire.FINALIZED, region=self.region)
+        Section.objects.create(title="Cured Cases of Measles", order=1, questionnaire=self.questionnaire, name="Cured Cases")
+
+        self.url = '/questionnaire/%d/approve/' % self.questionnaire.id
+        self.who = Organization.objects.create(name="WHO")
+        self.unicef = Organization.objects.create(name="UNICEF")
+        self.australia = Region.objects.create(name="Australia", organization=self.who)
+
+    def test_post_approves_questionnaire(self):
+        referer_url = reverse('manage_regional_jrf_page', args=(self.region.id,))
+        self.assign('can_view_users', self.user)
+        response = self.client.post(self.url, HTTP_REFERER=referer_url)
+        self.assertNotIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED, region=self.region).all())
+        self.assertIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.PUBLISHED, region=self.region).all())
+        self.assertRedirects(response, referer_url)
+
+    def test_permission_reguired(self):
+        self.assert_permission_required("/manage/")

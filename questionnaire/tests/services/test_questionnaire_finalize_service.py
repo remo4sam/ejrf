@@ -27,3 +27,9 @@ class QuestionnaireFinalizeServiceTest(BaseTest):
         self.assertNotEqual(Questionnaire.DRAFT, questionnaire.status)
         self.assertEqual(Questionnaire.PUBLISHED, questionnaire.status)
         self.assertEqual(message, "The questionnaire could not be unlocked because its published.")
+
+    def test_approves_questionnaire_when_approval_is_called(self):
+        message = QuestionnaireFinalizeService(self.finalized_questionnaire).approve()
+        self.assertEqual(Questionnaire.PUBLISHED, self.finalized_questionnaire.status)
+        self.assertNotEqual(Questionnaire.FINALIZED, self.finalized_questionnaire.status)
+        self.assertEqual(message, "The questionnaire has been approved successfully.")
