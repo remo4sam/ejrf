@@ -1,30 +1,21 @@
 from time import sleep
-from django.contrib.auth.models import User, Permission, Group
-from django.contrib.contenttypes.models import ContentType
 from lettuce import step, world
 from questionnaire.features.pages.home import HomePage
 from questionnaire.features.pages.questionnaires import QuestionnairePage
 from questionnaire.features.pages.sections import CreateSectionPage
+from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign
 from questionnaire.features.pages.users import LoginPage
-from questionnaire.models import Country, UserProfile, Region, Organization
 
 
 @step(u'Given I am logged in as a global admin')
 def given_i_am_logged_in_as_a_global_admin(step):
-    world.uganda = Country.objects.create(name="Uganda")
-    user = User.objects.create_user('Rajni', 'rajni@kant.com', 'pass')
-    UserProfile.objects.create(user=user, country=world.uganda)
-    auth_content = ContentType.objects.get_for_model(Permission)
-    group = Group.objects.create(name="Data Submitter")
-    permission, out = Permission.objects.get_or_create(codename='can_view_users', content_type=auth_content)
-    permission_edit_questionnaire, out = Permission.objects.get_or_create(codename='can_edit_questionnaire',
-                                                                          content_type=auth_content)
-    group.permissions.add(permission, permission_edit_questionnaire)
-    group.user_set.add(user)
+    user, _, _ = create_user_with_no_permissions(username='Rajni', region_name=None)
+    world.user = assign('can_view_users', user)
+    world.user = assign('can_edit_questionnaire', world.user)
 
     world.page = LoginPage(world.browser)
     world.page.visit()
-    world.page.login(user, "pass")
+    world.page.login(world.user, "pass")
 
 
 @step(u'I click add new section link')
@@ -150,21 +141,12 @@ def and_the_section_numbering_should_be_updated(step):
 
 @step(u'Given I am logged in as a regional admin')
 def given_i_am_logged_in_as_a_regional_admin(step):
-    user = User.objects.create_user('Rajni', 'rajni@kant.com', 'pass')
-    who_organization = Organization.objects.create(name="WHO")
-    world.region = Region.objects.create(name="AFR", organization=who_organization)
-    UserProfile.objects.create(user=user, organization=who_organization, region=world.region)
-
-    auth_content = ContentType.objects.get_for_model(Permission)
-    group = Group.objects.create(name='Regional Admin')
-    permission_edit_questionnaire, out = Permission.objects.get_or_create(codename='can_edit_questionnaire',
-                                                                          content_type=auth_content)
-    group.permissions.add(permission_edit_questionnaire)
-    group.user_set.add(user)
+    user, _, _ = create_user_with_no_permissions(username='Rajni')
+    world.user = assign('can_edit_questionnaire', user)
 
     world.page = LoginPage(world.browser)
     world.page.visit()
-    world.page.login(user, "pass")
+    world.page.login(world.user, "pass")
 
 
 @step(u'And I save the regional section')

@@ -23,7 +23,11 @@ class RegionTest(BaseTest):
 
 class CountryTest(BaseTest):
     def setUp(self):
-        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        self.organisation = Organization.objects.create(name="WHO")
+        self.afro = Region.objects.create(name="Afro", organization=self.organisation)
+        self.uganda = Country.objects.create(name="Uganda", code="UGX")
+        self.afro.countries.add(self.uganda)
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.afro, status=Questionnaire.PUBLISHED)
         section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
                                            questionnaire=self.questionnaire, name="Reported Cases")
         sub_section = SubSection.objects.create(title="Reported cases for the year 2013", order=1, section=section_1)
@@ -31,10 +35,6 @@ class CountryTest(BaseTest):
 
         self.parent = QuestionGroup.objects.create(subsection=sub_section, order=1)
         self.parent.question.add(self.question2)
-        self.organisation = Organization.objects.create(name="WHO")
-        self.afro = Region.objects.create(name="Afro", organization=self.organisation)
-        self.uganda = Country.objects.create(name="Uganda", code="UGX")
-        self.afro.countries.add(self.uganda)
 
     def test_country_fields(self):
         country = Country()
@@ -65,10 +65,10 @@ class CountryTest(BaseTest):
     def test_country_gets_own_versions(self):
         NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
                                        response=22)
-        self.assertEqual([1], self.uganda.all_versions(self.questionnaire))
+        self.assertEqual([1], self.uganda.all_versions())
         NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
                                        response=22, version=2)
-        self.assertEqual([1, 2], self.uganda.all_versions(self.questionnaire))
+        self.assertEqual([1, 2], self.uganda.all_versions())
 
     def test_country_knows_its_data_submitter(self):
         questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)

@@ -63,7 +63,8 @@ class QuestionnaireEntryFormService(object):
                 answer = primary_answer
             elif primary_answer.exists():
                 answer_group = primary_answer[0].answergroup.filter(grouped_question=question_group)
-                answer = answer_group[0].answer.filter(question=order.question, country=country, version=version).select_subclasses()
+                if answer_group:
+                    answer = answer_group[0].answer.filter(question=order.question, country=country, version=version).select_subclasses()
         else:
             answer = question.answers.filter(answergroup__grouped_question=question_group,
                                              country=country, version=version).select_subclasses()

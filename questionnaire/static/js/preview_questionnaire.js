@@ -1,16 +1,24 @@
 $(function(){
-    $('#preview_modal').on('show.bs.modal', function(){
-        var $modal = $(this);
-        var questionnaire_preview_url = get_questionnaire_preview_url($modal);
-        if (form_has_changed){
-            $.post( location.pathname, $( "#questionnaire_entry" ).serialize(), function(data1){
-                fill_modal_ajax_content(questionnaire_preview_url);
-            });
-        }else{
-            fill_modal_ajax_content(questionnaire_preview_url);
-        }
+    $('.toggle-versions').on('click', function(event){
+        var SHOW_ICON_AND_TEXT = "<span class=\"glyphicon glyphicon-circle-arrow-down\"></span> Show Versions";
+        var HIDE_ICON_AND_TEXT = "<span class=\"glyphicon glyphicon-circle-arrow-up\"></span> Hide Versions";
+        var countryClass = $(this).attr('data-version');
+        $("." + countryClass + '.hide').toggleClass('show');
+        $(this).html($(this).html() === HIDE_ICON_AND_TEXT ? SHOW_ICON_AND_TEXT : HIDE_ICON_AND_TEXT);
+        event.preventDefault()
     });
 
+    $('.preview-btn-url').on('click', function(){
+        var url = $(this).attr('data-href');
+        $('#preview_modal').modal('show');
+        if (form_has_changed){
+            $.post( location.pathname, $( "#questionnaire_entry" ).serialize(), function(data1){
+                fill_modal_ajax_content(url);
+            });
+        }else{
+            fill_modal_ajax_content(url);
+        }
+    });
     disable_modal_input_fields(editable);
 
     $('#edit_questionnaire_link').on('click', function(){
@@ -38,12 +46,6 @@ function fill_modal_ajax_content(questionnaire_preview_url){
     });
     form_has_changed = false;
 };
-
-function get_questionnaire_preview_url($element){
-        var questionnaire_id = $element.attr('data-attribute-id');
-        var questionnaire_preview_url = "/questionnaire/"+ questionnaire_id + "/preview/";
-        return questionnaire_preview_url.replace('//', '/')
-}
 
 function disable_modal_input_fields(editable){
     $('.tab-content :input').each(function() {

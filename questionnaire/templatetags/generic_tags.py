@@ -1,5 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
+from questionnaire.models import Questionnaire
 
 ASSIGN_QUESTION_PAGINATION_SIZE = 30
 

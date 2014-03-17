@@ -44,7 +44,8 @@ class Country(Location):
             return submitter_answer.textanswer.response
         return
 
-    def all_versions(self, questionnaire):
-        query_params = {'question__question_group__subsection__section__questionnaire': questionnaire}
+    def all_versions(self):
+        query_params = {'question__question_group__subsection__section__questionnaire__region__countries': self,
+                        'question__question_group__subsection__section__questionnaire__status': 'published'}
         answers = Answer.objects.filter(country=self, **query_params).select_subclasses()
         return list(set(answers.values_list('version', flat=True)))

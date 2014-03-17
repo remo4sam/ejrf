@@ -1,6 +1,5 @@
 from questionnaire.models import Question, QuestionGroup, Questionnaire, SubSection, Section, Country, \
-    Organization, Region, QuestionOption, MultiChoiceAnswer, NumericalAnswer, AnswerGroup, Answer
-from questionnaire.models.answers import AnswerStatus
+    Organization, Region, QuestionOption
 from questionnaire.services.questionnaire_status import QuestionnaireStatusService
 from questionnaire.tests.base_test import BaseTest
 

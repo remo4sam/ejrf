@@ -61,7 +61,7 @@ class UserQuestionnaireService(object):
         return self.answers.filter(question__in=required_question_in_section).count() == len(required_question_in_section)
 
     def all_sections_questionnaires(self):
-        initial = {'country': self.country, 'status': 'Draft', 'version': self.POST_version}
+        initial = {'country': self.country, 'status': 'Draft', 'version':  self.version or self.POST_version}
         questionnaires = SortedDict()
         for section in self.questionnaire.sections.order_by('order'):
             questionnaires[section] = QuestionnaireEntryFormService(section, initial=initial)

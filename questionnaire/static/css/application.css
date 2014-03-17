@@ -380,3 +380,6 @@ table td input[type='text'], select{
 .attachement{
     margin-top:30px;
 }
+.region-preview-table .show{
+    display: table-row !important;
+}

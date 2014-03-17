@@ -1,7 +1,16 @@
 <div class="section-buttons">
-    <button class="btn btn-default button-section pull-right" id="preview_modal_btn" data-toggle="modal"
-            data-target="#preview_modal"><i class="glyphicon glyphicon-eye-open"></i> Preview
-    </button>
+    {% if perms.auth.can_submit_responses %}
+        <a  data-href="{% url 'preview_questionnaire' %}" class="btn btn-default button-section pull-right preview-btn-url" id="preview_modal_btn" data-toggle="modal"
+                data-target="#preview_modal"><i class="glyphicon glyphicon-eye-open"></i> Preview
+        </a>
+    {% endif %}
+
+    {% if perms.auth.can_view_users or perms.auth.can_edit_questionnaire %}
+        <a  href="{% url 'preview_specific_questionnaire' questionnaire.id %}" class="btn btn-default button-section pull-right preview-btn-url" id="preview_modal_btn" data-toggle="modal"
+        data-target="#preview_modal"><i class="glyphicon glyphicon-eye-open"></i> Preview
+        </a>
+
+    {% endif %}
     <a class="btn btn-default pull-right button-section has-spinner" id="export-section"><span class="spinner"><img
             class="spinner-image" src="/static/img/spinner.gif"></span><span class="cyan"><span
             class="glyphicon glyphicon-file red"></span> Export Section as PDF </span> </a>

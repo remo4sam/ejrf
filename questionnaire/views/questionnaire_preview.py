@@ -9,19 +9,22 @@ class PreviewQuestionnaire(MultiplePermissionsRequiredMixin, View):
     def __init__(self):
         super(PreviewQuestionnaire, self).__init__()
         self.template_name = "questionnaires/entry/preview.html"
-        self.permissions = {"any": ("auth.can_submit_responses", "auth.can_view_questionnaire")}
+        self.permissions = {"any": ("auth.can_submit_responses", "auth.can_view_questionnaire", 'auth.can_view_users')}
         self.questionnaires = Questionnaire.objects.all()
 
     def get(self, request, *args, **kwargs):
+        questionnaire = self.questionnaires.latest('modified')
         if 'questionnaire_id' in kwargs.keys():
             questionnaire = self.questionnaires.get(id=kwargs.get('questionnaire_id'))
-        else:
+        elif self.request.user.has_perm('auth.can_submit_responses'):
             user_country = self.request.user.user_profile.country
-            questionnaire = self.questionnaires.get(status=Questionnaire.PUBLISHED, region__countries=user_country)
+            questionnaires = self.questionnaires.filter(region__countries=user_country, status=Questionnaire.PUBLISHED)
+            if questionnaires:
+                questionnaire = questionnaires[0]
 
         user_questionnaire_service = self.get_questionnaire_user_service(questionnaire)
         context = {'all_sections_questionnaires': user_questionnaire_service.all_sections_questionnaires(),
-                   'ordered_sections': questionnaire.sections.order_by('order')}
+                   'ordered_sections': questionnaire.sections.order_by('order') if questionnaire else None}
         return render(request, self.template_name, context)
 
     def get_questionnaire_user_service(self, questionnaire):

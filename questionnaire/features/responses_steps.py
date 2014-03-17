@@ -24,7 +24,8 @@ def given_i_am_a_logged_in_user_with_a_user_profile(step):
 
 @step(u'And I have a questionnaire with questions')
 def given_i_have_a_questionnaire_with_questions(step):
-    world.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan", status=Questionnaire.PUBLISHED)
+    world.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED,
+                                                       region=world.afro)
 
     world.section_1 = Section.objects.create(order=0,
                         title="WHO/UNICEF Joint Reporting Form on Immunization for the Period January-December, 2013",

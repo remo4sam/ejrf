@@ -1,5 +1,5 @@
 from lettuce.django import django_url
-from nose.tools import assert_equals
+from nose.tools import assert_equals, assert_true
 
 
 class PageObject(object):
@@ -41,7 +41,7 @@ class PageObject(object):
     def is_text_present(self, *texts, **kwargs):
         status = kwargs['status'] if 'status' in kwargs else True
         for text in texts:
-            self._is_text_present(text.strip(), status)
+            self._is_text_present(text, status)
 
     def validate_pagination(self):
         self.click_link_by_text('2')
@@ -76,7 +76,7 @@ class PageObject(object):
         self.browser.attach_file('path', filename)
 
     def is_element_present_by_value(self, value):
-        self.browser.is_element_present_by_value(value)
+        assert_true(self.browser.is_element_present_by_value(value))
 
     def is_element_present_by_id(self, id):
         found = self.browser.find_by_id(id)

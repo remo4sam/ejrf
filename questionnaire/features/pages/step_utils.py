@@ -10,6 +10,7 @@ def create_user_with_no_permissions(username=None, country_name="Uganda", region
     region = None
     if region_name:
         region = Region.objects.create(name=region_name)
+        region.countries.add(uganda)
     UserProfile.objects.create(user=user, country=uganda, region=region)
     user.set_password("pass")
     user.save()
