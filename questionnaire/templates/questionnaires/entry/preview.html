@@ -28,7 +28,7 @@
                                 </div>
                             {% endif %}
                             {% for subsection in section.sub_sections.all %}
-                                <h4>{% if section.has_at_least_two_subsections %}{{ section.order }}.
+                                <h4>{% if section.has_at_least_two_subsections and subsection.title %}{{ section.order }}.
                                     {{ subsection.order }}
                                     .{% endif %} {{ subsection.title }}</h4>
                                 {% for group in subsection.parent_question_groups %}

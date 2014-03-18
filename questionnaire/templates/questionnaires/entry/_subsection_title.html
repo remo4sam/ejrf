@@ -1,5 +1,5 @@
 <h4 class="button-padding">
-    {% if section.has_at_least_two_subsections %}
+    {% if section.has_at_least_two_subsections and subsection.title %}
         {{ section.order }}.{{ subsection.order }}.
     {% endif %}
 
