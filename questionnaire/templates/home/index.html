@@ -1,76 +1,23 @@
 {% extends 'base/layout.html' %}
 {% block content %}
-    {% load generic_tags %}
     <h3>GLOBAL STATUS</h3>
     <hr/>
     <div class="panel-group" id="accordion">
         {% for region, countries in region_country_status_map.items %}
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ region.id }}"
-                           id="region-{{ region.id }}-collapse">
-                            <span class="glyphicon glyphicon-chevron-right cyan"></span>
-                            {{ region.name }}
-                        </a>
-                    </h4>
-                </div>
+
+            {% include 'home/status/_region_headers.html' %}
+
                 <div id="collapse{{ region.id }}" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-striped table-bordered region-preview-table">
-                                <thead>
-                                <tr>
-                                    <th>Country</th>
-                                    <th>Data Submitter</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for country in countries %}
-                                    <tr>
-                                        <td>{{ country.name }}</td>
-                                        <td>{{ country.data_submitter }}</td>
-                                        <td>{{ country.answer_status }}</td>
-                                        <td>
-                                            <a href="" id="region-{{ region.id }}-country-{{ country.id }}-collapse"
-                                               class="toggle-versions" data-version="version-for-{{ country.id }}">
-                                                <span class="glyphicon glyphicon-circle-arrow-down"></span> Show
-                                                Versions
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% for version in country.all_versions %}
-                                        <tr class="version-for-{{ country.id }} hide">
-                                            <td colspan="3">
-                                                <a data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}&preview=1" data-toggle="modal" data-target="#preview_modal" class="preview-btn-url" id="preview-version-{{ version }}">
-                                                   {{ country.name }} Version {{ version }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group pull-right">
-                                                    <a data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}&preview=1" class="btn btn-xs btn-default preview-btn-url" data-toggle="modal">
-                                                        <span class="glyphicon glyphicon-list-alt"></span> View
-                                                    </a>
-                                                    <form method="post" action="{% url 'specific_export_page' country.id version %}">
-                                                        {% csrf_token %}
-                                                        <button type=" submit" class="btn btn-xs btn-default">
-                                                            <span class="glyphicon glyphicon-save"></span> Extract
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+
+                        {% include 'home/status/_completion_for_countries.html' %}
+
                     </div>
                 </div>
             </div>
         {% endfor %}
     </div>
+
     {% include 'questionnaires/entry/preview_modal.html' %}
 {% endblock %}

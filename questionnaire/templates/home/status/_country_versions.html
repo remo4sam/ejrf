@@ -1,0 +1,23 @@
+{% for version in country.all_versions %}
+    <tr class="version-for-{{ country.id }} hide">
+        <td colspan="3">
+            <a data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}&preview=1"
+               data-toggle="modal" data-target="#preview_modal" class="preview-btn-url"
+               id="preview-version-{{ version }}">
+                {{ country.name }} Version {{ version }}
+            </a>
+        </td>
+        <td>
+            <form method="post" action="{% url 'specific_export_page' country.id version %}" class="form-inline">
+                <button data-href="{% url 'preview_questionnaire' %}?country={{ country.id }}&version={{ version }}&region={{ region.id }}&preview=1"
+                        class="btn btn-xs btn-default preview-btn-url">
+                    <span class="glyphicon glyphicon-list-alt"></span> View
+                </button>
+                {% csrf_token %}
+                <button type=" submit" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-save"></span>
+                    Extract
+                </button>
+            </form>
+        </td>
+    </tr>
+{% endfor %}

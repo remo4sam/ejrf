@@ -1,0 +1,34 @@
+{% load generic_tags %}
+<div class="table-responsive">
+    <table class="table table-hover table-striped table-bordered region-preview-table">
+        <thead>
+        <tr>
+            <th>Country</th>
+            <th>Data Submitter</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for country in countries %}
+            {% with country.answer_status as status %}
+                <tr>
+                    <td>{{ country.name }}</td>
+                    <td>{{ country.data_submitter }}</td>
+                    <td><span class=" {{ status| bootstrap_class }}">{{ status }}</span></td>
+                    <td>
+                        {% if status != 'Not Started' %}
+                            <a href="" id="region-{{ region.id }}-country-{{ country.id }}-collapse"
+                               class="toggle-versions" data-version="version-for-{{ country.id }}">
+                                <span class="glyphicon glyphicon-circle-arrow-down"></span> Show
+                                Versions
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% include 'home/status/_country_versions.html' %}
+            {% endwith %}
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -1,4 +1,5 @@
-from questionnaire.templatetags.generic_tags import display_list, bootstrap_message, get_url_with_ids, divide_to_paginate, ASSIGN_QUESTION_PAGINATION_SIZE, add_string, get_questionnaire_from, get_completion_status
+from questionnaire.templatetags.generic_tags import display_list, bootstrap_message, get_url_with_ids, divide_to_paginate, ASSIGN_QUESTION_PAGINATION_SIZE, add_string, get_questionnaire_from, \
+    bootstrap_class
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -32,8 +33,7 @@ class GeneralTemplateTagTest(BaseTest):
         expected_input = {'region': {'drafts': ["Questuinnaire 1"], 'finalized': ["Questionnaire 2"]}}
         self.assertEqual(["Questionnaire 2"], get_questionnaire_from('region', regions_questionnaire_map=expected_input, status='finalized'))
 
-    def test_should_get_compltetion_status_from_country_region_status_map(self):
-        statuses = {'Paho': {'Argentina': 'Submitted', 'Peru': 'In Progress'},
-                    'Afro': {'Rwanda': 'Not Started', 'Uganda': 'Submitted'}}
-        paho_completion_status = {'Argentina': 'Submitted', 'Peru': 'In Progress'}
-        self.assertEqual(paho_completion_status, get_completion_status('Paho', country_region_status_map=statuses))
+    def test_gets_bootstrap_color_class_for_status(self):
+        self.assertEqual('text-success', bootstrap_class('Submitted'))
+        self.assertEqual('text-warning', bootstrap_class('In Progress'))
+        self.assertEqual('text-danger', bootstrap_class('Not Started'))

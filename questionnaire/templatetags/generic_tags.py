@@ -45,7 +45,8 @@ def get_questionnaire_from(region, **kwargs):
     region_questionnaire_map = kwargs['regions_questionnaire_map']
     return region_questionnaire_map[region][kwargs['status']]
 
-@register.assignment_tag
-def get_completion_status(region, **kwargs):
-    country_region_status_map = kwargs['country_region_status_map']
-    return country_region_status_map[region]
+
+@register.filter
+def bootstrap_class(status):
+    css_class_status_map = {'Submitted': 'text-success', 'In Progress': 'text-warning', 'Not Started': 'text-danger'}
+    return css_class_status_map[status]

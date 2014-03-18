@@ -1,5 +1,5 @@
 <div class="section-buttons">
-    {% if perms.auth.can_submit_responses %}
+    {% if perms.auth.can_submit_responses and not user.is_superuser %}
         <a  data-href="{% url 'preview_questionnaire' %}?preview=1" class="btn btn-default button-section pull-right preview-btn-url" id="preview_modal_btn">
             <i class="glyphicon glyphicon-eye-open"></i> Preview
         </a>
@@ -9,10 +9,10 @@
         <a  data-href="{% url 'preview_specific_questionnaire' questionnaire.id %}?preview=1" class="btn btn-default button-section pull-right preview-btn-url" id="preview_modal_btn">
             <i class="glyphicon glyphicon-eye-open"></i> Preview
         </a>
-
     {% endif %}
     <a class="btn btn-default pull-right button-section has-spinner" id="export-section"><span class="spinner"><img
-            class="spinner-image" src="/static/img/spinner.gif"></span><span class="cyan"><span
-            class="glyphicon glyphicon-file red"></span> Export Section as PDF </span> </a>
+            class="spinner-image" src="/static/img/spinner.gif"></span><span class="cyan">
+        <span class="glyphicon glyphicon-file red"></span> Export Section as PDF </span>
+    </a>
 </div>
 {% include 'questionnaires/entry/preview_modal.html' %}
