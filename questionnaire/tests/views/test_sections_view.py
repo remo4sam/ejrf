@@ -195,7 +195,7 @@ class DeleteSectionsViewTest(BaseTest):
         section_3 = Section.objects.create(name="section", questionnaire=self.questionnaire, order=3, region=self.region)
         Section.objects.create(name="section 2", questionnaire=self.questionnaire, order=4)
         self.client.post('/section/%d/delete/' % section_3.id, data={}, **meta)
-        self.assertEqual([1, 2, 3], list(Section.objects.values_list('order', flat=True)))
+        self.assertEqual([0, 1, 2], list(Section.objects.values_list('order', flat=True)))
 
     def test_sections_owned_by_others_cannot_be_deleted(self):
         self.section.region = None
@@ -381,7 +381,7 @@ class DeleteSubSectionsViewTest(BaseTest):
         referer_url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section.id)
         meta = {'HTTP_REFERER': referer_url}
         self.client.post('/subsection/%d/delete/' % sub_section2.id, data={}, **meta)
-        self.assertEqual([1, 2, 3], list(SubSection.objects.values_list('order', flat=True)))
+        self.assertEqual([0, 1, 2], list(SubSection.objects.values_list('order', flat=True)))
 
     def test_subsections_owned_by_others_cannot_be_deleted(self):
         self.subsection.region = None

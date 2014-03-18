@@ -25,11 +25,11 @@ class SectionUtilTest(BaseTest):
 
         reindex_orders_in(Section, questionnaire=self.questionnaire)
 
-        self.assertEqual([1, 2, 3], list(Section.objects.values_list('order', flat=True)))
+        self.assertEqual([0, 1, 2], list(Section.objects.values_list('order', flat=True)))
 
     def test_re_indexes_section_orders_after_deletion_of_subsection(self):
         SubSection.objects.get(id=self.sub_section2.id).delete()
 
         reindex_orders_in(SubSection, section=self.section_1)
 
-        self.assertEqual([1, 2], list(SubSection.objects.values_list('order', flat=True)))
+        self.assertEqual([0, 1], list(SubSection.objects.values_list('order', flat=True)))

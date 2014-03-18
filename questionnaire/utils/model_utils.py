@@ -25,5 +25,5 @@ def map_question_type_with(orders, mapping, option=''):
 def reindex_orders_in(cls, **kwargs):
     objects = cls.objects.filter(**kwargs).order_by('order')
     for index, object_ in enumerate(objects):
-        object_.order = index + 1
+        object_.order = index
         object_.save()
