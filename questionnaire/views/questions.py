@@ -61,7 +61,8 @@ class CreateQuestion(PermissionRequiredMixin, CreateView):
 
     def _form_invalid(self):
         messages.error(self.request, "Question NOT created. See errors below.")
-        context = {'form': self.form, 'btn_label': "CREATE", 'id': 'id-new-question-form'}
+        context = {'form': self.form, 'btn_label': "CREATE", 'id': 'id-new-question-form',
+                   'cancel_url': reverse('list_questions_page')}
         return self.render_to_response(context)
 
 

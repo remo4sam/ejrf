@@ -99,6 +99,7 @@ class QuestionViewTest(BaseTest):
         self.assertIn('Question NOT created. See errors below.', response.content)
         self.assertIsInstance(response.context['form'], QuestionForm)
         self.assertEqual("CREATE", response.context['btn_label'])
+        self.assertEqual(reverse('list_questions_page'), response.context['cancel_url'])
         self.assertEqual("id-new-question-form", response.context['id'])
 
     def test_post_multichoice_question_with_options(self):
