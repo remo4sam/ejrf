@@ -93,8 +93,9 @@ class SubmitQuestionnaire(AdvancedMultiplePermissionsRequiredMixin, View):
     POST_permissions = {'any': ('auth.can_submit_responses', )}
 
     def post(self, request, *args, **kwargs):
-        questionnaire = Questionnaire.objects.get(status=Questionnaire.PUBLISHED)
-        user_questionnaire = UserQuestionnaireService(self.request.user.user_profile.country, questionnaire)
+        user_country = self.request.user.user_profile.country
+        questionnaire = Questionnaire.objects.get(status=Questionnaire.PUBLISHED, region__countries=user_country)
+        user_questionnaire = UserQuestionnaireService(user_country, questionnaire)
         if not user_questionnaire.required_sections_answered():
             return self._reload_section_with_required_answers_errors(request, user_questionnaire, *args, **kwargs)
         return self._submit_answers(request, user_questionnaire, *args, **kwargs)
@@ -187,6 +188,7 @@ class PublishQuestionnaire(PermissionRequiredMixin, View):
         context = {'questionnaire': questionnaire, 'publish_form': form, 'btn_label': "Publish",
                    'cancel_url': reverse('manage_jrf_page')}
         return render(self.request, self.template_name, context)
+
 
 class ApproveQuestionnaire(MultiplePermissionsRequiredMixin, View):
     permissions = {'any': ('auth.can_view_users',)}

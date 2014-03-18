@@ -29,7 +29,7 @@
         {% endif %}
     </ul>
 
-    <a class="btn btn-default attachement cyan bold {% if upload_form %}current{% endif %}"
+    <a class="btn btn-default attachement cyan bold section_tab {% if upload_form %}current{% endif %}"
        href="{% url 'upload_document' questionnaire.id %}" id="id_attachments">ATTACHMENTS
     {% if documents %}<span class="badge"><span class="cyan bold">{{ documents.count }}</span></span>{% endif %}
     </a>

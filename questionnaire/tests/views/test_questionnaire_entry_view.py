@@ -8,8 +8,16 @@ from urllib import quote
 
 class QuestionnaireEntrySaveDraftTest(BaseTest):
     def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+
+        self.assign('can_submit_responses', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED,
-                                                          description="From dropbox as given by Rouslan")
+                                                          description="From dropbox as given by Rouslan",
+                                                          region=self.region)
 
         self.section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)",
                                                 order=1,
@@ -40,11 +48,6 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
 
         self.url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section_1.id)
 
-        self.client = Client()
-        self.user, self.country, self.region = self.create_user_with_no_permissions()
-
-        self.assign('can_submit_responses', self.user)
-        self.client.login(username=self.user.username, password='pass')
 
         self.data = {u'MultiChoice-MAX_NUM_FORMS': u'1', u'MultiChoice-TOTAL_FORMS': u'1',
                 u'MultiChoice-INITIAL_FORMS': u'1', u'MultiChoice-0-response': self.option1.id,
