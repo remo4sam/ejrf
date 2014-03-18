@@ -87,3 +87,19 @@ Feature: Manage JRF
         Then I should see that the questionnaire was sent to the global admin successfully
         And I should not see the lock icon any more
         And I should see the unlock icon
+
+    Scenario: Global admin approves regional questionnaire
+        Given I am logged in as a global admin
+        And I have regions and countries
+        And I have a finalised regional questionnaire
+        When I visit the manage JRF page
+        Then I should see the finalised regional questionnaire and an option to approve it
+        When I click that regional questionnaire
+        Then it should open in a preview mode
+        When I visit the manage JRF page
+        When I select to approve the regional questionnaire
+        Then I should see a confirmation prompt to approve the questionnaire
+        When I confirm the questionnaire approval
+        Then I should see a message that the questionnaire was approved
+        And I should see a new status indicating that the questionnaire was approved
+        And there should no longer be an option to approve the questionnaire

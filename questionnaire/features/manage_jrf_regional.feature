@@ -15,3 +15,18 @@ Feature: Regional Admin manage eJRF versions
         Then I should be able to edit it
         When I click on a finalized questionnaire assigned to the region
         Then I should be able to view the questionnaire in preview mode
+
+    Scenario: Regional Admin viewing published regional questionnaire
+        Given that I am logged in as a regional admin
+        And I have a published regional questionnaire
+        When I am viewing the home page
+        Then I should see a status that the questionnaire is published
+        And there should not be an option to unlock that questionnaire
+
+    Scenario: Data Submitter viewing published regional questionnaire
+        Given I am logged in as a data submitter
+        When I am viewing the homepage with no published questionnaires for my region
+        Then I should see a message that there are no published questionnaires
+        When a questionnaire is published for my region
+        And I am viewing the homepage
+        Then I should now see that published questionnaire

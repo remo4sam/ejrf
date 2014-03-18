@@ -1,7 +1,6 @@
+from time import sleep
 from lettuce import step, world
 from questionnaire.features.pages.home import HomePage
-from questionnaire.features.pages.step_utils import assign, create_user_with_no_permissions
-from questionnaire.features.pages.users import LoginPage
 from questionnaire.models import Questionnaire, Section, SubSection
 
 
@@ -98,3 +97,61 @@ def when_i_click_on_a_finalized_questionnaire_assigned_to_the_region(step):
 @step(u'Then I should be able to view the questionnaire in preview mode')
 def then_i_should_be_able_to_view_the_questionnaire_in_preview_mode(step):
     assert world.page.is_element_not_present_by_id("id-assign-%s" % world.first_sub_section_finalized.id)
+
+
+@step(u'And I have a published regional questionnaire')
+def and_i_have_a_published_regional_questionnaire(step):
+    world.published_regional_questionnaire = Questionnaire.objects.create(name="JRF Finalised Regional",
+                                                                          description="Description",
+                                                                          year=2014, status=Questionnaire.PUBLISHED,
+                                                                          region=world.region)
+
+
+    world.regional_section = Section.objects.create(order=0, title="JRF Published Questionnaire", description="Description",
+                                                questionnaire=world.published_regional_questionnaire,
+                                                name="Cover page")
+    world.regional_subsection = SubSection.objects.create(order=1, section=world.regional_section)
+
+
+@step(u'When I am viewing the home page')
+def when_i_am_viewing_the_home_page(step):
+    world.page = HomePage(world.browser)
+    world.page.visit()
+
+
+@step(u'Then I should see a status that the questionnaire is published')
+def then_i_should_see_a_status_that_the_questionnaire_is_published(step):
+    world.page.is_text_present('Published')
+
+
+@step(u'And there should not be an option to unlock that questionnaire')
+def and_there_should_not_be_an_option_to_unlock_that_questionnaire(step):
+    assert world.page.is_element_not_present_by_id('id-unfinalize-%s' % world.published_regional_questionnaire.id)
+
+
+@step(u'Then I should see a message that there are no published questionnaires')
+def then_i_should_see_a_message_that_there_are_no_published_questionnaires(step):
+    world.page.is_text_present('Sorry, The JRF is not yet published at the moment')
+
+
+@step(u'When a questionnaire is published for my region')
+def when_a_questionnaire_is_published_for_my_region(step):
+    world.finalised_regional_questionnaire = Questionnaire.objects.create(name="JRF Published Questionnaire",
+                                                                          description="Custom Description",
+                                                                          year=2014, status=Questionnaire.PUBLISHED,
+                                                                          region=world.region)
+    world.regional_section = Section.objects.create(order=0, title="JRF Published Questionnaire",
+                                                    description="Description",
+                                                    questionnaire=world.finalised_regional_questionnaire,
+                                                    name="Cover page")
+    world.regional_subsection = SubSection.objects.create(order=1, section=world.regional_section)
+
+
+@step(u'And I am viewing the homepage')
+def and_i_viewing_the_homepage(step):
+    step.given('When I am viewing the home page')
+
+
+@step(u'Then I should now see that published questionnaire')
+def then_i_should_now_see_that_published_questionnaire(step):
+    world.page.is_text_present('JRF Published Questionnaire')
