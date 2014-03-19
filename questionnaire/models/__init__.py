@@ -5,7 +5,6 @@ from questionnaire.models.answer_groups import AnswerGroup
 from questionnaire.models.question_group_orders import QuestionGroupOrder
 from questionnaire.models.question_groups import QuestionGroup
 from questionnaire.models.locations import Location, Region, Country, Organization
-from questionnaire.models.question_text_history import QuestionTextHistory
 from questionnaire.models.questionnaires import Questionnaire
 from questionnaire.models.questions import Question, QuestionOption
 from questionnaire.models.sections import Section, SubSection
@@ -33,5 +32,4 @@ __all__ = [
     'QuestionGroupOrder',
     'UserProfile',
     'SupportDocument',
-    'QuestionTextHistory'
 ]

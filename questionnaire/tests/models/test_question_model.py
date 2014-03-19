@@ -37,6 +37,27 @@ class QuestionTest(BaseTest):
         question1 = Question.objects.create(text='B. Number of cases tested', UID='00023', answer_type='Number')
         self.assertFalse(question1.is_assigned_to(self.questionnaire))
 
+    def test_question_knows_groups_it_is_in_given_a_questionnaire(self):
+        parent_group_2 = QuestionGroup.objects.create(subsection=self.sub_section_1, name="group", order=2)
+        parent_group_2.question.add(self.question1)
+
+        question_groups = self.question1.question_groups_in(self.questionnaire)
+        self.assertEqual(2, question_groups.count())
+        self.assertIn(self.parent_group, question_groups)
+        self.assertIn(parent_group_2, question_groups)
+
+    def test_question_knows_all_its_questionnaire(self):
+        other_questionnaire = Questionnaire.objects.create(name="other qnaire",description="haha")
+        section_1 = Section.objects.create(title="section 1", order=1, questionnaire=other_questionnaire, name="ha")
+        sub_section_1 = SubSection.objects.create(title="subs1", order=1, section=section_1)
+        parent_group = QuestionGroup.objects.create(subsection=sub_section_1, name="group")
+        parent_group.question.add(self.question1)
+
+        questionnaires = self.question1.questionnaires()
+        self.assertEqual(2, questionnaires.count())
+        self.assertIn(self.questionnaire, questionnaires)
+        self.assertIn(other_questionnaire, questionnaires)
+
     def test_question_knows_its_not_in_questionnaire(self):
         self.assertTrue(self.question1.is_assigned_to(self.questionnaire))
 

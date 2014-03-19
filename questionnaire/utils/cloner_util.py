@@ -1,4 +1,4 @@
-from questionnaire.models import Section, SubSection, QuestionGroup
+from questionnaire.models import Section, SubSection, QuestionGroup, Question
 
 
 def get_query_params(model, fields):

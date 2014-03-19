@@ -78,8 +78,15 @@ class Question(BaseModel):
             all_options = self.options.order_by('text')
             return all_options[index - 1]
 
+    def question_groups_in(self, questionnaire):
+        return self.question_group.filter(subsection__section__questionnaire=questionnaire)
+
     def is_assigned_to(self, questionnaire):
-        return self.question_group.filter(subsection__section__questionnaire=questionnaire).exists()
+        return self.question_groups_in(questionnaire).exists()
+
+    def questionnaires(self):
+        from questionnaire.models import Questionnaire
+        return Questionnaire.objects.filter(sections__sub_sections__question_group__in=self.question_group.all())
 
     @classmethod
     def next_uid(cls):

@@ -1,7 +1,7 @@
-from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django import forms
-from questionnaire.models import Question, QuestionOption, QuestionTextHistory
+from django.forms.models import model_to_dict
+from questionnaire.models import Question, QuestionOption, Questionnaire
 
 
 class QuestionForm(ModelForm):
@@ -47,6 +47,33 @@ class QuestionForm(ModelForm):
         return export_label
 
     def save(self, commit=True):
+        if self._editing_published_question():
+            question = self._duplicate_question()
+            self._reassign_to_unpublished_questionnaires(question)
+            return question
+        return self._save(commit)
+
+    def _reassign_to_unpublished_questionnaires(self, question):
+        unpublished_in_questionnaire = self.instance.questionnaires().exclude(status=Questionnaire.PUBLISHED)
+        for questionnaire in unpublished_in_questionnaire:
+            for group in self.instance.question_groups_in(questionnaire):
+                group.question.remove(self.instance)
+                group.question.add(question)
+
+    def _duplicate_question(self):
+        attributes = model_to_dict(self.instance, exclude=('id',))
+        attributes.update({'parent': self.instance})
+        return Question.objects.create(**attributes)
+
+    def _editing_published_question(self):
+        if not (self.instance and self.instance.id):
+            return False
+        published_in_questionnaire = self.instance.questionnaires().filter(status=Questionnaire.PUBLISHED)
+        if published_in_questionnaire.exists():
+            return True
+        return False
+
+    def _save(self, commit=True):
         question = super(QuestionForm, self).save(commit=False)
         question.UID = Question.next_uid()
         if self.region:
@@ -67,25 +94,3 @@ class QuestionForm(ModelForm):
         choices = self.fields['answer_type'].choices
         choices[0] = ('', 'Response type', )
         return choices
-
-
-class QuestionHistoryForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(QuestionHistoryForm, self).__init__(*args, **kwargs)
-
-    class Meta:
-        model = QuestionTextHistory
-        fields = ('text', 'export_label', 'question', 'questionnaire')
-
-    def clean(self):
-        self._clean_question()
-        return super(QuestionHistoryForm, self).clean()
-
-    def _clean_question(self):
-        question = self.cleaned_data.get('question', None)
-        questionnaire = self.cleaned_data.get('questionnaire', None)
-        if question and not question.is_assigned_to(questionnaire):
-            message = "The selected question should belong to a the selected questionnaire"
-            self._errors['question'] = self.error_class([message])
-            del self.cleaned_data['question']
-        return question
