@@ -115,3 +115,4 @@ class FinalizeRegionalQuestionnaireViewTest(BaseTest):
         self.assertRedirects(response, referer_url)
         message = "The questionnaire could not be unlocked because its published."
         self.assertIn(message, response.cookies['messages'].value)
+

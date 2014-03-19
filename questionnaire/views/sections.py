@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import CreateView, UpdateView, DeleteView
-
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.mixins import RegionAndPermissionRequiredMixin, DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequiredMixin
 from questionnaire.models import Section, SubSection

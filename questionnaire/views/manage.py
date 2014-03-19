@@ -70,3 +70,5 @@ class ManageRegionalJRF(RegionAndPermissionRequiredMixin, View):
                    'finalized_questionnaires': questionnaires.filter(status__in=[Questionnaire.FINALIZED, Questionnaire.PUBLISHED]),
                    'draft_questionnaires': questionnaires.filter(status=Questionnaire.DRAFT),}
         return render(self.request, self.template_name, context)
+
+

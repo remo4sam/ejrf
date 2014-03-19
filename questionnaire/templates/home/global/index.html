@@ -36,43 +36,8 @@
                                             class="glyph-icon" src="/static/img/glyphicons_lock.png"></span></a>
 
 
-                                     <div class="modal fade" id="edit_questionnaire_name" tabindex="-1" role="dialog"
-                                          aria-labelledby="myModalLabel"
-                                          aria-hidden="true">
-                                         <form action="{% url "edit_qestionnaire_name" questionnaire.id %}"
-                                               method="POST">
-                                             <div class="modal-dialog">
-                                                 <div class="modal-content">
-                                                     <div class="modal-header">
-                                                         <button type="button" class="close" data-dismiss="modal"
-                                                                 aria-hidden="true">&times;</button>
-                                                         <h4 class="modal-title cyan" id="myModalLabel">Edit Name Of
-                                                             Questionnaire</h4>
-                                                     </div>
-                                                     <div class="modal-body">
-                                                         <div class="form-group">
-                                                             <label for="questionnaire_name">New Questionnaire
-                                                                 Name</label>
-                                                             <input class="form-control" id="questionnaire_name"
-                                                                    maxlength="100" name="name"
-                                                                    type="text"
-                                                                    value="{{ questionnaire.name }}">
-                                                         </div>
-                                                         <input type="hidden" name="csrfmiddlewaretoken"
-                                                                value="{{ csrf_token }}">
+                                    {% include 'base/modals/edit_name.html' with a_form=filter_form modal_id='edit_questionnaire_name' action=action %}
 
-                                                     </div>
-                                                     <div class="modal-footer">
-                                                         <button type="button" class="btn btn-default"
-                                                                 data-dismiss="modal">
-                                                             Close
-                                                         </button>
-                                                         <button type="submit" class="btn btn-primary">SAVE</button>
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         </form>
-                                     </div>
                                 </span>
                                 {% endwith %}
                             </li>
@@ -160,11 +125,14 @@
                                 {% with questionnaire.sections.all|first as first_section %}
                                     <li class="list-group-item">
 
-                                        <a id="questionnaire-{{ questionnaire.id }}" href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
+                                        <a id="questionnaire-{{ questionnaire.id }}"
+                                           href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                         <span class="pull-right">
                                             {% if questionnaire.is_finalized %}
-                                                <a href="" class="btn btn-default btn-xs"  id="id-approve-questionnaire-{{ questionnaire.id }}"
-                                                        data-toggle="modal" data-target="#approve-questionnaire-modal-{{ questionnaire.id }}">
+                                                <a href="" class="btn btn-default btn-xs"
+                                                   id="id-approve-questionnaire-{{ questionnaire.id }}"
+                                                   data-toggle="modal"
+                                                   data-target="#approve-questionnaire-modal-{{ questionnaire.id }}">
                                                     <span class="glyphicon glyphicon-thumbs-up"></span> Approve
                                                 </a>
                                                 {% include 'base/modals/_confirm.html' with object_type='Questionnaire' title='Confirm Questionnaire Approval' action="approve" url=questionnaire.id|get_url_with_ids:"approve_questionnaire_page" object=questionnaire confirm='Yes' %}
