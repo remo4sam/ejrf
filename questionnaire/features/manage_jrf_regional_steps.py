@@ -129,10 +129,6 @@ def and_there_should_not_be_an_option_to_unlock_that_questionnaire(step):
     assert world.page.is_element_not_present_by_id('id-unfinalize-%s' % world.published_regional_questionnaire.id)
 
 
-@step(u'Then I should see a message that there are no published questionnaires')
-def then_i_should_see_a_message_that_there_are_no_published_questionnaires(step):
-    world.page.is_text_present('Sorry, The JRF is not yet published at the moment')
-
 
 @step(u'When a questionnaire is published for my region')
 def when_a_questionnaire_is_published_for_my_region(step):

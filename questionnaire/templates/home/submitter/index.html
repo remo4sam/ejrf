@@ -1,0 +1,101 @@
+{% extends 'base/layout.html' %}
+{% block content %}
+    {% load generic_tags %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>eJRF Versions</h2>
+            <hr/>
+        </div>
+        {% if new %}
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span>
+                            <h3 class="panel-title">Available</h3>
+                        </span>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            {% for questionnaire_ in new.keys %}
+                                <li class="list-group-item">
+                                    {% with questionnaire_.sections.all|first as first_section %}
+                                        <a id="questionnaire-{{ questionnaire_.id }}" href="{% url 'questionnaire_entry_page' questionnaire_.id first_section.id %}">{{ questionnaire_.name }} {{ questionnaire_.year }}</a>
+                                        <span class="pull-right">
+                                            <a href="{% url 'questionnaire_entry_page' questionnaire_.id first_section.id %}" class="btn btn-xs btn-default" id="id-edit"><span class="glyphicon glyphicon-pencil"></span> Start</a>
+                                        </span>
+                                    {% endwith %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span>
+                        <h3 class="panel-title">Draft</h3>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                    {% if drafts %}
+                        {% for questionnaire_, versions in drafts.items %}
+                            <li class="list-group-item">
+                                {% with questionnaire_.sections.all|first as first_section %}
+                                    <a id="questionnaire-{{ questionnaire_.id }}" href="{% url 'questionnaire_entry_page' questionnaire_.id first_section.id %}">{{ questionnaire_.name }} {{ questionnaire_.year }}</a>
+                                    <span class="pull-right">
+                                        <a href="{% url 'questionnaire_entry_page' questionnaire_.id first_section.id %}" class="btn btn-xs btn-default" id="id-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+                                    </span>
+                                {% endwith %}
+                                <ul>
+                                    {% for version in versions %}
+                                        <li>
+                                            <a href="{% url 'preview_specific_questionnaire' questionnaire_.id %}?country={{ user.user_profile.country.id }}&version={{ version }}&region={{ user.user_profile.region.id }}&preview=1" class="btn btn-xs btn-default preview-btn-url">
+                                            <span class="glyphicon glyphicon-list-alt"></span> View
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Submitted</h3>
+                </div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                    {% if submitted %}
+                        {% for questionnaire_, versions in submitted.items %}
+                            <li class="list-group-item{%if  forloop.counter > 3 %} hide{% endif %}">
+                                {% with questionnaire_.sections.all|first as first_section %}
+                                    <a id="questionnaire-{{ questionnaire_.id }}" href="{% url 'questionnaire_entry_page' questionnaire_.id first_section.id %}?preview=1">{{ questionnaire_.name }} {{ questionnaire_.year }}</a>
+                                {% endwith %}
+                                <ul>
+                                    {% for version in versions %}
+                                        <li>
+                                            <a href="{% url 'preview_specific_questionnaire' questionnaire_.id %}?country={{ user.user_profile.country.id }}&version={{ version }}&region={{ user.user_profile.region.id }}&preview=1" class="btn btn-xs btn-default preview-btn-url">
+                                            <span class="glyphicon glyphicon-list-alt"></span> View
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                        <li class="list-group-item more-toggle" >
+                                <a href="" id="id-older-jrf">More</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

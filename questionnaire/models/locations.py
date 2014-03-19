@@ -43,8 +43,18 @@ class Country(Location):
         if submitter_answer:
             return submitter_answer.textanswer.response
 
-    def all_versions(self):
+    def all_versions(self, questionnaire=None):
         query_params = {'question__question_group__subsection__section__questionnaire__region__countries': self,
                         'question__question_group__subsection__section__questionnaire__status': 'published'}
-        answers = Answer.objects.filter(country=self, **query_params).select_subclasses()
+        all_answers = Answer.objects.select_subclasses()
+        answers = all_answers.filter(country=self, **query_params)
+        if questionnaire:
+            answers = all_answers.filter(country=self, question__question_group__subsection__section__questionnaire=questionnaire)
+            return {questionnaire: list(set(answers.values_list('version', flat=True)))}
         return list(set(answers.values_list('version', flat=True)))
+
+    def get_versions_for(self, questionnaires):
+        questionnaire_version_map = {}
+        for questionnaire in questionnaires:
+            questionnaire_version_map.update(self.all_versions(questionnaire))
+        return questionnaire_version_map

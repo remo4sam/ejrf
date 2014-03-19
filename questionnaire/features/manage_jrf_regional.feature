@@ -25,8 +25,6 @@ Feature: Regional Admin manage eJRF versions
 
     Scenario: Data Submitter viewing published regional questionnaire
         Given I am logged in as a data submitter
-        When I am viewing the homepage with no published questionnaires for my region
-        Then I should see a message that there are no published questionnaires
         When a questionnaire is published for my region
         And I am viewing the homepage
         Then I should now see that published questionnaire

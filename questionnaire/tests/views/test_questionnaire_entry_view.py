@@ -48,7 +48,6 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
 
         self.url = '/questionnaire/entry/%d/section/%d/' % (self.questionnaire.id, self.section_1.id)
 
-
         self.data = {u'MultiChoice-MAX_NUM_FORMS': u'1', u'MultiChoice-TOTAL_FORMS': u'1',
                 u'MultiChoice-INITIAL_FORMS': u'1', u'MultiChoice-0-response': self.option1.id,
                 u'Number-INITIAL_FORMS': u'2', u'Number-TOTAL_FORMS': u'2', u'Number-MAX_NUM_FORMS': u'2',
@@ -549,12 +548,11 @@ class QuestionnaireEntrySubmitTest(BaseTest):
         global_admin, country, region = self.create_user_with_no_permissions(username="ga", country_name="GA", region_name=None)
         self.assign('can_edit_questionnaire', global_admin)
 
-        self.client.logout()
-        self.client.login(username='ga', password='pass')
-        response = self.client.post(self.url, data=self.data)
+        client = Client()
+        client.login(username='ga', password='pass')
+        response = client.post(self.url, data=self.data)
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url),
                              status_code=302, target_status_code=200, msg_prefix='')
-
 
     def test_submit_changes_all_answers_statuses_to_submitted(self):
         other_section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)",
@@ -599,10 +597,6 @@ class QuestionnaireEntrySubmitTest(BaseTest):
         meta = {'HTTP_REFERER': referer_url}
         response = self.client.post(self.url, **meta)
         self.assertRedirects(response, referer_url_no_error_yes_preview)
-
-    def test_submit_on_success_redirect_to_homepage_if_referer_not_given(self):
-        response = self.client.post(self.url)
-        self.assertRedirects(response, '/?preview=1', target_status_code=302)
 
     def test_submit_success_message(self):
         response = self.client.post(self.url)

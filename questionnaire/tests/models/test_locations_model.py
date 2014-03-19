@@ -70,6 +70,16 @@ class CountryTest(BaseTest):
                                        response=22, version=2)
         self.assertEqual([1, 2], self.uganda.all_versions())
 
+    def test_country_gets_own_versions_given_a_questionnaire(self):
+        NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
+                                       response=22)
+        self.assertEqual({self.questionnaire: [1]}, self.uganda.all_versions(self.questionnaire))
+        NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
+                                       response=22, version=2)
+        self.assertEqual({self.questionnaire: [1, 2]}, self.uganda.all_versions(self.questionnaire))
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.afro)
+        self.assertEqual({questionnaire: []}, self.uganda.all_versions(questionnaire))
+
     def test_country_knows_its_data_submitter(self):
         questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
         section_1 = Section.objects.create(title="Cover PAge", order=1,
@@ -86,6 +96,14 @@ class CountryTest(BaseTest):
         TextAnswer.objects.create(question=question, response="jacinta",status=Answer.DRAFT_STATUS,country=uganda)
 
         self.assertEqual('jacinta', uganda.data_submitter())
+
+    def test_gets_versions_for_a__list_of_questionnaires(self):
+        answer = NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
+                                       response=22)
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
+        section_1 = Section.objects.create(title="Cover PAge", order=1,
+                                           questionnaire=questionnaire, name="Cover Pages")
+        self.assertEqual({self.questionnaire: [answer.version], questionnaire: []}, self.uganda.get_versions_for([self.questionnaire, questionnaire]))
 
 
 class OrgTest(BaseTest):

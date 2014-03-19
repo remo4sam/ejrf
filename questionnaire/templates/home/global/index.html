@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+ ,{% extends 'base/layout.html' %}
 {% block content %}
     {% load generic_tags %}
     <div class="row">
@@ -73,8 +73,6 @@
                                              </div>
                                          </form>
                                      </div>
-
-
                                 </span>
                                 {% endwith %}
                             </li>
@@ -113,7 +111,6 @@
                                     {% if questionnaire.is_published %}
                                         <span class="label label-success">Published</span>
                                     {% endif %}
-
                                 </span>
                             </li>
                         {% endfor %}

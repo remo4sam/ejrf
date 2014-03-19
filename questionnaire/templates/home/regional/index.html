@@ -30,7 +30,6 @@
                                        post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/"
                                        pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img
                                             class="glyph-icon" src="/static/img/glyphicons_lock.png"></span></a>
-
                                 </span>
                                 {% endwith %}
                             </li>
@@ -56,13 +55,12 @@
                                         <a class="btn btn-xs btn-default" id="id-unfinalize-{{ questionnaire.id }}"
                                            post="true" phref="/questionnaire/{{ questionnaire.id }}/unfinalize/"
                                            pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img
-                                                class="glyph-icon" src="/static/img/glyphicons_unlock.png"></span></a>
+                                                class="glyph-icon" src="{{ STATIC_URL }}img/glyphicons_unlock.png"></span></a>
                                     {% endif %}
                                     {% if questionnaire.is_published %}
                                         <span class="label label-success">Published</span>
                                     {% endif %}
                                 </span>
-
                             </li>
                         {% endfor %}
                         <li class="list-group-item more-toggle">
