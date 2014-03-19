@@ -1,13 +1,12 @@
-from django.contrib import messages
+from django.contrib.messages import api
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import View, UpdateView
+from django.views.generic import View
 from braces.views import MultiplePermissionsRequiredMixin
 from questionnaire.forms.questionnaires import QuestionnaireFilterForm
 from questionnaire.mixins import RegionAndPermissionRequiredMixin
 from questionnaire.models import Questionnaire, Region
-
 
 class ManageJRF(MultiplePermissionsRequiredMixin, View):
     permissions = {'any': ('auth.can_view_users',)}
@@ -52,7 +51,7 @@ class EditQuestionnaireNameView(View):
         questionnaire.name = self.request.POST['name']
         questionnaire.save()
         message = "Name of Questionnaire updated successfully."
-        messages.success(self.request, message)
+        api.success(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
 
 
