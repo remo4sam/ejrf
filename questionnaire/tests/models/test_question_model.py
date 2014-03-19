@@ -20,7 +20,7 @@ class QuestionTest(BaseTest):
         self.country = Country.objects.create(name="Uganda")
         self.regions.countries.add(self.country)
         self.question1 = Question.objects.create(text='B. Number of cases tested',
-                                                 instructions="Enter the total number of cases for which specimens were collected, and tested in laboratory",
+                                                 instructions="instructions hahaha",
                                                  UID='C00003', answer_type='Number')
         self.parent_group = QuestionGroup.objects.create(subsection=self.sub_section_1, name="Laboratory Investigation")
         self.parent_group.question.add(self.question1)
@@ -43,9 +43,9 @@ class QuestionTest(BaseTest):
     def test_question_fields(self):
         question = Question()
         fields = [str(item.attname) for item in question._meta.fields]
-        self.assertEqual(11, len(fields))
+        self.assertEqual(12, len(fields))
         for field in ['id', 'created', 'modified', 'text', 'instructions', 'UID', 'answer_type',
-                      'region_id', 'is_primary', 'is_required', 'export_label']:
+                      'region_id', 'is_primary', 'is_required', 'export_label', 'parent_id']:
             self.assertIn(field, fields)
 
     def test_question_store(self):
@@ -55,14 +55,37 @@ class QuestionTest(BaseTest):
         self.assertIsNone(question.instructions)
         self.assertEqual('abc123', question.UID)
         self.assertIsNone(question.region)
+        self.assertIsNone(question.parent)
         self.assertTrue(question.is_core)
         self.assertFalse(question.is_primary)
         self.assertFalse(question.is_required)
 
-    def test_question_uid_is_unique(self):
+    def test_question_uid_is_unique_when_question_has_no_parent(self):
         a_question = Question.objects.create(text='Uganda Revision 2014 what what?', UID='abc123', answer_type='Text')
         question_with_same_uid = Question(text='haha', UID='abc123', answer_type='Text')
         self.assertRaises(IntegrityError, question_with_same_uid.save)
+
+    def test_editing_self_does_not_raise_integrity_error(self):
+        question = Question.objects.create(text='question text', UID='abc123', answer_type='Text')
+        UID = question.UID
+        question.text="haha"
+        question.save()
+        self.failUnless(question.id)
+        self.assertEqual(UID, Question.objects.get(text=question.text).UID)
+
+    def test_child_question_uid_is_parent_question_uid(self):
+        parent_question = Question.objects.create(text='question text', UID='abc123', answer_type='Text')
+        child_question_with_same_uid = Question(text='revised text', UID='abc123', answer_type='Text', parent=parent_question)
+        child_question_with_same_uid.save()
+        self.failUnless(child_question_with_same_uid.id)
+
+    def test_parent_automatically_transfer_UID_to_child(self):
+        parent_question = Question.objects.create(text='question text', UID='abc123', answer_type='Text')
+        child_question_without_uid = Question.objects.create(text='revised text', answer_type='Text', parent=parent_question)
+        child_question_with_different_uid = Question.objects.create(text='revised text', answer_type='Text',
+                                                                    UID='different uid', parent=parent_question)
+        self.assertEqual(parent_question.UID, child_question_without_uid.UID)
+        self.assertEqual(parent_question.UID, child_question_with_different_uid.UID)
 
     def test_question_can_get_its_answers(self):
         self.assertEqual(2, len(self.question1.all_answers()))

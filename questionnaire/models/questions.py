@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, IntegrityError
 from questionnaire.models.base import BaseModel
 from questionnaire.utils.model_utils import largest_uid, stringify
 
@@ -17,11 +17,24 @@ class Question(BaseModel):
     text = models.TextField(blank=False, null=False)
     export_label = models.TextField(blank=True, null=False)
     instructions = models.TextField(blank=True, null=True)
-    UID = models.CharField(blank=False, null=False, max_length=6, unique=True)
+    UID = models.CharField(blank=False, null=False, max_length=6)
     answer_type = models.CharField(blank=False, null=False, max_length=20, choices=ANSWER_TYPES)
     region = models.ForeignKey("Region", blank=False, null=True, related_name="questions")
     is_primary = models.BooleanField(blank=False, null=False, default=False)
     is_required = models.BooleanField(blank=False, null=False, default=False)
+    parent = models.ForeignKey("Question",blank=False, null=True, related_name="child")
+
+    def save(self, *args, **kwargs):
+        if self.parent:
+            self.UID = self.parent.UID
+            return super(Question, self).save(*args, **kwargs)
+        questions_with_same_uid = Question.objects.filter(UID=self.UID)
+        if questions_with_same_uid.exists() and not self._editing(questions_with_same_uid[0]):
+            raise IntegrityError("Question with UID %s already exists and is not a parent of this question." % self.UID)
+        return super(Question, self).save(*args, **kwargs)
+
+    def _editing(self, question):
+        return self.id == question.id
 
     def all_answers(self):
         return self.answers.filter(status='Submitted').order_by('answergroup__id').select_subclasses()
