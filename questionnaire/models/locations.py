@@ -26,6 +26,9 @@ class Region(Location):
     description = models.CharField(max_length=300, blank=True, null=True)
     organization = models.ForeignKey(Organization, blank=False, null=True, related_name="regions")
 
+    def latest_questionnaire(self):
+        return self.questionnaire.latest('modified')
+
 
 class Country(Location):
     regions = models.ManyToManyField(Region, blank=False, null=True, related_name="countries")
@@ -55,6 +58,6 @@ class Country(Location):
 
     def get_versions_for(self, questionnaires):
         questionnaire_version_map = {}
-        for questionnaire in questionnaires:
+        for questionnaire in list(set(questionnaires)):
             questionnaire_version_map.update(self.all_versions(questionnaire))
         return questionnaire_version_map

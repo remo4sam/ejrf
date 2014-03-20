@@ -20,6 +20,15 @@ class RegionTest(BaseTest):
         self.assertEqual(org, region.organization)
         self.assertIsNone(region.description)
 
+    def test_region_gets_latest_questionnaire(self):
+        region = Region.objects.create(name="Region")
+        asean = Region.objects.create(name="ASEAN")
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=region, status=Questionnaire.PUBLISHED)
+        asean_questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=asean, status=Questionnaire.PUBLISHED)
+        self.assertEqual(questionnaire, region.latest_questionnaire())
+        self.assertEqual(asean_questionnaire, asean.latest_questionnaire())
+
+
 
 class CountryTest(BaseTest):
     def setUp(self):

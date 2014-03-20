@@ -4,6 +4,7 @@ var editable = false;
 $(document).ready(function() {
     $('.pagination').children('ul').addClass('pagination')
     $('a[data-toggle=popover]').popover();
+    $('a[data-toggle=tooltip]').tooltip();
     loadRoleTemplate();
     $('p:empty').remove();
 

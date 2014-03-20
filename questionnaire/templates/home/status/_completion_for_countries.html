@@ -26,7 +26,9 @@
                         {% endif %}
                     </td>
                 </tr>
-                {% include 'home/status/_country_versions.html' %}
+                {% if region.latest_questionnaire %}
+                    {% include 'home/status/_country_versions.html' %}
+                {% endif %}
             {% endwith %}
         {% endfor %}
         </tbody>

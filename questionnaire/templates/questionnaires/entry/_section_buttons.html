@@ -1,18 +1,22 @@
 <div class="section-buttons">
-    {% if perms.auth.can_submit_responses and not user.is_superuser %}
-        <a  data-href="{% url 'preview_questionnaire' %}?preview=1" class="btn btn-default button-section pull-right preview-btn-url" id="preview_modal_btn">
-            <i class="glyphicon glyphicon-eye-open"></i> Preview
-        </a>
+    {% if perms.auth.can_submit_responses and not user.is_superuser%}
+        {% if preview %}
+            <button class="btn btn-default button-section pull-right" id="edit_questionnaire_link">
+                <i class="glyphicon glyphicon-pencil"></i> EDIT</span> </button>
+        {% else %}
+            <button class="btn btn-default button-section pull-right preview-btn-url" id="submit_questionnaire_btn"
+                data-toggle="modal" data-href="{% url 'preview_specific_questionnaire' questionnaire.id %}" >
+                <span class="green bold"><i class="glyphicon glyphicon-ok"></i> SUBMIT</span>
+            </button>
+        {% endif %}
     {% endif %}
-
-    {% if perms.auth.can_view_users or perms.auth.can_edit_questionnaire %}
-        <a  data-href="{% url 'preview_specific_questionnaire' questionnaire.id %}?preview=1" class="btn btn-default button-section pull-right preview-btn-url" id="preview_modal_btn">
-            <i class="glyphicon glyphicon-eye-open"></i> Preview
-        </a>
-    {% endif %}
-    <a class="btn btn-default pull-right button-section has-spinner" id="export-section"><span class="spinner"><img
-            class="spinner-image" src="/static/img/spinner.gif"></span><span class="cyan">
-        <span class="glyphicon glyphicon-file red"></span> Export Section as PDF </span>
+    <a  data-href="{% url 'preview_specific_questionnaire' questionnaire.id %}?preview=1" class="btn btn-default button-section pull-right preview-btn-url" id="preview_modal_btn"
+            data-toggle="tooltip" data-placement="top" title="Preview">
+        <i class="glyphicon glyphicon-eye-open"></i>
+    </a>
+    <a class="btn btn-default pull-right button-section has-spinner" id="export-section" data-toggle="tooltip" data-placement="top" title="Export section as PDF"><span class="spinner"><img
+            class="spinner-image" src="{{ STATIC_URL }}img/spinner.gif"></span><span class="cyan">
+        <span class="glyphicon glyphicon-file red"></span></span>
     </a>
 </div>
 {% include 'questionnaires/entry/preview_modal.html' %}

@@ -52,8 +52,8 @@
                                 <ul>
                                     {% for version in versions %}
                                         <li>
-                                            <a href="{% url 'preview_specific_questionnaire' questionnaire_.id %}?country={{ user.user_profile.country.id }}&version={{ version }}&region={{ user.user_profile.region.id }}&preview=1" class="btn btn-xs btn-default preview-btn-url">
-                                            <span class="glyphicon glyphicon-list-alt"></span> View
+                                            <a href="{% url 'preview_specific_questionnaire' questionnaire_.id %}?country={{ user.user_profile.country.id }}&version={{ version }}&preview=1">
+                                            View Version {{ version }}
                                             </a>
                                         </li>
                                     {% endfor %}
@@ -81,8 +81,8 @@
                                 <ul>
                                     {% for version in versions %}
                                         <li>
-                                            <a href="{% url 'preview_specific_questionnaire' questionnaire_.id %}?country={{ user.user_profile.country.id }}&version={{ version }}&region={{ user.user_profile.region.id }}&preview=1" class="btn btn-xs btn-default preview-btn-url">
-                                            <span class="glyphicon glyphicon-list-alt"></span> View
+                                            <a href="{% url 'preview_specific_questionnaire' questionnaire_.id %}?country={{ user.user_profile.country.id }}&version={{ version }}&preview=1">
+                                            View Version {{ version }}
                                             </a>
                                         </li>
                                     {% endfor %}

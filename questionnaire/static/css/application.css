@@ -383,3 +383,6 @@ table td input[type='text'], select{
 .region-preview-table .show{
     display: table-row !important;
 }
+.preview-btn-url{
+    margin-bottom: 0 !important;
+}

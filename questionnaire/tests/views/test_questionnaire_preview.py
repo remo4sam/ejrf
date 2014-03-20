@@ -41,7 +41,7 @@ class QuestionnairePreviewTest(BaseTest):
         QuestionGroupOrder.objects.create(question_group=self.question_group, question=self.question2, order=2)
         QuestionGroupOrder.objects.create(question_group=self.question_group, question=self.question3, order=3)
 
-        self.url = '/questionnaire/preview/'
+        self.url = '/questionnaire/%s/preview/' % self.questionnaire.id
 
         self.client = Client()
 
@@ -59,7 +59,6 @@ class QuestionnairePreviewTest(BaseTest):
             with open(self.filename, 'w') as document:
                 document.write("Some stuff")
             self.document = open(self.filename, 'rb')
-
 
     def test_get_questionnaire_preview(self):
         response = self.client.get(self.url)
@@ -109,13 +108,13 @@ class QuestionnairePreviewTest(BaseTest):
         self.assertEqual(section_3, all_section_questionnaires[section_3].section)
 
     def test_login_required(self):
-        self.assert_login_required('/questionnaire/preview/')
+        self.assert_login_required('/questionnaire/%s/preview/' % self.questionnaire.id)
 
     def test_permission_required(self):
-        self.assert_permission_required('/questionnaire/preview/')
+        self.assert_permission_required('/questionnaire/%s/preview/' % self.questionnaire.id)
 
     def test_gets_ordered_sections_for_menu_breadcrumps_wizzard_for_specified_questionnaire(self):
-        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English copy", status=Questionnaire.DRAFT)
+        questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English copy", status=Questionnaire.DRAFT, region=self.region)
         section2 = Section.objects.create(title="section 2", order=2, questionnaire=questionnaire)
         section3 = Section.objects.create(title="section 3", order=3, questionnaire=questionnaire)
         url = '/questionnaire/%s/preview/' % questionnaire.id
@@ -129,7 +128,7 @@ class QuestionnairePreviewTest(BaseTest):
     def test_get_preview_for_version(self):
         version = 1
 
-        url = '/questionnaire/preview/?country=%s&version=%s&region=%s' % (self.country.id, version, self.region.id)
+        url = '/questionnaire/%s/preview/?country=%s&version=%s' % (self.questionnaire.id, self.country.id, version)
         section_2 = Section.objects.create(title="section 2", order=2, questionnaire=self.questionnaire, name="section 2")
         section_3 = Section.objects.create(title="section 3", order=3, questionnaire=self.questionnaire, name="section 3")
 

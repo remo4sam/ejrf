@@ -13,14 +13,11 @@ class PreviewQuestionnaire(MultiplePermissionsRequiredMixin, View):
         self.questionnaires = Questionnaire.objects.all()
 
     def get(self, request, *args, **kwargs):
-        questionnaire = self.questionnaires.latest('modified')
-        if 'questionnaire_id' in kwargs.keys():
-            questionnaire = self.questionnaires.get(id=kwargs.get('questionnaire_id'))
-        elif self.request.user.has_perm('auth.can_submit_responses'):
+        questionnaire_id = kwargs.get('questionnaire_id')
+        questionnaire = self.questionnaires.get(id=questionnaire_id)
+        if self.request.user.has_perm('auth.can_submit_responses'):
             user_country = self.request.user.user_profile.country
-            questionnaires = self.questionnaires.filter(region__countries=user_country, status=Questionnaire.PUBLISHED)
-            if questionnaires.exists():
-                questionnaire = questionnaires[0]
+            questionnaire = self.questionnaires.get(id=questionnaire_id, region__countries=user_country)
 
         user_questionnaire_service = self.get_questionnaire_user_service(questionnaire)
         context = {'all_sections_questionnaires': user_questionnaire_service.all_sections_questionnaires(),
@@ -31,8 +28,7 @@ class PreviewQuestionnaire(MultiplePermissionsRequiredMixin, View):
 
     def get_questionnaire_user_service(self, questionnaire):
         get_params = self.request.GET
-        if 'country' in get_params and 'version' in get_params and 'region' in get_params:
+        if 'country' in get_params and 'version'in get_params:
             country = Country.objects.get(id=get_params['country'])
-            questionnaire = self.questionnaires.get(status=Questionnaire.PUBLISHED, region_id=get_params['region'])
             return UserQuestionnaireService(country, questionnaire,  get_params['version'])
         return UserQuestionnaireService(self.request.user.user_profile.country, questionnaire)
