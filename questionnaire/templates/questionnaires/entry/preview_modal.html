@@ -13,7 +13,7 @@
                     wait...
                 </div>
             </div>
-            {% if perms.auth.can_submit_responses %}
+            {% if perms.auth.can_submit_responses and questionnaire %}
                 <div class="modal-footer">
                     <form action="{% url 'submit_questionnaire_page' questionnaire.id %}" method="post" accept-charset="utf-8"
                           class="form-horizontal {{ class }}">

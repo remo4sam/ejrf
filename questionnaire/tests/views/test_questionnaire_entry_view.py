@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionOption, MultiChoiceAnswer, NumericalAnswer, QuestionGroupOrder, AnswerGroup, Answer, Country, TextAnswer, DateAnswer
@@ -13,8 +14,6 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
 
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
-
-
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED,
                                                           description="From dropbox as given by Rouslan",
                                                           region=self.region)
@@ -541,7 +540,6 @@ class QuestionnaireEntrySubmitTest(BaseTest):
         QuestionGroupOrder.objects.create(question_group=self.question_group, question=self.question3, order=3)
 
         self.url = '/submit/%d' %self.questionnaire.id
-
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
 
