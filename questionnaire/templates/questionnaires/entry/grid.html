@@ -56,10 +56,16 @@
                     <tr>
                     <td>
                         <div class="question-number">
-                            {{ section.order }}{% if section.has_at_least_two_subsections %}.
-                                {{ subsection.order }}{% endif %}.{% if subsection.has_at_least_two_groups %}
-                            {{ group.order }}.{% endif %}{% if group.has_at_least_two_questions %}
-                            {{ forloop.counter }}{% endif %}
+                            {% spaceless %}
+                            <span>{{ section.order }}</span>
+                            {% if section.has_at_least_two_subsections %}
+                                <span>.{{ subsection.order }}</span>{% endif %}
+                            <span>.</span>
+                            {% if subsection.has_at_least_two_groups %}
+                                <span>{{ group.order }}.</span>{% endif %}
+                            {% if group.has_at_least_two_questions %}
+                                <span>{{ forloop.counter }}</span>{% endif %}
+                            {% endspaceless %}
                         </div>
                     </td>
                     {% for field in order.question|get_form:formsets %}

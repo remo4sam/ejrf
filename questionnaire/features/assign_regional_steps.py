@@ -141,10 +141,10 @@ def and_i_should_see_a_message_that_question_is_successfully_unassigned(step):
 
 @step(u'And the question numbering should be updated')
 def and_the_question_numbering_should_be_updated(step):
-    world.page.is_text_present('0. 1. 2. %s' % (world.question5.text))
+    world.page.is_text_present('0.1.2.%s' % (world.question5.text))
 
 
 @step(u'And the regional question numbers should be prefixed with the region name')
 def and_the_regional_question_numbers_should_be_prefixed_with_the_region_name(step):
     sleep(2)
-    world.page.is_text_present('%s - 0. 4. %s' % (world.region.name, world.not_assigned_question1.text))
+    world.page.is_text_present('%s - 0.4.%s' % (world.region.name, world.not_assigned_question1.text))

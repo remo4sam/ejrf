@@ -2,9 +2,13 @@
 
 {% for order in a_group.question_orders %}
     {% if order.question.is_first_in_group %}
-        <h5>{% if subsection.has_at_least_two_groups and a_group.has_at_least_two_questions %}
-            {{ section.order }}{% if section.has_at_least_two_subsections %}.
-                {{ subsection.order }}{% endif %}.{{ a_group.order }}.{% endif %}</h5>
+        <h5>{% spaceless %}{% if subsection.has_at_least_two_groups and a_group.has_at_least_two_questions %}
+                <span>{{ section.order }}</span>
+                {% if section.has_at_least_two_subsections %}
+                    <span>.{{ subsection.order }}</span>{% endif %}
+                <span>.{{ a_group.order }}.</span>{% endif %}
+            {% endspaceless %}
+        </h5>
         {% if order.question.a_group.name %}
             <span class="group-name-instructions"><h5>{{ order.question.a_group.name }} </h5>
                 {% if order.question.a_group.instructions %}
@@ -18,16 +22,21 @@
     {% endif %}
     <div class="form-group">
         <label class="col-sm-6 control-label">
+            {% spaceless %}
             <div class="question-number">
-                {{ section.order }}{% if section.has_at_least_two_subsections %}.
-                    {{ subsection.order }}{% endif %}.
+                <span>{{ section.order }}</span>
+                {% if section.has_at_least_two_subsections %}
+                    <span>.{{ subsection.order }}</span>{% endif %}
+                <span>.</span>
                 {% if subsection.has_at_least_two_groups %}
-                    {{ a_group.order }}.{% endif %}{% if a_group.has_at_least_two_questions %}
-                {{ order.order }}.{% endif %}
+                    <span>{{ a_group.order }}.</span>{% endif %}
+                {% if a_group.has_at_least_two_questions %}
+                    <span>{{ order.order }}.</span>{% endif %}
             </div>
             <div class="question-text">
-                {{ order.question.text }}
+                <span>{{ order.question.text }}</span>
             </div>
+            {% endspaceless %}
         </label>
 
         <div class="col-sm-5 center-fields">
