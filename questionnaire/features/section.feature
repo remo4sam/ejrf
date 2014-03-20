@@ -43,6 +43,12 @@ Feature: Section feature
     And the section should no longer appear in the Questionnaire
     And the section numbering should be updated
 
+  Scenario: Unable to delete Section in Core Questionnaire with one Section
+    Given I am logged in as a global admin
+    And I have a questionnaire with one section
+    And I visit that questionnaires section page
+    Then I should not see an option to delete that section
+
   Scenario: Create a Regional Section
     Given that I am logged in as a regional admin
     And I have a questionnaire for my region with sections and subsections

@@ -82,3 +82,11 @@ class QuestionnaireTest(BaseTest):
 
         questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED)
         self.assertTrue(questionnaire.is_published())
+
+    def test_questionnaire_knows_it_has_more_than_one_section(self):
+        self.assertFalse(self.questionnaire.has_more_than_one_section())
+
+        section_2 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=2,
+                                                      questionnaire=self.questionnaire, name="Reported Cases")
+
+        self.assertTrue(self.questionnaire.has_more_than_one_section())

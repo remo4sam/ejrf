@@ -5,6 +5,7 @@ from questionnaire.features.pages.questionnaires import QuestionnairePage
 from questionnaire.features.pages.sections import CreateSectionPage
 from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign
 from questionnaire.features.pages.users import LoginPage
+from nose.tools import assert_false
 
 
 @step(u'Given I am logged in as a global admin')
@@ -105,6 +106,9 @@ def then_i_should_see_an_option_to_delete_each_section(step):
     world.page.is_element_present_by_id('id-delete-section-%s' % world.section_1.id)
     world.page.is_element_present_by_id('id-delete-section-%s' % world.section_2.id)
 
+@step(u'Then I should not see an option to delete that section')
+def then_i_should_see_an_option_to_delete_each_section(step):
+    assert_false(world.page.is_element_present_by_id('id-delete-section-%s' % world.section_1.id))
 
 @step(u'When I choose to delete a section')
 def when_i_choose_to_delete_a_section(step):
