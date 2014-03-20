@@ -173,16 +173,6 @@ class Migration(SchemaMigration):
             'question': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'options'", 'to': "orm['questionnaire.Question']"}),
             'text': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'questionnaire.questiontexthistory': {
-            'Meta': {'object_name': 'QuestionTextHistory'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'export_label': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'question': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'history'", 'to': "orm['questionnaire.Question']"}),
-            'questionnaire': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['questionnaire.Questionnaire']"}),
-            'text': ('django.db.models.fields.TextField', [], {})
-        },
         'questionnaire.region': {
             'Meta': {'object_name': 'Region'},
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
