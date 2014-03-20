@@ -29,7 +29,7 @@
                     <td>{{ question.answer_type }}</td>
                     <td>
                         <div class="btn-group">
-                            <a href="" class="btn btn-sm btn-default"> <span class="glyphicon glyphicon-pencil"></span> Edit</a>
+                            <a href="{% url 'edit_question_page' question.id %}" class="btn btn-sm btn-default"> <span class="glyphicon glyphicon-pencil"></span> Edit</a>
                             <a data-target="#delete-question-modal-{{ question.id }}" data-toggle="modal" class="btn btn-sm btn-default red" id="delete-question-{{ question.id }}"> <span class="glyphicon glyphicon-trash"></span> Delete</a>
                         </div>
                     </td>

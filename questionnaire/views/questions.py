@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import CreateView, DeleteView, View
+from django.views.generic import CreateView, DeleteView, View, UpdateView
 from questionnaire.forms.questions import QuestionForm
 from questionnaire.mixins import DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequiredMixin
 from questionnaire.models import Question, Questionnaire
@@ -44,7 +44,8 @@ class CreateQuestion(PermissionRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateQuestion, self).get_context_data(**kwargs)
-        context.update({'btn_label': 'CREATE', 'id': 'id-new-question-form', 'cancel_url': reverse('list_questions_page')})
+        context.update({'btn_label': 'CREATE', 'id': 'id-new-question-form',
+                        'cancel_url': reverse('list_questions_page'), 'title': 'New Question'})
         return context
 
     def post(self, request, *args, **kwargs):
@@ -62,8 +63,37 @@ class CreateQuestion(PermissionRequiredMixin, CreateView):
     def _form_invalid(self):
         messages.error(self.request, "Question NOT created. See errors below.")
         context = {'form': self.form, 'btn_label': "CREATE", 'id': 'id-new-question-form',
-                   'cancel_url': reverse('list_questions_page')}
+                   'cancel_url': reverse('list_questions_page'), 'title': 'New Question'}
         return self.render_to_response(context)
+
+
+class EditQuestion(PermissionRequiredMixin, UpdateView):
+    permission_required = 'auth.can_edit_questionnaire'
+
+    def __init__(self, **kwargs):
+        super(EditQuestion, self).__init__(**kwargs)
+        self.template_name = 'questions/new.html'
+        self.model = Question
+        self.form_class = QuestionForm
+        self.success_url = reverse('list_questions_page')
+        self.pk_url_kwarg = 'question_id'
+
+    def get_context_data(self, **kwargs):
+        context = super(EditQuestion, self).get_context_data(**kwargs)
+        context.update({'btn_label': 'SAVE', 'id': 'id-new-question-form',
+                        'cancel_url': reverse('list_questions_page'),
+                        'title': 'Edit Question'})
+        return context
+
+    def form_valid(self, form):
+        message = "Question successfully updated."
+        messages.success(self.request, message)
+        return super(EditQuestion, self).form_valid(form)
+
+    def form_invalid(self, form):
+        message = "Question NOT updated. See errors below."
+        messages.error(self.request, message)
+        return super(EditQuestion, self).form_invalid(form)
 
 
 class DeleteQuestion(DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequiredMixin, DeleteView):

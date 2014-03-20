@@ -2,7 +2,7 @@ from urllib import quote
 from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.questions import QuestionForm
-from questionnaire.models import Question, Questionnaire, Section, SubSection, Country, Answer, Region
+from questionnaire.models import Question, Questionnaire, Section, SubSection, Country, Answer, Region, QuestionGroup
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -81,6 +81,7 @@ class QuestionViewTest(BaseTest):
         self.assertEqual('CREATE', response.context['btn_label'])
         self.assertEqual("id-new-question-form", response.context['id'])
         self.assertEqual(reverse('list_questions_page'), response.context['cancel_url'])
+        self.assertEqual('New Question', response.context['title'])
 
     def test_post_create_question(self):
         self.assertRaises(Question.DoesNotExist, Question.objects.get, **self.form_data)
@@ -101,6 +102,7 @@ class QuestionViewTest(BaseTest):
         self.assertEqual("CREATE", response.context['btn_label'])
         self.assertEqual(reverse('list_questions_page'), response.context['cancel_url'])
         self.assertEqual("id-new-question-form", response.context['id'])
+        self.assertEqual('New Question', response.context['title'])
 
     def test_post_multichoice_question_with_options(self):
         form_data = self.form_data.copy()
@@ -263,3 +265,120 @@ class DoesNotExistExceptionViewTest(BaseTest):
         message = "Sorry, You tried to delete a question does not exist"
         self.assertRedirects(response, expected_url=reverse('list_questions_page'))
         self.assertIn(message, response.cookies['messages'].value)
+
+
+class EditQuestionViewTest(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions(region_name=None)
+
+        self.assign('can_edit_questionnaire', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.questionnaire = Questionnaire.objects.create(name="2014", description="some description")
+        self.section = Section.objects.create(title="section", order=1, questionnaire=self.questionnaire)
+        self.sub_section = SubSection.objects.create(title="subsection", order=1, section=self.section)
+        self.question1 = Question.objects.create(text='q1', UID='C00003', answer_type='Number')
+        self.parent_group = QuestionGroup.objects.create(subsection=self.sub_section, name="group1")
+        self.parent_group.question.add(self.question1)
+
+        self.url = '/questions/%d/edit/'%self.question1.id
+        self.form_data = {'text': 'How many kids were immunised this year?',
+                          'instructions': 'Some instructions',
+                          'export_label': 'blah',
+                          'answer_type': 'Number'}
+
+    def test_get_edit_question(self):
+        response = self.client.get(self.url)
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn('questions/new.html', templates)
+        self.assertIsInstance(response.context['form'], QuestionForm)
+        self.assertEqual(self.question1, response.context['form'].instance)
+        self.assertEqual("SAVE", response.context['btn_label'])
+        self.assertEqual("id-new-question-form", response.context['id'])
+        self.assertEqual(reverse('list_questions_page'), response.context['cancel_url'])
+        self.assertEqual('Edit Question', response.context['title'])
+
+    def test_post_edit_question_when_questionnaire_is_not_published(self):
+        response = self.client.post(self.url, data=self.form_data)
+        self.assertRedirects(response, reverse('list_questions_page'))
+        self.failUnless(Question.objects.get(**self.form_data))
+        self.assertIn("Question successfully updated.", response.cookies['messages'].value)
+
+    def test_post_edit_with_invalid_form_returns_errors(self):
+        form_data = self.form_data.copy()
+        form_data['text'] = ''
+
+        response = self.client.post(self.url, data=form_data)
+        self.assertRaises(Question.DoesNotExist, Question.objects.get, **form_data)
+        self.assertIn('Question NOT updated. See errors below.', response.content)
+        self.assertIsInstance(response.context['form'], QuestionForm)
+        self.assertEqual("SAVE", response.context['btn_label'])
+        self.assertEqual(reverse('list_questions_page'), response.context['cancel_url'])
+        self.assertEqual("id-new-question-form", response.context['id'])
+        self.assertEqual('Edit Question', response.context['title'])
+
+    def test_post_edit_to_multichoice_question_with_options(self):
+        form_data = self.form_data.copy()
+        form_data['answer_type'] = 'MultiChoice'
+        question_options = ['yes, No, Maybe, Nr, Chill']
+        self.assertRaises(Question.DoesNotExist, Question.objects.get, **form_data)
+        form_data['options'] = question_options
+        response = self.client.post(self.url, data=form_data)
+        self.assertRedirects(response, reverse('list_questions_page'))
+        questions = Question.objects.filter(text=form_data['text'], instructions=form_data['instructions'],
+                                            answer_type=form_data['answer_type'])
+        self.assertEqual(1, len(questions))
+        options = questions[0].options.all()
+
+        self.assertEqual(5, options.count())
+        [self.assertIn(option.text, question_options[0].split(',')) for option in options]
+
+    def test_post_edit_to_multichoice_question_with_options_with_form_errors(self):
+        form_data = self.form_data.copy()
+        form_data['answer_type'] = 'MultiChoice'
+        self.assertRaises(Question.DoesNotExist, Question.objects.get, **form_data)
+        form_data['options'] = []
+        response = self.client.post(self.url, data=form_data)
+        self.assertRaises(Question.DoesNotExist, Question.objects.get, text=form_data['text'], instructions=form_data['instructions'], answer_type=form_data['answer_type'])
+        self.assertIn('Question NOT updated. See errors below.', response.content)
+        self.assertIsInstance(response.context['form'], QuestionForm)
+        self.assertEqual("SAVE", response.context['btn_label'])
+        self.assertEqual("id-new-question-form", response.context['id'])
+
+    def test_post_edit_when_question_is_in_published_questionnaire_duplicates_question_and_assign_new_question_to_all_unpublished_questionnaires(self):
+        self.questionnaire.status = Questionnaire.PUBLISHED
+        self.questionnaire.save()
+
+        draft_questionnaire = Questionnaire.objects.create(name="draft qnaire",description="haha",
+                                                           status=Questionnaire.DRAFT)
+        section_1 = Section.objects.create(title="section 1", order=1, questionnaire=draft_questionnaire, name="ha")
+        sub_section_1 = SubSection.objects.create(title="subs1", order=1, section=section_1)
+        parent_group_d = QuestionGroup.objects.create(subsection=sub_section_1, name="group")
+        parent_group_d.question.add(self.question1)
+
+        finalized_questionnaire = Questionnaire.objects.create(name="finalized qnaire",description="haha",
+                                                           status=Questionnaire.FINALIZED)
+        section_1_f = Section.objects.create(title="section 1", order=1, questionnaire=finalized_questionnaire, name="ha")
+        sub_section_1_f = SubSection.objects.create(title="subs1", order=1, section=section_1_f)
+        parent_group_f = QuestionGroup.objects.create(subsection=sub_section_1_f, name="group")
+        parent_group_f.question.add(self.question1)
+
+        response = self.client.post(self.url, data=self.form_data)
+
+        duplicate_question = Question.objects.get(UID=self.question1.UID, **self.form_data)
+
+        parent_group_questions = self.parent_group.question.all()
+        self.assertEqual(1, parent_group_questions.count())
+        self.assertIn(self.question1, parent_group_questions)
+
+        parent_group_d_questions = parent_group_d.question.all()
+        self.assertEqual(1, parent_group_d_questions.count())
+        self.assertIn(duplicate_question, parent_group_d_questions)
+
+        parent_group_f_questions = parent_group_f.question.all()
+        self.assertEqual(1, parent_group_f_questions.count())
+        self.assertIn(duplicate_question, parent_group_f_questions)
+

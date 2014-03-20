@@ -6,7 +6,7 @@ from questionnaire.views.locations import ListRegions, ListCountries, RegionsFor
 from questionnaire.views.manage import ManageJRF, ManageRegionalJRF, EditQuestionnaireNameView
 from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
 from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection, DeleteSubSection
-from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion
+from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion, EditQuestion
 from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire, FinalizeQuestionnaire, UnfinalizeQuestionnaire, PublishQuestionnaire, ApproveQuestionnaire
 from questionnaire.views.upload_document import UploadDocument, DownloadDocument, DeleteDocument
 from questionnaire.views.users import UsersList, CreateUser, EditUser
@@ -40,6 +40,7 @@ urlpatterns = patterns('',
     url(r'^questionnaire/entry/duplicate/$',  DuplicateQuestionnaire.as_view(), name='duplicate_questionnaire_page'),
     url(r'^questions/$', QuestionList.as_view(), name='list_questions_page'),
     url(r'^questions/new/$', CreateQuestion.as_view(), name='new_question_page'),
+    url(r'^questions/(?P<question_id>\d+)/edit/$', EditQuestion.as_view(), name='edit_question_page'),
     url(r'^questions/(?P<question_id>\d+)/delete/$', DeleteQuestion.as_view(), name='delete_question_page'),
     url(r'^submit/$', SubmitQuestionnaire.as_view(), name="submit_questionnaire_page"),
     url(r'^subsection/(?P<subsection_id>\d+)/assign_questions/$', AssignQuestion.as_view(), name="assign_question_to_subsection_page"),
