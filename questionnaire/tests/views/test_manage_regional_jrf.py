@@ -67,6 +67,7 @@ class EditQuestionnaireNameViewTest(BaseTest):
         self.assertRedirects(response, expected_url='/manage/')
         self.assertIn('Name of Questionnaire updated successfully.', response.cookies['messages'].value)
 
+    
 
 class FinalizeRegionalQuestionnaireViewTest(BaseTest):
     def setUp(self):
@@ -115,4 +116,5 @@ class FinalizeRegionalQuestionnaireViewTest(BaseTest):
         self.assertRedirects(response, referer_url)
         message = "The questionnaire could not be unlocked because its published."
         self.assertIn(message, response.cookies['messages'].value)
+
 

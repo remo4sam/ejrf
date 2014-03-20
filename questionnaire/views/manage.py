@@ -1,11 +1,11 @@
-from django.contrib.messages import api
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import View
-from braces.views import MultiplePermissionsRequiredMixin
+from braces.views import MultiplePermissionsRequiredMixin, PermissionRequiredMixin
 from questionnaire.forms.questionnaires import QuestionnaireFilterForm
-from questionnaire.mixins import RegionAndPermissionRequiredMixin
+from questionnaire.mixins import RegionAndPermissionRequiredMixin, OwnerAndPermissionRequiredMixin
 from questionnaire.models import Questionnaire, Region
 
 class ManageJRF(MultiplePermissionsRequiredMixin, View):
@@ -38,7 +38,8 @@ class ManageJRF(MultiplePermissionsRequiredMixin, View):
         return questionnaire_region_map
 
 
-class EditQuestionnaireNameView(View):
+class EditQuestionnaireNameView(PermissionRequiredMixin, View):
+    permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, *args, **kwargs):
         super(EditQuestionnaireNameView, self).__init__(*args, **kwargs)
@@ -46,12 +47,12 @@ class EditQuestionnaireNameView(View):
         self.template_name = "home/global/index.html"
         self.pk_url_kwarg = 'questionnaire_id'
 
-    def post(self,*args, **kwargs):
+    def post(self, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
         questionnaire.name = self.request.POST['name']
         questionnaire.save()
         message = "Name of Questionnaire updated successfully."
-        api.success(self.request, message)
+        messages.success(self.request, message)
         return HttpResponseRedirect(reverse('manage_jrf_page'))
 
 
@@ -69,5 +70,4 @@ class ManageRegionalJRF(RegionAndPermissionRequiredMixin, View):
                    'finalized_questionnaires': questionnaires.filter(status__in=[Questionnaire.FINALIZED, Questionnaire.PUBLISHED]),
                    'draft_questionnaires': questionnaires.filter(status=Questionnaire.DRAFT),}
         return render(self.request, self.template_name, context)
-
 
