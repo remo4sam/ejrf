@@ -50,24 +50,26 @@ class QuestionnaireEntryFormService(object):
         order = order_dict.get('order', None)
         country = self.initial.get('country')
         version = self.initial.get('version')
+        questionnaire = self.initial.get('questionnaire')
         question = order.question
         question_group = order.question_group
 
-        initial = {'question': question, 'group': question_group, 'country': country}
+        initial = {'question': question, 'group': question_group, 'country': country, 'questionnaire': questionnaire}
 
         answer = None
         if option:
-            primary_answer = option.answer.filter(version=version, country=country)
+            primary_answer = option.answer.filter(version=version, country=country, questionnaire=questionnaire)
             if question.is_primary:
                 initial['option'] = option
                 answer = primary_answer
             elif primary_answer.exists():
                 answer_group = primary_answer[0].answergroup.filter(grouped_question=question_group)
                 if answer_group:
-                    answer = answer_group[0].answer.filter(question=order.question, country=country, version=version).select_subclasses()
+                    answer = answer_group[0].answer.filter(question=order.question, country=country, version=version,
+                                                           questionnaire=questionnaire).select_subclasses()
         else:
-            answer = question.answers.filter(answergroup__grouped_question=question_group,
-                                             country=country, version=version).select_subclasses()
+            answer = question.answers.filter(answergroup__grouped_question=question_group, country=country,
+                                             version=version, questionnaire=questionnaire).select_subclasses()
         if answer:
             self._append(answer, initial)
         return dict(self.initial.items() + initial.items())
@@ -92,7 +94,7 @@ class QuestionnaireEntryFormService(object):
 
     def _duplicate_other_sections_answers_and_answer_groups(self):
         version_ = self.initial['version']
-        answer_groups = AnswerGroup.objects.filter(grouped_question__subsection__section__questionnaire=self.section.questionnaire,
+        answer_groups = AnswerGroup.objects.filter(answer__questionnaire=self.section.questionnaire,
                                                    answer__country=self.initial['country'],
                                                    answer__version=version_-1).exclude(
             grouped_question__subsection__section=self.section).distinct().select_related()
@@ -100,7 +102,8 @@ class QuestionnaireEntryFormService(object):
             new_answer_group = AnswerGroup.objects.create(grouped_question=answer_group.grouped_question, row=answer_group.row)
             for answer in answer_group.answer.all().select_related().select_subclasses():
                 new_answer = eval(answer.__class__.__name__).objects.create(question=answer.question, country=answer.country, code=answer.code,
-                                                                            response=answer.response, version=version_, status=Answer.DRAFT_STATUS)
+                                                                            response=answer.response, version=version_, status=Answer.DRAFT_STATUS,
+                                                                            questionnaire=answer.questionnaire)
                 new_answer_group.answer.add(new_answer)
 
     def _save_current_section(self):

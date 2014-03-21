@@ -291,7 +291,7 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
         QuestionGroupOrder.objects.create(question=self.question4, question_group=self.question_group, order=4)
         self.country = Country.objects.create(name="Uganda")
         self.version = 1
-        self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123'}
+        self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123', 'questionnaire': self.questionnaire}
         self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
                      u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': self.option1.id,
                      u'MultiChoice-1-response': self.option2.id,  u'MultiChoice-2-response': self.option3.id,
@@ -440,9 +440,15 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
         answer_group1 = []
 
         for index, option in enumerate(self.question1.options.order_by('modified')):
-            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.SUBMITTED_STATUS, response=option, version=self.version))
-            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.SUBMITTED_STATUS, response="ayoyoyo %d"%index, version=self.version))
-            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.SUBMITTED_STATUS, response=index, version=self.version))
+            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country,
+                                                                     status=Answer.SUBMITTED_STATUS, response=option,
+                                                                     version=self.version, questionnaire=self.questionnaire))
+            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country,
+                                                              status=Answer.SUBMITTED_STATUS, response="ayoyoyo %d"%index,
+                                                              version=self.version, questionnaire=self.questionnaire))
+            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country,
+                                                                   status=Answer.SUBMITTED_STATUS, response=index,
+                                                                   version=self.version, questionnaire=self.questionnaire))
             answer_group1.append(question1_answer[index].answergroup.create(grouped_question=self.question_group, row=index))
             answer_group1[index].answer.add(question2_answer[index], question3_answer[index])
 
@@ -474,9 +480,15 @@ class SaveGridDraftQuestionGroupEntryTest(BaseTest):
         self.failUnless(answer_2.answergroup.filter(grouped_question=question_group))
 
         for index, option in enumerate(self.question1.options.order_by('modified')):
-            question1_answer = MultiChoiceAnswer.objects.filter(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=option, version=self.version+1)
-            question2_answer = TextAnswer.objects.filter(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo %d"%index, version=self.version+1)
-            question3_answer = NumericalAnswer.objects.filter(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=index, version=self.version+1)
+            question1_answer = MultiChoiceAnswer.objects.filter(question=self.question1, country=self.country,
+                                                                status=Answer.DRAFT_STATUS, response=option,
+                                                                version=self.version+1, questionnaire=self.questionnaire)
+            question2_answer = TextAnswer.objects.filter(question=self.question2, country=self.country,
+                                                         status=Answer.DRAFT_STATUS, response="ayoyoyo %d"%index,
+                                                         version=self.version+1, questionnaire=self.questionnaire)
+            question3_answer = NumericalAnswer.objects.filter(question=self.question3, country=self.country,
+                                                              status=Answer.DRAFT_STATUS, response=index,
+                                                              version=self.version+1, questionnaire=self.questionnaire)
 
             self.failUnless(question1_answer)
             self.assertEqual(1, question1_answer.count())
@@ -568,16 +580,20 @@ class QuestionnaireEntrySubmitTest(BaseTest):
         QuestionGroupOrder.objects.create(question=other_question1, order=1, question_group=other_question_group)
         QuestionGroupOrder.objects.create(question=other_question2, order=2, question_group=other_question_group)
 
-        other_answer_1 = NumericalAnswer.objects.create(response=1, question=other_question1, status=Answer.DRAFT_STATUS, country=self.country, version=0)
-        other_answer_2 = NumericalAnswer.objects.create(response=2, question=other_question2, status=Answer.DRAFT_STATUS, country=self.country, version=0)
+        other_answer_1 = NumericalAnswer.objects.create(response=1, question=other_question1, status=Answer.DRAFT_STATUS,
+                                                        country=self.country, version=0, questionnaire=self.questionnaire)
+        other_answer_2 = NumericalAnswer.objects.create(response=2, question=other_question2, status=Answer.DRAFT_STATUS,
+                                                        country=self.country, version=0, questionnaire=self.questionnaire)
 
         answer_group = AnswerGroup.objects.create(grouped_question=other_question_group)
         answer_group.answer.add(other_answer_1, other_answer_2)
 
         self.client.post(self.url)
 
-        other_answer_1 = NumericalAnswer.objects.get(response=1, question=other_question1, country=self.country, version=0)
-        other_answer_2 = NumericalAnswer.objects.get(response=2, question=other_question2, country=self.country, version=0)
+        other_answer_1 = NumericalAnswer.objects.get(response=1, question=other_question1, country=self.country,
+                                                     version=0, questionnaire=self.questionnaire)
+        other_answer_2 = NumericalAnswer.objects.get(response=2, question=other_question2, country=self.country,
+                                                     version=0, questionnaire=self.questionnaire)
 
         self.assertEqual(Answer.SUBMITTED_STATUS, other_answer_1.status)
         self.assertEqual(Answer.SUBMITTED_STATUS, other_answer_2.status)
@@ -605,7 +621,7 @@ class QuestionnaireEntrySubmitTest(BaseTest):
 
     def test_submit_fails_and_shows_sections_with_error_message_and_error_fields_when_a_section_has_unanswered_required_questions(self):
         data = self.data.copy()
-        initial = {'country': self.country, 'status': 'Draft', 'version':1, 'code': 'ABC123'}
+        initial = {'country': self.country, 'status': 'Draft', 'version':1, 'code': 'ABC123', 'questionnaire': self.questionnaire}
         old_primary = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, **initial)
         old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=self.question2, **initial)
         old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=self.question3, **initial)

@@ -5,12 +5,13 @@ from questionnaire.tests.base_test import BaseTest
 
 
 class QuestionnaireEntryAsServiceTest(BaseTest):
-
     def setUp(self):
-        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", description="From dropbox as given by Rouslan")
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English",
+                                                          description="From dropbox as given by Rouslan")
 
-        self.section1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
-                                                      questionnaire=self.questionnaire, name="Reported Cases")
+        self.section1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)",
+                                               order=1,
+                                               questionnaire=self.questionnaire, name="Reported Cases")
 
         self.sub_section = SubSection.objects.create(title="subsection 1", order=1, section=self.section1)
         self.sub_section2 = SubSection.objects.create(title="subsection 2", order=2, section=self.section1)
@@ -21,18 +22,17 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
 
         self.question1 = Question.objects.create(text='question 1', UID='C00001', answer_type='MultiChoice')
         self.question2 = Question.objects.create(text='question 2', instructions="instruction 2",
-                                                    UID='C00002', answer_type='Text')
+                                                 UID='C00002', answer_type='Text')
 
         self.question3 = Question.objects.create(text='question 3', instructions="instruction 3",
-                                            UID='C00003', answer_type='Number')
+                                                 UID='C00003', answer_type='Number')
 
         self.question4 = Question.objects.create(text='question 4', UID='C00004', answer_type='MultiChoice')
         self.question5 = Question.objects.create(text='question 4', instructions="instruction 2",
-                                                    UID='C00005', answer_type='Number')
-
+                                                 UID='C00005', answer_type='Number')
 
         self.question6 = Question.objects.create(text='question 6', instructions="instruction 3",
-                                            UID='C00006', answer_type='Date')
+                                                 UID='C00006', answer_type='Date')
 
         self.question_group.question.add(self.question1, self.question3, self.question2)
         self.question_group2.question.add(self.question4, self.question5)
@@ -46,9 +46,10 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
         QuestionGroupOrder.objects.create(question=self.question6, question_group=self.question_group3, order=1)
 
         self.country = Country.objects.create(name="Uganda")
-        self.initial = {'status': 'Draft', 'country': self.country, 'version':1}
+        self.initial = {'status': 'Draft', 'country': self.country, 'version': 1, 'questionnaire': self.questionnaire}
 
-    def test_questionnaire_entry_form_formset_size_per_answer_type_should_match_number_of_question_per_answer_type(self):
+    def test_questionnaire_entry_form_formset_size_per_answer_type_should_match_number_of_question_per_answer_type(
+            self):
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
         formsets = questionnaire_entry_form._formsets()
         self.assertEqual(2, len(formsets['Number']))
@@ -115,17 +116,21 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
 
     def test_initial_gets_response_if_there_is_draft_answer_for_country(self):
         question3_answer = NumericalAnswer.objects.create(question=self.question3, country=self.country,
-                                                          status=Answer.DRAFT_STATUS, response=1)
+                                                          status=Answer.DRAFT_STATUS, response=1,
+                                                          questionnaire=self.questionnaire)
         question2_answer = TextAnswer.objects.create(question=self.question2, country=self.country,
-                                                     status=Answer.DRAFT_STATUS, response="ayoyoyo")
+                                                     status=Answer.DRAFT_STATUS, response="ayoyoyo",
+                                                     questionnaire=self.questionnaire)
         answer_group1 = AnswerGroup.objects.create(grouped_question=self.question_group, row=1)
         answer_group1.answer.add(question2_answer, question3_answer)
 
         country_2 = Country.objects.create(name="Uganda 2")
         question1_answer_2 = NumericalAnswer.objects.create(question=self.question1, country=country_2,
-                                                            status=Answer.DRAFT_STATUS, response=23)
+                                                            status=Answer.DRAFT_STATUS, response=23,
+                                                            questionnaire=self.questionnaire)
         question2_answer_2 = NumericalAnswer.objects.create(question=self.question2, country=country_2,
-                                                          status=Answer.DRAFT_STATUS, response=1)
+                                                            status=Answer.DRAFT_STATUS, response=1,
+                                                            questionnaire=self.questionnaire)
         answer_group_2 = AnswerGroup.objects.create(grouped_question=self.question_group, row=2)
         answer_group_2.answer.add(question1_answer_2, question2_answer_2)
 
@@ -138,7 +143,6 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
         self.assertEqual(self.question4, formsets['MultiChoice'][1].initial['question'])
         self.assertEqual(self.question5, formsets['Number'][1].initial['question'])
         self.assertEqual(self.question6, formsets['Date'][0].initial['question'])
-
 
         self.assertNotIn('response', formsets['MultiChoice'][0].initial.keys())
         self.assertEqual(question2_answer.response, formsets['Text'][0].initial['response'])
@@ -157,17 +161,21 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
 
     def test_initial_gets_response_if_the_latest_answer_is_SUMBITTED_for_country(self):
         question3_answer = NumericalAnswer.objects.create(question=self.question3, country=self.country,
-                                                          status=Answer.SUBMITTED_STATUS, response=1)
+                                                          status=Answer.SUBMITTED_STATUS, response=1,
+                                                          questionnaire=self.questionnaire)
         question2_answer = TextAnswer.objects.create(question=self.question2, country=self.country,
-                                                     status=Answer.SUBMITTED_STATUS, response="ayoyoyo")
+                                                     status=Answer.SUBMITTED_STATUS, response="ayoyoyo",
+                                                     questionnaire=self.questionnaire)
         answer_group1 = AnswerGroup.objects.create(grouped_question=self.question_group, row=1)
         answer_group1.answer.add(question2_answer, question3_answer)
 
         country_2 = Country.objects.create(name="Uganda 2")
         question1_answer_2 = NumericalAnswer.objects.create(question=self.question1, country=country_2,
-                                                            status=Answer.SUBMITTED_STATUS, response=23)
+                                                            status=Answer.SUBMITTED_STATUS, response=23,
+                                                            questionnaire=self.questionnaire)
         question2_answer_2 = NumericalAnswer.objects.create(question=self.question2, country=country_2,
-                                                          status=Answer.SUBMITTED_STATUS, response=1)
+                                                            status=Answer.SUBMITTED_STATUS, response=1,
+                                                            questionnaire=self.questionnaire)
         answer_group_2 = AnswerGroup.objects.create(grouped_question=self.question_group, row=2)
         answer_group_2.answer.add(question1_answer_2, question2_answer_2)
 
@@ -180,7 +188,6 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
         self.assertEqual(self.question4, formsets['MultiChoice'][1].initial['question'])
         self.assertEqual(self.question5, formsets['Number'][1].initial['question'])
         self.assertEqual(self.question6, formsets['Date'][0].initial['question'])
-
 
         self.assertNotIn('response', formsets['MultiChoice'][0].initial.keys())
         self.assertEqual(question2_answer.response, formsets['Text'][0].initial['response'])
@@ -199,7 +206,6 @@ class QuestionnaireEntryAsServiceTest(BaseTest):
 
 
 class QuestionnaireEntryAsFormTest(BaseTest):
-
     def setUp(self):
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English",
                                                           description="From dropbox as given by Rouslan")
@@ -238,7 +244,8 @@ class QuestionnaireEntryAsFormTest(BaseTest):
 
         self.country = Country.objects.create(name="Uganda")
 
-        self.initial = {'country': self.country, 'status': 'Draft', 'version':1, 'code': 'ABC123'}
+        self.initial = {'country': self.country, 'status': 'Draft', 'version': 1, 'code': 'ABC123',
+                        'questionnaire': self.questionnaire}
 
     def test_section_form_is_valid_if_all_form_in_all_formsets_are_valid(self):
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial, data=self.data)
@@ -249,7 +256,8 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         invalid_data = self.data.copy()
         invalid_data[u'MultiChoice-0-response'] = -1
 
-        questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial, data=invalid_data)
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial,
+                                                                 data=invalid_data)
 
         question1_form = questionnaire_entry_form.next_ordered_form(self.question1)
 
@@ -266,9 +274,12 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial, data=data)
         questionnaire_entry_form.save()
 
-        self.failUnless(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response']), question=self.question1))
-        self.failUnless(NumericalAnswer.objects.filter(response=int(data['Number-0-response']), question=self.question2))
-        self.failUnless(NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3))
+        self.failUnless(
+            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response']), question=self.question1))
+        self.failUnless(
+            NumericalAnswer.objects.filter(response=int(data['Number-0-response']), question=self.question2))
+        self.failUnless(
+            NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3))
 
     def test_save_groups_rows_into_answer_groups(self):
         data = self.data
@@ -280,7 +291,8 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial, data=data)
         questionnaire_entry_form.save()
 
-        primary = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-0-response']), question=self.question1)
+        primary = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-0-response']),
+                                                question=self.question1)
         answer_1 = NumericalAnswer.objects.get(response=int(data['Number-0-response']), question=self.question2)
         answer_2 = NumericalAnswer.objects.get(response=int(data['Number-1-response']), question=self.question3)
 
@@ -293,14 +305,17 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         self.assertNotIn(primary, answer_group_answers)
         self.assertNotIn(answer_1, answer_group_answers)
         self.assertIn(answer_2, answer_group_answers)
-        [self.assertIn(answer.id, answer_group.values_list('answer', flat=True)) for answer in Answer.objects.select_subclasses()]
+        [self.assertIn(answer.id, answer_group.values_list('answer', flat=True)) for answer in
+         Answer.objects.select_subclasses()]
 
     def test_save_on_already_existing_draft_answers_modify_original_draft_answers_and_not_create_new_instance(self):
         data = self.data
 
         old_primary = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, **self.initial)
-        old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=self.question2, **self.initial)
-        old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=self.question3, **self.initial)
+        old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=self.question2,
+                                                      **self.initial)
+        old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=self.question3,
+                                                      **self.initial)
 
         answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
         answer_group.answer.add(old_primary, old_answer_1, old_answer_2)
@@ -309,13 +324,17 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         data_modified['MultiChoice-0-response'] = self.option2.id
         data_modified['Number-1-response'] = '3'
 
-        questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial, data=data_modified)
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial,
+                                                                 data=data_modified)
         questionnaire_entry_form.is_valid()
         questionnaire_entry_form.save()
 
-        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']), question=self.question1)
-        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']), question=self.question2)
-        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']), question=self.question3)
+        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']),
+                                                question=self.question1)
+        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']),
+                                               question=self.question2)
+        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']),
+                                               question=self.question3)
 
         self.assertEqual(old_primary.id, primary.id)
         self.assertEqual(old_answer_1.id, answer_1.id)
@@ -328,8 +347,10 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         data = self.data
 
         old_primary = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, **self.initial)
-        old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=self.question2, **self.initial)
-        old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=self.question3, **self.initial)
+        old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=self.question2,
+                                                      **self.initial)
+        old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=self.question3,
+                                                      **self.initial)
 
         answer_group = AnswerGroup.objects.create(grouped_question=self.question_group)
         answer_group.answer.add(old_primary, old_answer_1, old_answer_2)
@@ -338,12 +359,16 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         data_modified['MultiChoice-0-response'] = self.option2.id
         data_modified['Number-1-response'] = '3'
 
-        questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial, data=data_modified)
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial,
+                                                                 data=data_modified)
         questionnaire_entry_form.save()
 
-        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']), question=self.question1)
-        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']), question=self.question2)
-        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']), question=self.question3)
+        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']),
+                                                question=self.question1)
+        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']),
+                                               question=self.question2)
+        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']),
+                                               question=self.question3)
 
         self.assertEqual(old_primary.id, primary.id)
         self.assertEqual(old_answer_1.id, answer_1.id)
@@ -365,7 +390,8 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         data_modified['Number-1-response'] = 3.05
         data_modified['Text-0-response'] = 'haha'
 
-        questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial, data=data_modified)
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section_1, initial=self.initial,
+                                                                 data=data_modified)
         questionnaire_entry_form.save()
 
         question1_form = questionnaire_entry_form.next_ordered_form(self.question1)
@@ -373,7 +399,7 @@ class QuestionnaireEntryAsFormTest(BaseTest):
         question3_form = questionnaire_entry_form.next_ordered_form(self.question3)
         question5_form = questionnaire_entry_form.next_ordered_form(question5)
 
-        self.assertEqual(self.option2.id,  question1_form['response'].value())
+        self.assertEqual(self.option2.id, question1_form['response'].value())
         self.assertEqual(3, question2_form['response'].value())
         self.assertEqual(3.05, question3_form['response'].value())
         self.assertEqual("haha", question5_form['response'].value())
@@ -389,9 +415,11 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         self.sub_section = SubSection.objects.create(title="subsection 1", order=1, section=self.section1)
         self.sub_section2 = SubSection.objects.create(title="subsection 2", order=2, section=self.section1)
 
-        self.question_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1, grid=True, display_all=True)
+        self.question_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1, grid=True,
+                                                           display_all=True)
 
-        self.question1 = Question.objects.create(text='Favorite beer 1', UID='C00001', answer_type='MultiChoice', is_primary=True)
+        self.question1 = Question.objects.create(text='Favorite beer 1', UID='C00001', answer_type='MultiChoice',
+                                                 is_primary=True)
         self.option1 = QuestionOption.objects.create(text='tusker lager', question=self.question1)
         self.option2 = QuestionOption.objects.create(text='tusker lager1', question=self.question1)
         self.option3 = QuestionOption.objects.create(text='tusker lager2', question=self.question1)
@@ -412,20 +440,21 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         QuestionGroupOrder.objects.create(question=self.question4, question_group=self.question_group, order=4)
         self.country = Country.objects.create(name="Uganda")
         self.version = 1
-        self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123'}
+        self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123',
+                        'questionnaire': self.questionnaire}
         self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
                      u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': self.option1.id,
-                     u'MultiChoice-1-response': self.option2.id,  u'MultiChoice-2-response': self.option3.id,
+                     u'MultiChoice-1-response': self.option2.id, u'MultiChoice-2-response': self.option3.id,
                      u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
                      u'Number-INITIAL_FORMS': u'3', u'Number-0-response': '22',
-                     u'Number-1-response': '44',  u'Number-2-response': '33',
+                     u'Number-1-response': '44', u'Number-2-response': '33',
                      u'Text-MAX_NUM_FORMS': u'3', u'Text-TOTAL_FORMS': u'3',
                      u'Text-INITIAL_FORMS': u'3', u'Text-0-response': 'Haha',
-                     u'Text-1-response': 'Hehe',  u'Text-2-response': 'hehehe',
+                     u'Text-1-response': 'Hehe', u'Text-2-response': 'hehehe',
                      u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
                      u'Date-INITIAL_FORMS': u'3', u'Date-0-response': '2014-2-2',
-                     u'Date-1-response': '2014-2-2',  u'Date-2-response': '2014-2-2',
-                     }
+                     u'Date-1-response': '2014-2-2', u'Date-2-response': '2014-2-2',
+        }
 
     def test_returns_multiple_forms_in_formsets_for_all_questions(self):
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
@@ -447,13 +476,19 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         questionnaire_entry_form.is_valid()
         questionnaire_entry_form.save()
 
-        self.failUnless(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response']), question=self.question1))
-        self.failUnless(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-1-response']), question=self.question1))
-        self.failUnless(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-2-response']), question=self.question1))
+        self.failUnless(
+            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response']), question=self.question1))
+        self.failUnless(
+            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-1-response']), question=self.question1))
+        self.failUnless(
+            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-2-response']), question=self.question1))
 
-        self.failUnless(NumericalAnswer.objects.filter(response=int(data['Number-0-response']), question=self.question3))
-        self.failUnless(NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3))
-        self.failUnless(NumericalAnswer.objects.filter(response=int(data['Number-2-response']), question=self.question3))
+        self.failUnless(
+            NumericalAnswer.objects.filter(response=int(data['Number-0-response']), question=self.question3))
+        self.failUnless(
+            NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3))
+        self.failUnless(
+            NumericalAnswer.objects.filter(response=int(data['Number-2-response']), question=self.question3))
 
         self.failUnless(TextAnswer.objects.filter(response=data['Text-0-response'], question=self.question2))
         self.failUnless(TextAnswer.objects.filter(response=data['Text-1-response'], question=self.question2))
@@ -481,9 +516,15 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         self.assertEqual(4, len(formsets['MultiChoice']))
 
     def test_return_with_draft_answers_after_saving_drafts(self):
-        question1_answer = MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=self.option1)
-        question2_answer = TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo")
-        question3_answer = NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=1)
+        question1_answer = MultiChoiceAnswer.objects.create(question=self.question1, country=self.country,
+                                                            status=Answer.DRAFT_STATUS, response=self.option1,
+                                                            questionnaire=self.questionnaire)
+        question2_answer = TextAnswer.objects.create(question=self.question2, country=self.country,
+                                                     status=Answer.DRAFT_STATUS, response="ayoyoyo",
+                                                     questionnaire=self.questionnaire)
+        question3_answer = NumericalAnswer.objects.create(question=self.question3, country=self.country,
+                                                          status=Answer.DRAFT_STATUS, response=1,
+                                                          questionnaire=self.questionnaire)
         answer_group1 = question1_answer.answergroup.create(grouped_question=self.question_group, row=1)
         answer_group1.answer.add(question2_answer, question3_answer)
 
@@ -523,26 +564,37 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         answer_group1 = []
 
         for index, option in enumerate(self.question1.options.order_by('modified')):
-            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=option))
-            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo %d"%index))
-            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=index))
-            answer_group1.append(question1_answer[index].answergroup.create(grouped_question=self.question_group, row=1))
+            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country,
+                                                                     status=Answer.DRAFT_STATUS, response=option,
+                                                                     questionnaire=self.questionnaire))
+            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country,
+                                                              status=Answer.DRAFT_STATUS, response="ayoyoyo %d" % index,
+                                                              questionnaire=self.questionnaire))
+            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country,
+                                                                   status=Answer.DRAFT_STATUS, response=index,
+                                                                   questionnaire=self.questionnaire))
+            answer_group1.append(
+                question1_answer[index].answergroup.create(grouped_question=self.question_group, row=1))
             answer_group1[index].answer.add(question2_answer[index], question3_answer[index])
 
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
         formsets = questionnaire_entry_form._formsets()
 
         for index, option in enumerate(self.question1.options.order_by('modified')):
-            self.assertEqual(question1_answer[index].response, formsets[self.question1.answer_type][index].initial['response'])
+            self.assertEqual(question1_answer[index].response,
+                             formsets[self.question1.answer_type][index].initial['response'])
             self.assertEqual(question1_answer[index], formsets[self.question1.answer_type][index].initial['answer'])
             self.assertEqual(option, formsets[self.question1.answer_type][index].initial['option'])
 
             for index1, question in enumerate([self.question2, self.question3]):
-                self.assertEqual(eval("question%d_answer[index].response"% (index1 +2)), formsets[question.answer_type][index].initial['response'])
-                self.assertEqual(eval("question%d_answer[index]"% (index1 +2)), formsets[question.answer_type][index].initial['answer'])
+                self.assertEqual(eval("question%d_answer[index].response" % (index1 + 2)),
+                                 formsets[question.answer_type][index].initial['response'])
+                self.assertEqual(eval("question%d_answer[index]" % (index1 + 2)),
+                                 formsets[question.answer_type][index].initial['answer'])
 
     def test_initial_gets_answers_and_responses_after_draft_saved(self):
-        question5 = Question.objects.create(text='question 5', instructions="instruction 5", UID='C00055', answer_type='Date')
+        question5 = Question.objects.create(text='question 5', instructions="instruction 5", UID='C00055',
+                                            answer_type='Date')
         self.question_group.question.add(question5)
 
         QuestionGroupOrder.objects.create(question=question5, question_group=self.question_group, order=5)
@@ -556,32 +608,52 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         answer_group1 = []
 
         for index, option in enumerate(self.question1.options.order_by('modified')):
-            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=option, version=self.version))
-            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo %d" % index, version=self.version))
-            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=index, version=self.version))
-            question4_answer.append(DateAnswer.objects.create(question=self.question4, country=self.country, status=Answer.DRAFT_STATUS, response='2007-10-%d' % (index+1), version=self.version))
-            question5_answer.append(DateAnswer.objects.create(question=question5, country=self.country, status=Answer.DRAFT_STATUS, response='2007-11-%d' % (index+1), version=self.version))
-            answer_group1.append(question1_answer[index].answergroup.create(grouped_question=self.question_group, row=1))
-            answer_group1[index].answer.add(question2_answer[index], question3_answer[index], question4_answer[index], question5_answer[index])
+            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country,
+                                                                     status=Answer.DRAFT_STATUS, response=option,
+                                                                     version=self.version,
+                                                                     questionnaire=self.questionnaire))
+            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country,
+                                                              status=Answer.DRAFT_STATUS, response="ayoyoyo %d" % index,
+                                                              version=self.version, questionnaire=self.questionnaire))
+            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country,
+                                                                   status=Answer.DRAFT_STATUS, response=index,
+                                                                   version=self.version,
+                                                                   questionnaire=self.questionnaire))
+            question4_answer.append(DateAnswer.objects.create(question=self.question4, country=self.country,
+                                                              status=Answer.DRAFT_STATUS,
+                                                              response='2007-10-%d' % (index + 1),
+                                                              version=self.version, questionnaire=self.questionnaire))
+            question5_answer.append(DateAnswer.objects.create(question=question5, country=self.country,
+                                                              status=Answer.DRAFT_STATUS,
+                                                              response='2007-11-%d' % (index + 1),
+                                                              version=self.version, questionnaire=self.questionnaire))
+            answer_group1.append(
+                question1_answer[index].answergroup.create(grouped_question=self.question_group, row=1))
+            answer_group1[index].answer.add(question2_answer[index], question3_answer[index], question4_answer[index],
+                                            question5_answer[index])
 
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial)
 
         for index, option in enumerate(self.question1.options.order_by('modified')):
             order_dict = {'option': option, 'order': order[0]}
             answer = answer_group1[index].answer.filter(question=self.question1).select_subclasses()[0]
-            initial = {'question': self.question1, 'response': answer.response, 'answer': answer, 'version': self.version,
-                       'group': self.question_group, 'country': self.country, 'option': option, 'code': 'ABC123', 'status': 'Draft'}
+            initial = {'question': self.question1, 'response': answer.response, 'answer': answer,
+                       'version': self.version,
+                       'group': self.question_group, 'country': self.country, 'option': option, 'code': 'ABC123',
+                       'status': 'Draft', 'questionnaire': self.questionnaire}
             self.assertEqual(initial, questionnaire_entry_form._initial(order_dict))
 
             for index1, question in enumerate([self.question2, self.question3, self.question4, question5]):
-                order_dict = {'option': option, 'order': order[index1+1]}
+                order_dict = {'option': option, 'order': order[index1 + 1]}
                 answer = answer_group1[index].answer.filter(question=question).select_subclasses()[0]
                 initial = {'question': question, 'response': answer.response, 'answer': answer, 'version': self.version,
-                           'group': self.question_group, 'country': self.country, 'code': 'ABC123', 'status': 'Draft'}
+                           'group': self.question_group, 'country': self.country, 'code': 'ABC123',
+                           'status': 'Draft', 'questionnaire': self.questionnaire}
                 self.assertEqual(initial, questionnaire_entry_form._initial(order_dict))
 
     def given_I_have_questions_and_corresponding_submitted_answers_in_a_section(self):
-        section = Section.objects.create(title="another section", order=2, questionnaire=self.questionnaire, name="haha")
+        section = Section.objects.create(title="another section", order=2, questionnaire=self.questionnaire,
+                                         name="haha")
         sub_section = SubSection.objects.create(title="subsection in another section", order=1, section=section)
         question1 = Question.objects.create(text='q1', UID='C00011', answer_type='MultiChoice')
         question2 = Question.objects.create(text='q2', UID='C00033', answer_type='Number')
@@ -599,15 +671,17 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         QuestionGroupOrder.objects.create(question_group=question_group, question=question3, order=3)
 
         data = {u'MultiChoice-MAX_NUM_FORMS': u'1', u'MultiChoice-TOTAL_FORMS': u'1',
-                     u'MultiChoice-INITIAL_FORMS': u'1', u'MultiChoice-0-response': option1.id,
-                     u'Number-INITIAL_FORMS': u'2', u'Number-TOTAL_FORMS': u'2', u'Number-MAX_NUM_FORMS': u'2',
-                     u'Number-0-response': u'2', u'Number-1-response': u'33'}
+                u'MultiChoice-INITIAL_FORMS': u'1', u'MultiChoice-0-response': option1.id,
+                u'Number-INITIAL_FORMS': u'2', u'Number-TOTAL_FORMS': u'2', u'Number-MAX_NUM_FORMS': u'2',
+                u'Number-0-response': u'2', u'Number-1-response': u'33'}
 
         initial = self.initial.copy()
         initial['status'] = Answer.SUBMITTED_STATUS
         old_primary = MultiChoiceAnswer.objects.create(response=option1, question=question1, **initial)
-        old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=question2, **initial)
-        old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=question3, **initial)
+        old_answer_1 = NumericalAnswer.objects.create(response=int(data['Number-0-response']), question=question2,
+                                                      **initial)
+        old_answer_2 = NumericalAnswer.objects.create(response=int(data['Number-1-response']), question=question3,
+                                                      **initial)
 
         old_primary.answergroup.create(grouped_question=question_group)
         old_answer_1.answergroup.create(grouped_question=question_group)
@@ -629,24 +703,35 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         answer_group1 = []
 
         for index, option in enumerate(self.question1.options.order_by('modified')):
-            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country, status=Answer.SUBMITTED_STATUS, response=option, version=self.version))
-            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country, status=Answer.SUBMITTED_STATUS, response="ayoyoyo %d"%index, version=self.version))
-            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country, status=Answer.SUBMITTED_STATUS, response=index, version=self.version))
+            question1_answer.append(MultiChoiceAnswer.objects.create(question=self.question1, country=self.country,
+                                                                     status=Answer.SUBMITTED_STATUS, response=option,
+                                                                     version=self.version, questionnaire=self.questionnaire))
+            question2_answer.append(TextAnswer.objects.create(question=self.question2, country=self.country,
+                                                              status=Answer.SUBMITTED_STATUS, response="ayoyoyo %d" % index,
+                                                              version=self.version, questionnaire=self.questionnaire))
+            question3_answer.append(NumericalAnswer.objects.create(question=self.question3, country=self.country,
+                                                                   status=Answer.SUBMITTED_STATUS, response=index,
+                                                                   version=self.version, questionnaire=self.questionnaire))
             answer_group1.append(question1_answer[index].answergroup.create(grouped_question=self.question_group, row=index))
             answer_group1[index].answer.add(question2_answer[index], question3_answer[index])
 
-    def test_submitted_answers_and_answer_groups_of_other_sections_are_duplicated_on_save_of_edit_submitted_answers(self):
+    def test_submitted_answers_and_answer_groups_of_other_sections_are_duplicated_on_save_of_edit_submitted_answers(
+            self):
         questions, question_group, old_answer, data_modified, section = self.given_I_have_questions_and_corresponding_submitted_answers_in_a_section()
         self.and_given_I_have_other_questions_and_corresponding_answers_in_a_different_section()
 
         initial = self.initial.copy()
         initial['version'] = self.version + 1
-        questionnaire_entry_form = QuestionnaireEntryFormService(section, initial=initial, data=data_modified, edit_after_submit=True)
+        questionnaire_entry_form = QuestionnaireEntryFormService(section, initial=initial, data=data_modified,
+                                                                 edit_after_submit=True)
         questionnaire_entry_form.save()
 
-        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']), question=questions[0], version=self.version+1)
-        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']), question=questions[1], version=self.version+1)
-        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']), question=questions[2], version=self.version+1)
+        primary = MultiChoiceAnswer.objects.get(response__id=int(data_modified['MultiChoice-0-response']),
+                                                question=questions[0], version=self.version + 1)
+        answer_1 = NumericalAnswer.objects.get(response=int(data_modified['Number-0-response']), question=questions[1],
+                                               version=self.version + 1)
+        answer_2 = NumericalAnswer.objects.get(response=int(data_modified['Number-1-response']), question=questions[2],
+                                               version=self.version + 1)
 
         self.assertNotEqual(old_answer[0].id, primary.id)
         self.assertNotEqual(old_answer[1].id, answer_1.id)
@@ -661,9 +746,15 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
         self.failUnless(answer_2.answergroup.filter(grouped_question=question_group))
 
         for index, option in enumerate(self.question1.options.order_by('modified')):
-            question1_answer = MultiChoiceAnswer.objects.filter(question=self.question1, country=self.country, status=Answer.DRAFT_STATUS, response=option, version=self.version+1)
-            question2_answer = TextAnswer.objects.filter(question=self.question2, country=self.country, status=Answer.DRAFT_STATUS, response="ayoyoyo %d"%index, version=self.version+1)
-            question3_answer = NumericalAnswer.objects.filter(question=self.question3, country=self.country, status=Answer.DRAFT_STATUS, response=index, version=self.version+1)
+            question1_answer = MultiChoiceAnswer.objects.filter(question=self.question1, country=self.country,
+                                                                status=Answer.DRAFT_STATUS, response=option,
+                                                                version=self.version + 1, questionnaire=self.questionnaire)
+            question2_answer = TextAnswer.objects.filter(question=self.question2, country=self.country,
+                                                         status=Answer.DRAFT_STATUS, response="ayoyoyo %d" % index,
+                                                         version=self.version + 1, questionnaire=self.questionnaire)
+            question3_answer = NumericalAnswer.objects.filter(question=self.question3, country=self.country,
+                                                              status=Answer.DRAFT_STATUS, response=index,
+                                                              version=self.version + 1, questionnaire=self.questionnaire)
 
             self.failUnless(question1_answer)
             self.assertEqual(1, question1_answer.count())
