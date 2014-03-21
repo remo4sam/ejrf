@@ -20,7 +20,7 @@ class UserQuestionnaireService(object):
 
     def questionnaire_answers(self):
         answer_groups = AnswerGroup.objects.filter(grouped_question__subsection__section__questionnaire=self.questionnaire)
-        answers = Answer.objects.filter(country=self.country, answergroup__in=answer_groups).select_subclasses()
+        answers = Answer.objects.filter(country=self.country, answergroup__in=answer_groups, questionnaire=self.questionnaire).select_subclasses()
         if self.version:
             return answers.filter(version=self.version)
         return answers
@@ -61,7 +61,7 @@ class UserQuestionnaireService(object):
         return self.answers.filter(question__in=required_question_in_section).count() == len(required_question_in_section)
 
     def all_sections_questionnaires(self):
-        initial = {'country': self.country, 'status': 'Draft', 'version':  self.version or self.POST_version}
+        initial = {'country': self.country, 'status': 'Draft', 'version':  self.version or self.POST_version, 'questionnaire': self.questionnaire}
         questionnaires = SortedDict()
         for section in self.questionnaire.sections.order_by('order'):
             questionnaires[section] = QuestionnaireEntryFormService(section, initial=initial)

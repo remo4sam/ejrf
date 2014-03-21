@@ -50,7 +50,7 @@ class UserServiceTest(BaseTest):
         self.user = User.objects.create(username="rajni")
         UserProfile.objects.create(user=self.user, country=self.country)
 
-        self.initial = {'country': self.country, 'status': 'Draft', 'version':1, 'code': 'ABC123'}
+        self.initial = {'country': self.country, 'status': 'Draft', 'version':1, 'code': 'ABC123', 'questionnaire': self.questionnaire}
 
     def test_user_knows_its_country_answers(self):
         data = self.data
@@ -102,8 +102,8 @@ class UserServiceTest(BaseTest):
         QuestionGroupOrder.objects.create(question=question1, order=1, question_group=question_group)
         QuestionGroupOrder.objects.create(question=question2, order=2, question_group=question_group)
 
-        answer_1 = NumericalAnswer.objects.create(response=1, question=question1, status=Answer.DRAFT_STATUS, country=self.country)
-        answer_2 = NumericalAnswer.objects.create(response=2, question=question2, status=Answer.DRAFT_STATUS, country=self.country)
+        answer_1 = NumericalAnswer.objects.create(response=1, question=question1, status=Answer.DRAFT_STATUS, country=self.country, questionnaire=self.questionnaire)
+        answer_2 = NumericalAnswer.objects.create(response=2, question=question2, status=Answer.DRAFT_STATUS, country=self.country, questionnaire=self.questionnaire)
 
         answer_group = AnswerGroup.objects.create(grouped_question=question_group)
         answer_group.answer.add(answer_1, answer_2)

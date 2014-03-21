@@ -10,7 +10,7 @@
                 submitting will create another version of the responses.
             </div>
             <div class="modal-footer">
-                <form action="{% url 'submit_questionnaire_page' %}" method="post" accept-charset="utf-8"
+                <form action="{% url 'submit_questionnaire_page' questionnaire.id %}" method="post" accept-charset="utf-8"
                       class="form-horizontal {{ class }}">
                     {% csrf_token %}
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

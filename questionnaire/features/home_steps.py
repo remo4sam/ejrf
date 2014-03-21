@@ -43,19 +43,19 @@ def given_i_have_a_questionnaire_published_one_of_the_regions(step):
 
 @step(u'And one of the countries in that region has  two versions of answers for the questionnaire')
 def and_one_of_the_countries_in_that_region_has_two_versions_of_answers_for_the_questionnaire(step):
-    answer_1 = NumericalAnswer.objects.create(question=world.question2, country=world.rwanda, status=Answer.SUBMITTED_STATUS,
-                                              response=22)
-    answer_2 = NumericalAnswer.objects.create(question=world.question1, country=world.rwanda, status=Answer.SUBMITTED_STATUS,
-                                              response=23)
+    world.answer_1 = NumericalAnswer.objects.create(question=world.question2, country=world.rwanda, status=Answer.SUBMITTED_STATUS,
+                                              response=22, questionnaire=world.questionnaire)
+    world.answer_2 = NumericalAnswer.objects.create(question=world.question1, country=world.rwanda, status=Answer.SUBMITTED_STATUS,
+                                              response=23, questionnaire=world.questionnaire)
     answer_group_2 = AnswerGroup.objects.create(grouped_question=world.parent, row=1)
-    answer_group_2.answer.add(answer_2, answer_1)
-
-    world.answer_1 = NumericalAnswer.objects.create(question=world.question2, country=world.rwanda, status=Answer.DRAFT_STATUS,
-                                                    response=10, version=2)
-    world.answer_2 = NumericalAnswer.objects.create(question=world.question1, country=world.rwanda, status=Answer.DRAFT_STATUS,
-                                                    response=100, version=2)
-    answer_group_2 = AnswerGroup.objects.create(grouped_question=world.parent, row=2)
     answer_group_2.answer.add(world.answer_2, world.answer_1)
+
+    answer_1 = NumericalAnswer.objects.create(question=world.question2, country=world.rwanda, status=Answer.DRAFT_STATUS,
+                                                    response=10, version=2, questionnaire=world.questionnaire)
+    answer_2 = NumericalAnswer.objects.create(question=world.question1, country=world.rwanda, status=Answer.DRAFT_STATUS,
+                                                    response=100, version=2, questionnaire=world.questionnaire)
+    answer_group_2 = AnswerGroup.objects.create(grouped_question=world.parent, row=2)
+    answer_group_2.answer.add(answer_2, answer_1)
 
 
 @step(u'When I expand that region')
@@ -69,7 +69,6 @@ def then_i_should_see_the_country_with_started_status(step):
 @step(u'And when I click the country')
 def and_when_i_click_the_country(step):
     world.page.click_by_id('region-%s-country-%s-collapse' % (world.afro.id, world.rwanda.id))
-
 
 @step(u'Then I should see its versions listed under it')
 def then_i_should_see_its_versions_listed_under_it(step):

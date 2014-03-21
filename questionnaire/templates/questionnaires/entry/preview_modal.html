@@ -15,7 +15,7 @@
             </div>
             {% if perms.auth.can_submit_responses %}
                 <div class="modal-footer">
-                    <form action="{% url 'submit_questionnaire_page' %}" method="post" accept-charset="utf-8"
+                    <form action="{% url 'submit_questionnaire_page' questionnaire.id %}" method="post" accept-charset="utf-8"
                           class="form-horizontal {{ class }}">
                         {% csrf_token %}
                         <button type="button" class="btn btn-default" id="cancel_button" data-dismiss="modal">Cancel

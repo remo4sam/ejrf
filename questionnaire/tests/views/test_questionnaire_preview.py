@@ -132,7 +132,7 @@ class QuestionnairePreviewTest(BaseTest):
         section_2 = Section.objects.create(title="section 2", order=2, questionnaire=self.questionnaire, name="section 2")
         section_3 = Section.objects.create(title="section 3", order=3, questionnaire=self.questionnaire, name="section 3")
 
-        self.initial = {'country': self.country, 'status': 'Draft', 'version': 1, 'code': 'ABC123'}
+        self.initial = {'country': self.country, 'status': 'Draft', 'version': 1, 'code': 'ABC123', 'questionnaire': self.questionnaire}
 
         version_1_primary_answer = MultiChoiceAnswer.objects.create(response=self.option1, question=self.question1, **self.initial)
         version_1_answer_1 = NumericalAnswer.objects.create(response=4, question=self.question2, **self.initial)

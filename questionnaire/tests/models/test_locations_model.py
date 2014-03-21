@@ -73,18 +73,18 @@ class CountryTest(BaseTest):
 
     def test_country_gets_own_versions(self):
         NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
-                                       response=22)
+                                       response=22, questionnaire=self.questionnaire)
         self.assertEqual([1], self.uganda.all_versions())
         NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
-                                       response=22, version=2)
+                                       response=22, version=2, questionnaire=self.questionnaire)
         self.assertEqual([1, 2], self.uganda.all_versions())
 
     def test_country_gets_own_versions_given_a_questionnaire(self):
         NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
-                                       response=22)
+                                       response=22, questionnaire=self.questionnaire)
         self.assertEqual({self.questionnaire: [1]}, self.uganda.all_versions(self.questionnaire))
         NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
-                                       response=22, version=2)
+                                       response=22, version=2, questionnaire=self.questionnaire)
         self.assertEqual({self.questionnaire: [1, 2]}, self.uganda.all_versions(self.questionnaire))
         questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013, region=self.afro)
         self.assertEqual({questionnaire: []}, self.uganda.all_versions(questionnaire))
@@ -102,13 +102,13 @@ class CountryTest(BaseTest):
         afro = Region.objects.create(name="Afro", organization=organisation)
         uganda = Country.objects.create(name="Uganda", code="UGX")
         afro.countries.add(uganda)
-        TextAnswer.objects.create(question=question, response="jacinta",status=Answer.DRAFT_STATUS,country=uganda)
+        TextAnswer.objects.create(question=question, response="jacinta",status=Answer.DRAFT_STATUS,country=uganda, questionnaire=questionnaire)
 
         self.assertEqual('jacinta', uganda.data_submitter())
 
     def test_gets_versions_for_a__list_of_questionnaires(self):
         answer = NumericalAnswer.objects.create(question=self.question2, country=self.uganda, status=Answer.DRAFT_STATUS,
-                                       response=22)
+                                       response=22, questionnaire=self.questionnaire)
         questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", year=2013)
         section_1 = Section.objects.create(title="Cover PAge", order=1,
                                            questionnaire=questionnaire, name="Cover Pages")

@@ -20,7 +20,7 @@ class HomePageViewTest(BaseTest):
 
         self.parent = QuestionGroup.objects.create(subsection=self.sub_section, order=1)
         self.parent.question.add(question2)
-        self.answer = NumericalAnswer.objects.create(question=question2, country=self.country, status=Answer.DRAFT_STATUS, response=22)
+        self.answer = NumericalAnswer.objects.create(question=question2, country=self.country, status=Answer.DRAFT_STATUS, response=22, questionnaire=self.questionnaire1)
 
         self.questionnaire2 = Questionnaire.objects.create(name="JRF 2013 Core 2", year=2013, region=self.region, status=Questionnaire.PUBLISHED)
         self.section_2_1 = Section.objects.create(title="Reported Cases", order=1, questionnaire=self.questionnaire2, name="Reported Cases")
@@ -32,11 +32,11 @@ class HomePageViewTest(BaseTest):
 
         self.questionnaire3 = Questionnaire.objects.create(name="JRF 2013 Core 3", year=2013, region=self.region, status=Questionnaire.PUBLISHED)
         self.section_3_1 = Section.objects.create(title="Reported Cases", order=1, questionnaire=self.questionnaire3, name="Reported Cases")
-        question_3_1 = Question.objects.create(text='C. Number of cases positive', UID='C00007', answer_type='Number')
+        self.question_3_1 = Question.objects.create(text='C. Number of cases positive', UID='C00007', answer_type='Number')
         self.sub_section_3_1 = SubSection.objects.create(title="Reported cases for the year 2013", order=1, section=self.section_3_1)
         self.parent_3_1 = QuestionGroup.objects.create(subsection=self.sub_section_3_1, order=1)
-        self.parent_3_1.question.add(question_3_1)
-        self.answer_3_1 = NumericalAnswer.objects.create(question=question_3_1, country=self.country, status=Answer.SUBMITTED_STATUS, response=22)
+        self.parent_3_1.question.add(self.question_3_1)
+        self.answer_3_1 = NumericalAnswer.objects.create(question=self.question_3_1, country=self.country, status=Answer.SUBMITTED_STATUS, response=22, questionnaire=self.questionnaire3)
 
     def test_get(self):
         response = self.client.get("/")
@@ -47,6 +47,48 @@ class HomePageViewTest(BaseTest):
         self.assertEqual({self.questionnaire2: []}, response.context['new'])
         self.assertEqual({self.questionnaire3: [self.answer_3_1.version]}, response.context['submitted'])
 
+    def test_new_draft_submitter_version_on_submit_changes_status(self):
+        response = self.client.get("/")
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn('home/submitter/index.html', templates)
+        self.assertIn(self.questionnaire3, response.context['submitted'])
+        self.assertNotIn(self.questionnaire3, response.context['drafts'])
+        self.answer_3_2 = NumericalAnswer.objects.create(question=self.question_3_1, country=self.country, status=Answer.DRAFT_STATUS, response=22, version=2, questionnaire=self.questionnaire3)
+
+        response = self.client.get("/")
+        self.assertIn(self.questionnaire3, response.context['drafts'])
+        self.assertNotIn(self.questionnaire3, response.context['submitted'])
+        self.answer_3_2.status = Answer.SUBMITTED_STATUS
+        self.answer_3_2.save()
+
+        response = self.client.get("/")
+        self.assertIn(self.questionnaire3, response.context['submitted'])
+        self.assertNotIn(self.questionnaire3, response.context['drafts'])
+
+    def test_new_questionnaire_with_same_question_on_submit_changes_status(self):
+        questionnaire3_2 = Questionnaire.objects.create(name="JRF 2014 Core 3", year=2014, region=self.region, status=Questionnaire.PUBLISHED)
+        section_3_2 = Section.objects.create(title="Reported Cases", order=1, questionnaire=questionnaire3_2, name="Reported Cases")
+        sub_section_3_2 = SubSection.objects.create(title="Reported cases for the year 2014", order=1, section=section_3_2)
+        parent_3_2 = QuestionGroup.objects.create(subsection=sub_section_3_2, order=1)
+        parent_3_2.question.add(self.question_3_1)
+        answer_3_2 = NumericalAnswer.objects.create(question=self.question_3_1, country=self.country, status=Answer.DRAFT_STATUS, response=22, questionnaire=questionnaire3_2)
+
+        response = self.client.get("/")
+        self.assertEqual(200, response.status_code)
+        templates = [template.name for template in response.templates]
+        self.assertIn('home/submitter/index.html', templates)
+        self.assertIn(self.questionnaire3, response.context['submitted'])
+        self.assertNotIn(self.questionnaire3, response.context['drafts'])
+        self.assertIn(questionnaire3_2, response.context['drafts'])
+        self.assertNotIn(questionnaire3_2, response.context['submitted'])
+
+        answer_3_2.status = Answer.SUBMITTED_STATUS
+        answer_3_2.save()
+
+        response = self.client.get("/")
+        self.assertNotIn(questionnaire3_2, response.context['drafts'])
+        self.assertIn(questionnaire3_2, response.context['submitted'])
 
     def test_login_required_for_home_get(self):
         self.assert_login_required('/')

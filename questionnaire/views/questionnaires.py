@@ -33,7 +33,8 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
         section = Section.objects.get(id=self.kwargs['section_id'])
         user_questionnaire_service = UserQuestionnaireService(self.request.user.user_profile.country, questionnaire)
-        initial = {'status': 'Draft', 'country': self.request.user.user_profile.country, 'version': user_questionnaire_service.GET_version}
+        initial = {'status': 'Draft', 'country': self.request.user.user_profile.country,
+                   'version': user_questionnaire_service.GET_version, 'questionnaire': questionnaire}
         required_answers = 'show' in request.GET
         formsets = QuestionnaireEntryFormService(section, initial=initial, highlight=required_answers,
                                                  edit_after_submit=user_questionnaire_service.edit_after_submit)
@@ -58,7 +59,7 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
         section = Section.objects.get(id=self.kwargs['section_id'])
         user_questionnaire_service = UserQuestionnaireService(self.request.user.user_profile.country, questionnaire)
         initial = {'country': self.request.user.user_profile.country, 'status': 'Draft',
-                   'version': user_questionnaire_service.POST_version}
+                   'version': user_questionnaire_service.POST_version, 'questionnaire': questionnaire}
         formsets = QuestionnaireEntryFormService(section, initial=initial, data=request.POST,
                                                  edit_after_submit=user_questionnaire_service.edit_after_submit)
 
@@ -94,7 +95,7 @@ class SubmitQuestionnaire(AdvancedMultiplePermissionsRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         user_country = self.request.user.user_profile.country
-        questionnaire = Questionnaire.objects.get(status=Questionnaire.PUBLISHED, region__countries=user_country)
+        questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])
         user_questionnaire = UserQuestionnaireService(user_country, questionnaire)
         if not user_questionnaire.required_sections_answered():
             return self._reload_section_with_required_answers_errors(request, user_questionnaire, *args, **kwargs)
@@ -192,7 +193,7 @@ class PublishQuestionnaire(PermissionRequiredMixin, View):
 
 class ApproveQuestionnaire(MultiplePermissionsRequiredMixin, View):
     permissions = {'any': ('auth.can_view_users',)}
-    template_name = 'base/modals/_confirm_submit.html'
+    template_name = 'base/modals/_confirm.html'
 
     def get(self, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=self.kwargs['questionnaire_id'])

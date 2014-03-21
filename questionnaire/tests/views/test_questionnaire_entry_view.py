@@ -213,7 +213,7 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         data = self.data.copy()
         self.client.post(self.url, data=data)
 
-        self.client.post('/submit/')
+        self.client.post('/submit/%d' %self.questionnaire.id)
 
         old_primary = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-0-response']), question=self.question1, version=1)
         old_answer_1 = NumericalAnswer.objects.get(response=int(data['Number-0-response']), question=self.question2, version=1)
@@ -540,7 +540,7 @@ class QuestionnaireEntrySubmitTest(BaseTest):
         QuestionGroupOrder.objects.create(question_group=self.question_group, question=self.question2, order=2)
         QuestionGroupOrder.objects.create(question_group=self.question_group, question=self.question3, order=3)
 
-        self.url = '/submit/'
+        self.url = '/submit/%d' %self.questionnaire.id
 
         self.assign('can_submit_responses', self.user)
         self.client.login(username=self.user.username, password='pass')
