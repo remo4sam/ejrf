@@ -21,7 +21,7 @@
                     {% for section, formsets in all_sections_questionnaires.items %}
                         <div class="tab-pane fade {% if forloop.first %}active in{% endif %}"
                              id="section_{{ section.id }}">
-                            <h3>{{ section.order }}. {{ section.title | safe }}</h3>
+                            <h3>{{ section.order }}. {% if section.region %}{{ section.region.name }} - {% endif %} {{ section.title | safe }}</h3>
                             {% if section.description %}
                                 <div class="">
                                     {{ section.description| safe }}
@@ -60,6 +60,7 @@
                                                         <label class="col-sm-6 control-label">
                                                             {% spaceless %}
                                                             <div class="question-number">
+                                                                {% if order.question.region %}<span>{{ order.question.region.name }} - </span>{% endif %}
                                                                 <span>{{ section.order }}</span>
                                                                 {% if section.has_at_least_two_subsections %}
                                                                     <span>.{{ subsection.order }}</span>{% endif %}
