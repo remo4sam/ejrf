@@ -123,7 +123,8 @@ class DateAnswerFormTest(BaseTest):
             'status': 'DRAFT',
             'version':1,
             'code':'HAHA123',
-            'group': self.question_group
+            'group': self.question_group,
+            'questionnaire': self.questionnaire.id
         }
 
     def test_valid(self):
@@ -166,7 +167,8 @@ class MultiChoiceAnswerFormTest(BaseTest):
             'status': 'DRAFT',
             'version': 1,
             'code':'HAHA123',
-            'group': self.question_group
+            'group': self.question_group,
+            'questionnaire': self.questionnaire.id
         }
 
     def test_valid(self):

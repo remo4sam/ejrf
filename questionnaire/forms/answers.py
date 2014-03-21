@@ -57,7 +57,7 @@ class AnswerForm(ModelForm):
 class NumericalAnswerForm(AnswerForm):
     class Meta:
         model = NumericalAnswer
-        exclude = ('question', 'status', 'country', 'version', 'code')
+        exclude = ('question', 'status', 'country', 'version', 'code', 'questionnaire')
 
 
 class TextAnswerForm(AnswerForm):
@@ -65,13 +65,13 @@ class TextAnswerForm(AnswerForm):
 
     class Meta:
         model = TextAnswer
-        exclude = ('question', 'status', 'country', 'version', 'code')
+        exclude = ('question', 'status', 'country', 'version', 'code', 'questionnaire')
 
 
 class DateAnswerForm(AnswerForm):
     class Meta:
         model = DateAnswer
-        exclude = ('question', 'status', 'country', 'version', 'code')
+        exclude = ('question', 'status', 'country', 'version', 'code', 'questionnaire')
         widgets = {
             'response': forms.DateInput(attrs={'class': 'form-control datetimepicker', 'data-format':'YYYY-MM-DD'})
         }
@@ -131,4 +131,4 @@ class MultiChoiceAnswerForm(AnswerForm):
 
     class Meta:
         model = MultiChoiceAnswer
-        exclude = ('question', 'status', 'country', 'version', 'code')
+        exclude = ('question', 'status', 'country', 'version', 'code', 'questionnaire')
