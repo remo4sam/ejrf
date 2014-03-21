@@ -47,6 +47,7 @@ class Country(Location):
             return submitter_answer.textanswer.response
 
     def all_versions(self, questionnaire=None):
+        from questionnaire.models import Questionnaire
         query_params = {'questionnaire__region__countries': self,
                         'questionnaire__status': 'published'}
         all_answers = Answer.objects.select_subclasses()
@@ -54,7 +55,8 @@ class Country(Location):
         if questionnaire:
             answers = all_answers.filter(country=self, questionnaire=questionnaire)
             return {questionnaire: list(set(answers.values_list('version', flat=True)))}
-        return list(set(answers.values_list('version', flat=True)))
+        questionnaire = Questionnaire.objects.filter(region__countries=self,status='published').latest('modified')
+        return list(set(answers.filter(questionnaire=questionnaire, status=Answer.SUBMITTED_STATUS).values_list('version', flat=True)))
 
     def get_versions_for(self, questionnaires):
         questionnaire_version_map = {}

@@ -18,11 +18,13 @@
                     <td><span class=" {{ status| bootstrap_class }}">{{ status }}</span></td>
                     <td>
                         {% if status != 'Not Started' %}
-                            <a href="" id="region-{{ region.id }}-country-{{ country.id }}-collapse"
-                               class="toggle-versions" data-version="version-for-{{ country.id }}">
-                                <span class="glyphicon glyphicon-circle-arrow-down"></span> Show
-                                Versions
-                            </a>
+                            {% if country.all_versions %}
+                                <a href="" id="region-{{ region.id }}-country-{{ country.id }}-collapse"
+                                   class="toggle-versions" data-version="version-for-{{ country.id }}">
+                                    <span class="glyphicon glyphicon-circle-arrow-down"></span> Show
+                                    Versions
+                                </a>
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>

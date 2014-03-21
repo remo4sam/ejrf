@@ -72,7 +72,7 @@ def and_when_i_click_the_country(step):
 
 @step(u'Then I should see its versions listed under it')
 def then_i_should_see_its_versions_listed_under_it(step):
-    world.page.is_text_present("Version 1", "Version 2")
+    world.page.is_text_present("Version 1")
 
 @step(u'When I click on version 1')
 def when_i_click_on_version_1(step):
