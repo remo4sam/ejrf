@@ -23,7 +23,7 @@
           </thead>
           <tbody>
             {% for question in questions %}
-                <tr {% if question in active_questions %} class="success" {% endif %}>
+                <tr class="{% if question in active_questions %} success {% endif %}">
                     <td>{{ question.UID }} </td>
                     <td id="text-td">{{ question.export_label }}</td>
                     <td>{{ question.answer_type }}</td>
