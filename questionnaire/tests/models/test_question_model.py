@@ -238,6 +238,13 @@ class QuestionTest(BaseTest):
         self.assertEqual(option2, question.get_option_at(2))
         self.assertEqual(option3, question.get_option_at(3))
 
+    def test_knows_multichoice(self):
+        question1 = Question.objects.create(text='ha', UID='C_2013', answer_type='MultiChoice',)
+        question2 = Question.objects.create(text='ha', UID='C_2014', answer_type='Number',)
+
+        self.assertTrue(question1.is_multichoice())
+        self.assertFalse(question2.is_multichoice())
+
 
 class QuestionOptionTest(BaseTest):
 

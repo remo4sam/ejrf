@@ -4,6 +4,35 @@
     <hr/>
     {% include 'base/naked_form.html' with a_form=form %}
     {% include 'base/_question_options.html' %}
+    {% if form.instance.id and form.instance.is_multichoice %}
+        {% load generic_tags %}
+        <div id="option-choices" class="show">
+            <label id="option-choices-label">Options</label>
+            {% for options in form.KNOWN_OPTIONS %}
+                <label class="radio-inline">
+                    <input type="radio" id="options-{{ forloop.counter }}" value="{{ options }}"
+                           {{form.instance|packaged_options:options}} name="options"> {{ options }}
+                </label>
+        {% endfor %}
+                <label class="radio-inline">
+                    <input type="radio" id="options-{{ forloop.counter|add:1 }}" value="custom"
+                    {{ form.instance|custom_options }}  name="options-custom"> Custom
+                </label>
+        </div>
+        {% if form.instance|custom_options %}
+            {% for option in form.instance.options.all %}
+                <div class="input-group" id="option-input-group">
+                    <label class="option-control-label">Option <span class="number"> {{ forloop.counter }}</span></label>
+                    <input type="text" maxlength="100" name="options" value="{{ option }}">
+                    <a href="javascript:;" class="input-group-addon btn btn-sm btn-primary add-option"><i class="glyphicon glyphicon-plus"></i></a>
+                    <a href="javascript:;" class="input-group-addon btn btn-sm  btn-primary remove-option"><i class="glyphicon glyphicon-remove"></i></a>
+                </div>
+            {% endfor %}
+
+        {% endif %}
+    {% endif %}
+
+
     <script type="text/template" id="question-option-template">
         <div class="input-group" id="option-input-group">
             <label class="option-control-label">Option <span class="number"></span></label>

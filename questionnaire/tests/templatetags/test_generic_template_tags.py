@@ -1,5 +1,6 @@
+from questionnaire.models import Question, QuestionOption
 from questionnaire.templatetags.generic_tags import display_list, bootstrap_message, get_url_with_ids, divide_to_paginate, ASSIGN_QUESTION_PAGINATION_SIZE, add_string, get_questionnaire_from, \
-    bootstrap_class
+    bootstrap_class, packaged_options, custom_options
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -37,3 +38,17 @@ class GeneralTemplateTagTest(BaseTest):
         self.assertEqual('text-success', bootstrap_class('Submitted'))
         self.assertEqual('text-warning', bootstrap_class('In Progress'))
         self.assertEqual('text-danger', bootstrap_class('Not Started'))
+
+    def test_question_knows_which_packaged_option_he_has(self):
+        question = Question.objects.create(UID="0001", text="haha", answer_type='MultiChoice')
+        QuestionOption.objects.create(text="Yes", question=question)
+        QuestionOption.objects.create(text="No", question=question)
+
+        self.assertEqual('checked', packaged_options(question, "Yes, No"))
+
+    def test_question_knows_it_has_custom_options(self):
+        question = Question.objects.create(UID="0001", text="haha", answer_type='MultiChoice')
+        QuestionOption.objects.create(text="ha", question=question)
+        QuestionOption.objects.create(text="ho", question=question)
+
+        self.assertEqual('checked', custom_options(question))

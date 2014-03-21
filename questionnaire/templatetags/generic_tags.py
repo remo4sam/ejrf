@@ -1,5 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
+from questionnaire.forms.questions import QuestionForm
 from questionnaire.models import Questionnaire
 
 ASSIGN_QUESTION_PAGINATION_SIZE = 30
@@ -50,3 +51,16 @@ def get_questionnaire_from(region, **kwargs):
 def bootstrap_class(status):
     css_class_status_map = {'Submitted': 'text-success', 'In Progress': 'text-warning', 'Not Started': 'text-danger'}
     return css_class_status_map[status]
+
+@register.filter
+def packaged_options(question, packaged_opts):
+    question_options = question.options.values_list('text', flat=True)
+    if packaged_opts == ", ".join(question_options):
+        return 'checked'
+
+@register.filter
+def custom_options(question):
+    question_options = question.options.values_list('text', flat=True)
+    options_string = ", ".join(question_options)
+    if not options_string in QuestionForm.KNOWN_OPTIONS:
+        return 'checked'

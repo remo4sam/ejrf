@@ -5,6 +5,15 @@ from questionnaire.models import Question, QuestionOption, Questionnaire
 
 
 class QuestionForm(ModelForm):
+    KNOWN_OPTIONS = ["Yes, No",
+                    "Yes, No, NR",
+                    "Yes, No, NR, ND",
+                    "Male, Female, Both",
+                    "Local currency, US $",
+                    "National, Sub national",
+                    ]
+
+
     options = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, region=None, *args, **kwargs):
@@ -50,6 +59,7 @@ class QuestionForm(ModelForm):
         if self._editing_published_question():
             question = self._duplicate_question()
             self._reassign_to_unpublished_questionnaires(question)
+            self._save_options_if_multichoice(question)
             return question
         return self._save(commit)
 
@@ -59,6 +69,14 @@ class QuestionForm(ModelForm):
             for group in self.instance.question_groups_in(questionnaire):
                 group.question.remove(self.instance)
                 group.question.add(question)
+                self._assign_order(question, group)
+
+    def _assign_order(self, question, group):
+        parent_group = group.parent or group
+        order = self.instance.orders.get(question_group=parent_group)
+        question_order = order.order
+        order.delete()
+        question.orders.create(question_group=parent_group, order=question_order)
 
     def _duplicate_question(self):
         attributes = model_to_dict(self.instance, exclude=('id',))
@@ -85,10 +103,11 @@ class QuestionForm(ModelForm):
 
     def _save_options_if_multichoice(self, question):
         options = dict(self.data).get('options', [])
+        options = filter(lambda text: text.strip(), options)
         if options and question.answer_type == Question.MULTICHOICE:
-            options = options[0].split(",")
-            for option in options:
-                QuestionOption.objects.create(text=option, question=question)
+            for grouped_option in options:
+                for option in grouped_option.split(','):
+                    QuestionOption.objects.create(text=option.strip(), question=question)
 
     def _set_answer_type_choices(self):
         choices = self.fields['answer_type'].choices

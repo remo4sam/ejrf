@@ -49,8 +49,8 @@ class QuestionsFormTest(BaseTest):
         question_form = QuestionForm()
         self.assertIn(('', 'Response type'), question_form.fields['answer_type'].choices)
 
-    def test_save_multichoice_question_saves_options(self):
-        options = ['Yes, No, Maybe']
+    def test_save_multichoice_question_saves_packaged_options(self):
+        options = ['', 'Yes, No, Maybe']
         form = {'text': 'How many kids were immunised this year?',
                 'instructions': 'Some instructions',
                 'short_instruction': 'short version',
@@ -63,7 +63,23 @@ class QuestionsFormTest(BaseTest):
         question_options = QuestionOption.objects.filter(question=question)
 
         self.assertEqual(3, question_options.count())
-        [self.assertIn(question_option.text, options[0].split(',')) for question_option in question_options]
+        [self.assertIn(question_option.text, ['Yes', 'No', 'Maybe']) for question_option in question_options]
+
+    def test_save_multichoice_question_saves_listed_options(self):
+        options = ['', 'Yes', 'No', 'Maybe']
+        form = {'text': 'How many kids were immunised this year?',
+                'instructions': 'Some instructions',
+                'short_instruction': 'short version',
+                'export_label': 'blah',
+                'answer_type': 'MultiChoice',
+                'options': options}
+
+        question_form = QuestionForm(data=form)
+        question = question_form.save(commit=True)
+        question_options = QuestionOption.objects.filter(question=question)
+
+        self.assertEqual(3, question_options.count())
+        [self.assertIn(question_option.text, ['Yes', 'No', 'Maybe']) for question_option in question_options]
 
     def test_assigns_region_on_save_if_region_is_given(self):
         global_admin, country, region = self.create_user_with_no_permissions()
@@ -134,6 +150,7 @@ class QuestionHistoryTest(BaseTest):
     def test_editing_question_used_in_a_published_questionnaire_assigns_the_duplicate_question_in_all_draft_questionnaires(self):
         self.questionnaire.status = Questionnaire.PUBLISHED
         self.questionnaire.save()
+        self.question1.orders.create(order=1, question_group=self.parent_group)
 
         draft_questionnaire = Questionnaire.objects.create(name="draft qnaire",description="haha",
                                                            status=Questionnaire.DRAFT)
@@ -141,6 +158,7 @@ class QuestionHistoryTest(BaseTest):
         sub_section_1 = SubSection.objects.create(title="subs1", order=1, section=section_1)
         parent_group_d = QuestionGroup.objects.create(subsection=sub_section_1, name="group")
         parent_group_d.question.add(self.question1)
+        self.question1.orders.create(order=2, question_group=parent_group_d)
 
         finalized_questionnaire = Questionnaire.objects.create(name="finalized qnaire",description="haha",
                                                            status=Questionnaire.FINALIZED)
@@ -148,7 +166,7 @@ class QuestionHistoryTest(BaseTest):
         sub_section_1_f = SubSection.objects.create(title="subs1", order=1, section=section_1_f)
         parent_group_f = QuestionGroup.objects.create(subsection=sub_section_1_f, name="group")
         parent_group_f.question.add(self.question1)
-
+        self.question1.orders.create(order=3, question_group=parent_group_f)
 
         data = self.form_data.copy()
         history_form = QuestionForm(data=data, instance=self.question1)
@@ -168,4 +186,84 @@ class QuestionHistoryTest(BaseTest):
         self.assertEqual(1, parent_group_f_questions.count())
         self.assertIn(duplicate_question, parent_group_f_questions)
 
+    def test_editing_question_used_in_a_published_questionnaire_give_the_duplicate_question_old_question_order(self):
+        self.questionnaire.status = Questionnaire.PUBLISHED
+        self.questionnaire.save()
+        self.question1.orders.create(order=1, question_group=self.parent_group)
 
+        draft_questionnaire = Questionnaire.objects.create(name="draft qnaire",description="haha",
+                                                           status=Questionnaire.DRAFT)
+        section_1 = Section.objects.create(title="section 1", order=1, questionnaire=draft_questionnaire, name="ha")
+        sub_section_1 = SubSection.objects.create(title="subs1", order=1, section=section_1)
+        parent_group_d = QuestionGroup.objects.create(subsection=sub_section_1, name="group")
+        parent_group_d.question.add(self.question1)
+        self.question1.orders.create(order=2, question_group=parent_group_d)
+
+        finalized_questionnaire = Questionnaire.objects.create(name="finalized qnaire",description="haha",
+                                                           status=Questionnaire.FINALIZED)
+        section_1_f = Section.objects.create(title="section 1", order=1, questionnaire=finalized_questionnaire, name="ha")
+        sub_section_1_f = SubSection.objects.create(title="subs1", order=1, section=section_1_f)
+        parent_group_f = QuestionGroup.objects.create(subsection=sub_section_1_f, name="group")
+        parent_group_f.question.add(self.question1)
+        self.question1.orders.create(order=3, question_group=parent_group_f)
+
+        data = self.form_data.copy()
+        history_form = QuestionForm(data=data, instance=self.question1)
+
+        self.assertTrue(history_form.is_valid())
+        duplicate_question = history_form.save()
+
+        self.assertEqual(1, self.question1.orders.get(question_group=self.parent_group).order)
+        self.assertEqual(0, duplicate_question.orders.filter(question_group=self.parent_group).count())
+
+        self.assertEqual(2, duplicate_question.orders.get(question_group=parent_group_d).order)
+        self.assertEqual(0, self.question1.orders.filter(question_group=parent_group_d).count())
+
+        self.assertEqual(3, duplicate_question.orders.get(question_group=parent_group_f).order)
+        self.assertEqual(0, self.question1.orders.filter(question_group=parent_group_f).count())
+
+    def test_multichoice_options_are_only_edited_in_the_duplicate_questions(self):
+        self.questionnaire.status = Questionnaire.PUBLISHED
+        self.questionnaire.save()
+        self.question1.orders.create(order=1, question_group=self.parent_group)
+        self.question1.answer_type = 'MultiChoice'
+        self.question1.save()
+        question1_options_texts = ["Yes", "No", "DK"]
+        for text in question1_options_texts:
+            self.question1.options.create(text=text)
+
+        draft_questionnaire = Questionnaire.objects.create(name="draft qnaire",description="haha",
+                                                           status=Questionnaire.DRAFT)
+        section_1 = Section.objects.create(title="section 1", order=1, questionnaire=draft_questionnaire, name="ha")
+        sub_section_1 = SubSection.objects.create(title="subs1", order=1, section=section_1)
+        parent_group_d = QuestionGroup.objects.create(subsection=sub_section_1, name="group")
+        parent_group_d.question.add(self.question1)
+        self.question1.orders.create(order=2, question_group=parent_group_d)
+
+        finalized_questionnaire = Questionnaire.objects.create(name="finalized qnaire",description="haha",
+                                                           status=Questionnaire.FINALIZED)
+        section_1_f = Section.objects.create(title="section 1", order=1, questionnaire=finalized_questionnaire, name="ha")
+        sub_section_1_f = SubSection.objects.create(title="subs1", order=1, section=section_1_f)
+        parent_group_f = QuestionGroup.objects.create(subsection=sub_section_1_f, name="group")
+        parent_group_f.question.add(self.question1)
+        self.question1.orders.create(order=3, question_group=parent_group_f)
+
+        changed_options = ['', 'haha', 'hehe', 'hihi']
+        data = {'text': 'changed text',
+                'instructions': 'Some instructions',
+                'export_label': 'blah',
+                'answer_type': 'MultiChoice',
+                'options': changed_options}
+
+        history_form = QuestionForm(data=data, instance=self.question1)
+
+        self.assertTrue(history_form.is_valid())
+        duplicate_question = history_form.save()
+
+        question1_options = self.question1.options.all()
+        self.assertEqual(3, question1_options.count())
+        [self.assertIn(question_option.text, question1_options_texts) for question_option in question1_options]
+
+        duplicate_question_options = duplicate_question.options.all()
+        self.assertEqual(3, duplicate_question_options.count())
+        [self.assertIn(question_option.text, changed_options) for question_option in duplicate_question_options]

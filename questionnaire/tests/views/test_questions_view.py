@@ -118,7 +118,7 @@ class QuestionViewTest(BaseTest):
         options = questions[0].options.all()
 
         self.assertEqual(5, options.count())
-        [self.assertIn(option.text, question_options[0].split(',')) for option in options]
+        [self.assertIn(option.text, ['yes', 'No', 'Maybe', 'Nr', 'Chill']) for option in options]
 
     def test_post_multichoice_question_with_options_with_form_errors(self):
         form_data = self.form_data.copy()
@@ -334,7 +334,7 @@ class EditQuestionViewTest(BaseTest):
         options = questions[0].options.all()
 
         self.assertEqual(5, options.count())
-        [self.assertIn(option.text, question_options[0].split(',')) for option in options]
+        [self.assertIn(option.text, ['yes', 'No', 'Maybe', 'Nr', 'Chill']) for option in options]
 
     def test_post_edit_to_multichoice_question_with_options_with_form_errors(self):
         form_data = self.form_data.copy()
@@ -351,6 +351,7 @@ class EditQuestionViewTest(BaseTest):
     def test_post_edit_when_question_is_in_published_questionnaire_duplicates_question_and_assign_new_question_to_all_unpublished_questionnaires(self):
         self.questionnaire.status = Questionnaire.PUBLISHED
         self.questionnaire.save()
+        self.question1.orders.create(order=1, question_group=self.parent_group)
 
         draft_questionnaire = Questionnaire.objects.create(name="draft qnaire",description="haha",
                                                            status=Questionnaire.DRAFT)
@@ -358,6 +359,7 @@ class EditQuestionViewTest(BaseTest):
         sub_section_1 = SubSection.objects.create(title="subs1", order=1, section=section_1)
         parent_group_d = QuestionGroup.objects.create(subsection=sub_section_1, name="group")
         parent_group_d.question.add(self.question1)
+        self.question1.orders.create(order=2, question_group=parent_group_d)
 
         finalized_questionnaire = Questionnaire.objects.create(name="finalized qnaire",description="haha",
                                                            status=Questionnaire.FINALIZED)
@@ -365,6 +367,7 @@ class EditQuestionViewTest(BaseTest):
         sub_section_1_f = SubSection.objects.create(title="subs1", order=1, section=section_1_f)
         parent_group_f = QuestionGroup.objects.create(subsection=sub_section_1_f, name="group")
         parent_group_f.question.add(self.question1)
+        self.question1.orders.create(order=3, question_group=parent_group_f)
 
         response = self.client.post(self.url, data=self.form_data)
 
@@ -382,3 +385,57 @@ class EditQuestionViewTest(BaseTest):
         self.assertEqual(1, parent_group_f_questions.count())
         self.assertIn(duplicate_question, parent_group_f_questions)
 
+        self.assertEqual(1, self.question1.orders.get(question_group=self.parent_group).order)
+        self.assertEqual(0, duplicate_question.orders.filter(question_group=self.parent_group).count())
+
+        self.assertEqual(2, duplicate_question.orders.get(question_group=parent_group_d).order)
+        self.assertEqual(0, self.question1.orders.filter(question_group=parent_group_d).count())
+
+        self.assertEqual(3, duplicate_question.orders.get(question_group=parent_group_f).order)
+        self.assertEqual(0, self.question1.orders.filter(question_group=parent_group_f).count())
+
+    def test_post_edit_multichoice_options_are_only_edited_in_the_duplicate_questions(self):
+        self.questionnaire.status = Questionnaire.PUBLISHED
+        self.questionnaire.save()
+        self.question1.orders.create(order=1, question_group=self.parent_group)
+        self.question1.answer_type = 'MultiChoice'
+        self.question1.save()
+        question1_options_texts = ["Yes", "No", "DK"]
+        for text in question1_options_texts:
+            self.question1.options.create(text=text)
+
+        draft_questionnaire = Questionnaire.objects.create(name="draft qnaire",description="haha",
+                                                           status=Questionnaire.DRAFT)
+        section_1 = Section.objects.create(title="section 1", order=1, questionnaire=draft_questionnaire, name="ha")
+        sub_section_1 = SubSection.objects.create(title="subs1", order=1, section=section_1)
+        parent_group_d = QuestionGroup.objects.create(subsection=sub_section_1, name="group")
+        parent_group_d.question.add(self.question1)
+        self.question1.orders.create(order=2, question_group=parent_group_d)
+
+        finalized_questionnaire = Questionnaire.objects.create(name="finalized qnaire",description="haha",
+                                                           status=Questionnaire.FINALIZED)
+        section_1_f = Section.objects.create(title="section 1", order=1, questionnaire=finalized_questionnaire, name="ha")
+        sub_section_1_f = SubSection.objects.create(title="subs1", order=1, section=section_1_f)
+        parent_group_f = QuestionGroup.objects.create(subsection=sub_section_1_f, name="group")
+        parent_group_f.question.add(self.question1)
+        self.question1.orders.create(order=3, question_group=parent_group_f)
+
+        changed_options = ['', 'haha', 'hehe', 'hihi']
+        data = {'text': 'changed text',
+                'instructions': 'Some instructions',
+                'export_label': 'blah',
+                'answer_type': 'MultiChoice',
+                'options': changed_options}
+
+        response = self.client.post(self.url, data=data)
+
+        data.pop('options')
+        duplicate_question = Question.objects.get(UID=self.question1.UID, **data)
+
+        question1_options = self.question1.options.all()
+        self.assertEqual(3, question1_options.count())
+        [self.assertIn(question_option.text, question1_options_texts) for question_option in question1_options]
+
+        duplicate_question_options = duplicate_question.options.all()
+        self.assertEqual(3, duplicate_question_options.count())
+        [self.assertIn(question_option.text, changed_options) for question_option in duplicate_question_options]

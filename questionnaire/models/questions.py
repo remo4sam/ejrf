@@ -88,6 +88,9 @@ class Question(BaseModel):
         from questionnaire.models import Questionnaire
         return Questionnaire.objects.filter(sections__sub_sections__question_group__in=self.question_group.all())
 
+    def is_multichoice(self):
+        return self.answer_type == self.MULTICHOICE
+
     @classmethod
     def next_uid(cls):
         return stringify(largest_uid(cls) + 1)

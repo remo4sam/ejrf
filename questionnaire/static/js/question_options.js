@@ -1,10 +1,8 @@
 ;
 jQuery(function($){
-    $("#id_options").remove();
     var $form = $("#id-new-question-form"),
         template = $("#question-option-template").html(),
         answerTypeSelect = $('#id_answer_type');
-        answerTypeSelect.prop('selectedIndex',0);
     function assignOptionNumbers(){
         $form.find("span.number").each(function(i, element){
             $(element).text(++i);
