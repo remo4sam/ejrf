@@ -42,13 +42,35 @@ class AssignQuestionViewTest(BaseTest):
         self.assertEqual('Done', response.context['btn_label'])
 
     def test_GET_puts_list_of_already_used_questions_in_context(self):
-        question1 = Question.objects.create(text='USed question', UID='C00033', answer_type='Number', region=self.region)
+        question1 = Question.objects.create(text='USed question', UID='C00033', answer_type='Number',
+                                            region=self.region)
         question1.question_group.create(subsection=self.subsection)
 
         response = self.client.get(self.url)
 
         self.assertEqual(1, len(response.context['active_questions']))
         self.assertIn(question1, response.context['active_questions'])
+
+    def test_GET_does_not_put_parent_questions_in_the_context(self):
+        parent_question = Question.objects.create(text='parent q', UID='C000R3', answer_type='Number')
+        self.question1.parent = parent_question
+        self.question1.save()
+
+        used_question1 = Question.objects.create(text='USed question', UID='C00033', answer_type='Number',
+                                            region=self.region, parent=parent_question)
+        used_question1.question_group.create(subsection=self.subsection)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(3, response.context['questions'].count())
+        questions_texts = [question.text for question in list(response.context['questions'])]
+        self.assertIn(self.question1.text, questions_texts)
+        self.assertIn(self.question2.text, questions_texts)
+        self.assertIn(used_question1.text, questions_texts)
+        self.assertNotIn(parent_question.text, questions_texts)
+
+        self.assertEqual(1, len(response.context['active_questions']))
+        self.assertIn(used_question1, response.context['active_questions'])
 
     def test_post_questions_assigns_them_to_subsections_and_get_or_create_group(self):
         self.failIf(self.question1.question_group.all())

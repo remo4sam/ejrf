@@ -17,8 +17,9 @@ class AssignQuestion(RegionAndPermissionRequiredMixin, View):
         active_questions = subsection.section.questionnaire.get_all_questions()
         region = request.user.user_profile.region
         form = AssignQuestionForm(subsection=subsection, region=region)
+        questions = form.fields['questions'].queryset.filter(child=None)
         context = {'assign_question_form': form, 'active_questions': active_questions,
-                  'btn_label': 'Done', 'questions': form.fields['questions'].queryset}
+                  'btn_label': 'Done', 'questions': questions}
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -30,8 +31,9 @@ class AssignQuestion(RegionAndPermissionRequiredMixin, View):
             form.save()
             messages.success(request, "Questions successfully assigned to questionnaire.")
             return HttpResponseRedirect(referer_url)
+        questions = form.fields['questions'].queryset.filter(child=None)
         context = {'assign_question_form': form,
-                   'btn_label': 'Done', 'questions': form.fields['questions'].queryset}
+                   'btn_label': 'Done', 'questions': questions}
         return render(request, self.template_name, context)
 
 

@@ -81,7 +81,8 @@ class QuestionForm(ModelForm):
     def _duplicate_question(self):
         attributes = model_to_dict(self.instance, exclude=('id',))
         attributes.update({'parent': self.instance})
-        return Question.objects.create(**attributes)
+        del attributes['region']
+        return Question.objects.create(region=self.instance.region, **attributes)
 
     def _editing_published_question(self):
         if not (self.instance and self.instance.id):

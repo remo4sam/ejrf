@@ -1,5 +1,5 @@
 from questionnaire.forms.questions import QuestionForm
-from questionnaire.models import Question, QuestionOption, Questionnaire, Section, SubSection, QuestionGroup
+from questionnaire.models import Question, QuestionOption, Questionnaire, Section, SubSection, QuestionGroup, Region
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -146,6 +146,20 @@ class QuestionHistoryTest(BaseTest):
 
         self.assertEqual(2, questions.count())
         self.failUnless(questions.filter(**data))
+
+    def test_duplicate_question_maintains_region(self):
+        self.questionnaire.status = Questionnaire.PUBLISHED
+        self.questionnaire.save()
+        region = Region.objects.create(name="AFR")
+        self.question1.region = region
+        self.question1.save()
+        data = self.form_data.copy()
+        history_form = QuestionForm(data=data, instance=self.question1)
+
+        self.assertTrue(history_form.is_valid())
+        duplicate_question = history_form.save()
+
+        self.assertEqual(region, duplicate_question.region)
 
     def test_editing_question_used_in_a_published_questionnaire_assigns_the_duplicate_question_in_all_draft_questionnaires(self):
         self.questionnaire.status = Questionnaire.PUBLISHED
