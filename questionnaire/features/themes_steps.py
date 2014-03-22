@@ -1,3 +1,4 @@
+from time import sleep
 from lettuce import step, world
 from questionnaire.features.pages.theme import ThemePage
 from questionnaire.models import Theme
@@ -22,6 +23,7 @@ def then_i_should_see_the_themes_paginated(step):
 @step(u'And I click New Theme button')
 def and_i_click_new_theme_button(step):
     world.page.click_by_id("new-theme")
+    sleep(2)
 
 
 @step(u'And I fill in theme details form')
