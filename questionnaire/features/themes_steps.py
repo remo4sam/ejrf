@@ -76,10 +76,38 @@ def and_i_fill_in_the_theme_name(step):
 def then_i_should_see_the_update_success_message(step):
     world.page.is_text_present("Theme successfully updated.")
 
+
 @step(u'And I click the update theme button')
 def and_i_click_the_update_theme_button(step):
     world.page.click_by_id("save-theme-%s-btn" % world.theme1.id)
 
+
 @step(u'And I should see the updated theme in the themes list')
 def and_i_should_see_the_updated_theme_in_the_themes_list(step):
     world.page.is_text_present('Edited name')
+
+
+@step(u'And I click Delete theme button')
+def and_i_click_delete_theme_button(step):
+    world.page.click_by_id('delete-theme-%s-btn' % world.theme1.id)
+
+
+@step(u'Then I should see a delete theme confirmation message')
+def then_i_should_see_a_delete_theme_confirmation_message(step):
+    world.page.is_text_present('Confirm Delete')
+    world.page.is_text_present('Are you sure you want to delete this theme?')
+
+
+@step(u'Then I should see a message that the theme was deleted')
+def then_i_should_see_a_message_that_the_theme_was_deleted(step):
+    world.page.is_text_present('Theme successfully deleted.')
+
+
+@step(u'And that theme should no longer appear in the table')
+def and_that_theme_should_no_longer_appear_in_the_table(step):
+    world.page.is_text_present(world.theme1.name, status=False)
+
+
+@step(u'When I confirm the theme deletion')
+def when_i_confirm_the_theme_deletion(step):
+    world.page.click_by_id('confirm-delete-theme-%s' % world.theme1.id)
