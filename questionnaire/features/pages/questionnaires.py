@@ -1,4 +1,3 @@
-from time import sleep
 from questionnaire.features.pages.base import PageObject
 from nose.tools import assert_true
 
@@ -38,9 +37,6 @@ class QuestionnairePage(PageObject):
             assert_true(self.browser.find_by_name(key).first.value in data.values())
         for key in text:
             assert_true(self.browser.find_by_name(key).first.value in data.values())
-
-    def hover(self, name):
-        self.browser.find_by_name(name).mouse_over()
 
     def validate_fields_disabled(self, data):
         for key in data:

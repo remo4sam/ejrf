@@ -96,3 +96,15 @@ class PageObject(object):
 
     def find_by_id(self, id, status=True):
         assert_equals(status, self.is_element_present_by_id(id))
+
+    def hover_over_id(self, id):
+        element = "document.getElementById('%s')" % id
+        ie_hover_script = "var event = document.createEventObject(); %s.fireEvent('onmouseover', event);" % element
+        other_hover_script = "var eventObj = document.createEvent('MouseEvents'); " \
+                             "eventObj.initMouseEvent('mouseover',true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);" \
+                             "%s.dispatchEvent(eventObj);" % element
+
+        if self.browser.driver.name == 'internet explorer':
+            self.browser.execute_script(ie_hover_script)
+        else:
+            self.browser.execute_script(other_hover_script)

@@ -74,7 +74,7 @@ def and_the_rest_of_my_correct_responses(step):
 
 @step(u'When I hover the errored cell')
 def when_i_hover_the_errored_cell(step):
-    world.page.hover('Number-0-response')
+    world.page.hover_over_id('id_Number-0-response')
 
 @step(u'Then I should see the cell error message')
 def then_i_should_see_the_cell_error_message(step):
