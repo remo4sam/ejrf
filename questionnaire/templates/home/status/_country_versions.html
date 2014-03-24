@@ -10,11 +10,11 @@
         <td>
             <form method="post" action="{% url 'specific_export_page' country.id version %}" class="form-inline">
                 <a data-href="{% url 'preview_specific_questionnaire' region.latest_questionnaire.id %}?country={{ country.id }}&version={{ version }}&preview=1"
-                        class="btn btn-xs btn-default preview-btn-url">
+                        id="view-country-{{ country.id }}-version-{{ version }}" class="btn btn-xs btn-default preview-btn-url">
                     <span class="glyphicon glyphicon-list-alt"></span> View
                 </a>
                 {% csrf_token %}
-                <button type=" submit" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-save"></span>
+                <button type=" submit" id="extract-country-{{ country.id }}-version-{{ version }}" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-save"></span>
                     Extract
                 </button>
             </form>
