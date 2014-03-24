@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.theme import ThemeForm
 
-from questionnaire.models import Theme
+from questionnaire.models import Theme, Question
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -11,7 +11,7 @@ class ThemeViewTest(BaseTest):
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
-        self.assign('can_edit_questionnaire', self.user)
+        self.assign('can_view_users', self.user)
         self.client.login(username=self.user.username, password='pass')
 
         self.theme = Theme.objects.create(name="Some theme", description="some description")
@@ -48,13 +48,17 @@ class ThemeViewTest(BaseTest):
         message = "Theme was not created, see Errors below"
         self.assertIn(message, str(response.content))
 
+    def test_permissions_required(self):
+        self.assert_login_required(self.url)
+        self.assert_permission_required(self.url)
+
 
 class EditThemeViewTest(BaseTest):
 
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
-        self.assign('can_edit_questionnaire', self.user)
+        self.assign('can_view_users', self.user)
         self.client.login(username=self.user.username, password='pass')
 
         self.theme = Theme.objects.create(name="Some theme", description="some description")
@@ -79,3 +83,45 @@ class EditThemeViewTest(BaseTest):
         self.assertRaises(Theme.DoesNotExist, Theme.objects.get, **self.form_data)
         message = "Theme was not updated, see Errors below"
         self.assertIn(message, str(response.content))
+
+    def test_permissions_required(self):
+        self.assert_login_required(self.url)
+        self.assert_permission_required(self.url)
+
+
+class DeleteThemeViewTest(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.assign('can_view_users', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.theme = Theme.objects.create(name="Beer theme", description="some description")
+        self.url = '/themes/%d/delete/' % self.theme.id
+
+    def test_post_delete(self):
+        self.failUnless(Theme.objects.get(id=self.theme.id))
+        response = self.client.post(self.url, {})
+        self.assertRedirects(response, reverse("theme_list_page"))
+        self.failIf(Theme.objects.filter(name=getattr(self.theme, 'name'), description=getattr(self.theme, 'description')))
+        message = "Theme successfully deleted."
+        self.assertIn(message, response.cookies['messages'].value)
+
+    def test_post_delete_de_associates_the_questions_from_it(self):
+        beer_question = Question.objects.create(text="How many beers do you drink?", UID='BR01',
+                                                answer_type=Question.NUMBER, theme=self.theme)
+        beer_question1 = Question.objects.create(text="When did you last drink beer?", UID='BR02',
+                                                 answer_type=Question.DATE, theme=self.theme)
+
+        response = self.client.post(self.url, {})
+        self.assertEqual(Question.objects.all().count(), 2)
+        self.failUnless(Question.objects.get(id=beer_question1.id))
+        self.failUnless(Question.objects.get(id=beer_question.id))
+        self.failIf(Theme.objects.filter(name=getattr(self.theme, 'name'), description=getattr(self.theme, 'description')))
+        message = "Theme successfully deleted."
+        self.assertIn(message, response.cookies['messages'].value)
+
+    def test_permissions_required(self):
+        self.assert_login_required(self.url)
+        self.assert_permission_required(self.url)

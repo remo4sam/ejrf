@@ -1,9 +1,9 @@
 from braces.views import AccessMixin, MultiplePermissionsRequiredMixin
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import HttpResponseRedirect
 from questionnaire.models import Questionnaire, Region, SubSection, Question, Section
+
 
 class RegionalPermissionRequired(AccessMixin):
     permission_required = None
@@ -49,7 +49,7 @@ class OwnerAndPermissionRequiredMixin(RegionalPermissionRequired):
         if 'subsection_id' in kwargs:
             return [SubSection.objects.get(id=kwargs['subsection_id']).region]
         object_ids = filter(lambda key: key.endswith('_id'), kwargs.keys())
-        objects = [ eval(object_id.replace("_id", "").capitalize()).objects.get(id=kwargs[object_id]) for object_id in object_ids]
+        objects = [eval(object_id.replace("_id", "").capitalize()).objects.get(id=kwargs[object_id]) for object_id in object_ids]
         return [object.region for object in objects]
 
 

@@ -7,8 +7,9 @@ class Question(BaseModel):
 
     NUMBER = "Number"
     MULTICHOICE = "MultiChoice"
+    DATE = "Date"
     ANSWER_TYPES = (
-        ("Date", "Date"),
+        ("Date", DATE),
         ("MultiChoice", MULTICHOICE),
         ("Number", NUMBER),
         ("Text", "Text"),

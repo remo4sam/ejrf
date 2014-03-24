@@ -8,3 +8,6 @@ class Theme(BaseModel):
 
     def __unicode__(self):
         return "%s" % self.name
+
+    def de_associate_questions(self):
+        self.questions.clear()

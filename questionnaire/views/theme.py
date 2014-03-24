@@ -1,13 +1,15 @@
+from braces.views import PermissionRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from questionnaire.forms.theme import ThemeForm
 from questionnaire.models import Theme
 
 
-class ThemeList(ListView):
+class ThemeList(PermissionRequiredMixin, ListView):
     model = Theme
     template_name = "themes/index.html"
+    permission_required = 'auth.can_view_users'
 
     def get_context_data(self, **kwargs):
         context = super(ThemeList, self).get_context_data(**kwargs)
@@ -15,10 +17,11 @@ class ThemeList(ListView):
         return context
 
 
-class NewTheme(CreateView):
+class NewTheme(PermissionRequiredMixin, CreateView):
     model = Theme
     success_url = reverse_lazy('theme_list_page')
     template_name = "themes/new.html"
+    permission_required = 'auth.can_view_users'
 
     def form_valid(self, form):
         response = super(NewTheme, self).form_valid(form)
@@ -33,11 +36,12 @@ class NewTheme(CreateView):
         return response
 
 
-class EditTheme(UpdateView):
+class EditTheme(PermissionRequiredMixin, UpdateView):
     model = Theme
     pk_url_kwarg = 'theme_id'
     success_url = reverse_lazy('theme_list_page')
     template_name = "themes/new.html"
+    permission_required = 'auth.can_view_users'
 
     def form_valid(self, form):
         response = super(EditTheme, self).form_valid(form)
@@ -49,4 +53,20 @@ class EditTheme(UpdateView):
         response = super(EditTheme, self).form_invalid(form)
         message = "Theme was not updated, see Errors below"
         messages.error(self.request, message)
+        return response
+
+
+class DeleteTheme(PermissionRequiredMixin, DeleteView):
+    model = Theme
+    pk_url_kwarg = 'theme_id'
+    success_url = reverse_lazy('theme_list_page')
+    template_name = "themes/index.html"
+    permission_required = 'auth.can_view_users'
+
+    def delete(self, request, *args, **kwargs):
+        theme_to_delete = self.model.objects.get(id=kwargs['theme_id'])
+        theme_to_delete.de_associate_questions()
+        response = super(DeleteTheme, self).delete(request, *args, **kwargs)
+        message = "Theme successfully deleted."
+        messages.success(self.request, message)
         return response
