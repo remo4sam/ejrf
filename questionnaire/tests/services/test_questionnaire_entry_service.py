@@ -769,3 +769,126 @@ class GridQuestionGroupEntryServiceTest(BaseTest):
             self.assertEqual(3, answer_group_answers.count())
             self.assertIn(question2_answer[0], answer_group_answers)
             self.assertIn(question3_answer[0], answer_group_answers)
+
+
+class AllowMultiplesGridEntryServiceTest(BaseTest):
+    def setUp(self):
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English")
+
+        self.section1 = Section.objects.create(title="Reported Cases of Selected Vaccine", order=1,
+                                               questionnaire=self.questionnaire, name="Reported Cases")
+
+        self.sub_section = SubSection.objects.create(title="subsection 1", order=1, section=self.section1)
+        self.sub_section2 = SubSection.objects.create(title="subsection 2", order=2, section=self.section1)
+
+        self.question_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1, grid=True,
+                                                           allow_multiples=True)
+
+        self.question1 = Question.objects.create(text='Favorite beer 1', UID='C00001', answer_type='MultiChoice', is_primary=True)
+        self.option1 = QuestionOption.objects.create(text='tusker lager', question=self.question1)
+        self.option2 = QuestionOption.objects.create(text='tusker lager1', question=self.question1)
+        self.option3 = QuestionOption.objects.create(text='tusker lager2', question=self.question1)
+
+        self.question2 = Question.objects.create(text='question 2', instructions="instruction 2",
+                                                 UID='C00002', answer_type='Text')
+
+        self.question3 = Question.objects.create(text='question 3', instructions="instruction 3",
+                                                 UID='C00003', answer_type='Number')
+
+        self.question4 = Question.objects.create(text='question 4', instructions="instruction 2",
+                                                 UID='C00005', answer_type='Date')
+
+        self.question_group.question.add(self.question1, self.question3, self.question2, self.question4)
+
+        QuestionGroupOrder.objects.create(question=self.question1, question_group=self.question_group, order=1)
+        QuestionGroupOrder.objects.create(question=self.question2, question_group=self.question_group, order=2)
+        QuestionGroupOrder.objects.create(question=self.question3, question_group=self.question_group, order=3)
+        QuestionGroupOrder.objects.create(question=self.question4, question_group=self.question_group, order=4)
+        self.country = Country.objects.create(name="Uganda")
+        self.version = 1
+        self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123'}
+        self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
+                     u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': [self.option1.id, 0],
+                     u'MultiChoice-1-response': [self.option2.id, 1],  u'MultiChoice-2-response': [self.option3.id, 2],
+                     u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
+                     u'Number-INITIAL_FORMS': u'3', u'Number-0-response': ['22',0],
+                     u'Number-1-response': ['44',1],  u'Number-2-response': ['33','2'],
+                     u'Text-MAX_NUM_FORMS': u'3', u'Text-TOTAL_FORMS': u'3',
+                     u'Text-INITIAL_FORMS': u'3', u'Text-0-response': ['Haha',0],
+                     u'Text-1-response': ['Hehe',1],  u'Text-2-response': ['hehehe', 2],
+                     u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
+                     u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['2014-2-2', 0],
+                     u'Date-1-response': ['2014-2-2',1],  u'Date-2-response': ['2014-2-2',2],
+                     }
+
+    def test_returns_multiple_forms_in_formsets_for_all_questions(self):
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial, data=self.data)
+        formsets = questionnaire_entry_form._formsets()
+
+        self.assertEqual(3, len(formsets['Number']))
+        self.assertEqual(3, len(formsets['Text']))
+        self.assertEqual(3, len(formsets['Date']))
+        self.assertEqual(3, len(formsets['MultiChoice']))
+
+    def test__returns_multiple_forms_in_formsets__when_there_are_more_than_one_grid_of_the_same_type_and_get_initial(self):
+        sub_section = SubSection.objects.create(title="subs", order=3, section=self.section1)
+
+        question_group = QuestionGroup.objects.create(subsection=sub_section, order=1, grid=True,
+                                                      allow_multiples=True)
+
+        question1 = Question.objects.create(text='Favorite bar', UID='C00011', answer_type='MultiChoice', is_primary=True)
+        option1 = QuestionOption.objects.create(text='bubles', question=question1)
+        option2 = QuestionOption.objects.create(text='Iguana', question=question1)
+        option3 = QuestionOption.objects.create(text='big mikes', question=question1)
+
+        question2 = Question.objects.create(text='q2',  UID='C00012', answer_type='Text')
+
+        question_group.question.add(question1, question2)
+
+        QuestionGroupOrder.objects.create(question=question1, question_group=question_group, order=1)
+        QuestionGroupOrder.objects.create(question=question2, question_group=question_group, order=2)
+
+
+        data = {u'MultiChoice-MAX_NUM_FORMS': u'5', u'MultiChoice-TOTAL_FORMS': u'5',
+             u'MultiChoice-INITIAL_FORMS': u'5', u'MultiChoice-0-response': [1, 0],
+             u'MultiChoice-1-response': [2, 1],  u'MultiChoice-2-response': [3, 2],
+             u'MultiChoice-3-response': [5, 0],  u'MultiChoice-4-response': [6, 1],
+             u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
+             u'Number-INITIAL_FORMS': u'3', u'Number-0-response': ['22',0],
+             u'Number-1-response': ['44',1],  u'Number-2-response': ['33', 2],
+             u'Text-MAX_NUM_FORMS': u'5', u'Text-TOTAL_FORMS': u'5',
+             u'Text-INITIAL_FORMS': u'5', u'Text-0-response': ['Haha',0],
+             u'Text-1-response': ['Hehe',1],  u'Text-2-response': ['hehehe', 2],
+             u'Text-3-response': ['Hehe',0],  u'Text-4-response': ['hehehe', 1],
+             u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
+             u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['2014-2-2', 0],
+             u'Date-1-response': ['2014-2-2',1],  u'Date-2-response': ['2014-2-2',2],
+             }
+
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial, data=data)
+        formsets = questionnaire_entry_form._formsets()
+
+        self.assertEqual(3, len(formsets['Number']))
+        self.assertEqual(5, len(formsets['Text']))
+        self.assertEqual(3, len(formsets['Date']))
+        self.assertEqual(5, len(formsets['MultiChoice']))
+
+        self.assertEqual(self.question3, formsets['Number'][0].initial['question'])
+        self.assertEqual(self.question3, formsets['Number'][1].initial['question'])
+        self.assertEqual(self.question3, formsets['Number'][2].initial['question'])
+
+        self.assertEqual(self.question2, formsets['Text'][0].initial['question'])
+        self.assertEqual(self.question2, formsets['Text'][1].initial['question'])
+        self.assertEqual(self.question2, formsets['Text'][2].initial['question'])
+        self.assertEqual(question2, formsets['Text'][3].initial['question'])
+        self.assertEqual(question2, formsets['Text'][4].initial['question'])
+
+        self.assertEqual(self.question4, formsets['Date'][0].initial['question'])
+        self.assertEqual(self.question4, formsets['Date'][1].initial['question'])
+        self.assertEqual(self.question4, formsets['Date'][2].initial['question'])
+
+        self.assertEqual(self.question1, formsets['MultiChoice'][0].initial['question'])
+        self.assertEqual(self.question1, formsets['MultiChoice'][1].initial['question'])
+        self.assertEqual(self.question1, formsets['MultiChoice'][2].initial['question'])
+        self.assertEqual(question1, formsets['MultiChoice'][3].initial['question'])
+        self.assertEqual(question1, formsets['MultiChoice'][4].initial['question'])

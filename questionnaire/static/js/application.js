@@ -1,5 +1,7 @@
 var form_has_changed = false;
 var editable = false;
+var $grid = $(".grid");
+var $grid_row = $('.grid_row');
 
 $(document).ready(function() {
     $('.pagination').children('ul').addClass('pagination')
@@ -15,7 +17,31 @@ $(document).ready(function() {
         $(this).popover('show');}, function(){
         $(this).popover('hide');
     });
+
+    $('#first_row').find('input[type=hidden]').each(function(index, element){
+            $(element).val(0);
+        });
 });
+
+function AddRow(selector) {
+    var newElement = $(selector).clone(true);
+    newElement.find('input[type=hidden]').each(function(){ $(this).remove()});
+    updateFormCounts(newElement);
+    newElement.find(':input').each(function(){
+        var $el = $(this);
+        var name = $el.attr('name')
+        $el.after('<input type="hidden" name="' + name + '" />')
+    });
+    $(selector).after(newElement);
+     assignRowNumbers()
+}
+
+function assignRowNumbers(){
+    $grid.find("span.number").each(function(i, element){
+        $(element).text(++i);
+    });
+}
+
 
 function cloneMore(selector) {
     $('a[data-toggle=popover]').popover('destroy');
@@ -45,10 +71,28 @@ function cloneMore(selector) {
     $('.datetimepicker').datepicker({ pickTime: false, autoclose: true });
 }
 
+function updateGridFormCounts(form_element){
+    form_element.find(':input').each(function() {
+        var inputType = $(this).attr('name').split('-', 1)[0];
+        var $total = $('#id_' + inputType + '-TOTAL_FORMS'),
+            total = $total.val();
+
+        var name = $(this).attr('name').replace(/-[\d]+-/g, '-'+total.toString()+'-');
+        var id = $(this).attr('id').replace(/-[\d]+-/g, '-'+total.toString()+'-');
+        $(this).attr({'name': name, 'id': id})
+        total++;
+
+        $total.val(total);
+        $('#id_' + inputType + '-MAX_NUM_FORMS').val(total);
+    });
+}
+
+
 function updateFormCounts(form_element){
     form_element.find(':input').each(function() {
         var inputType = $(this).attr('name').split('-', 1)[0];
-        var total = $('#id_' + inputType + '-TOTAL_FORMS').val();
+        var $total = $('#id_' + inputType + '-TOTAL_FORMS'),
+            total = $total.val();
 
         var name = $(this).attr('name').replace(/-[\d]+-/g, '-'+total.toString()+'-');
         var id = $(this).attr('id').replace(/-[\d]+-/g, '-'+total.toString()+'-');
@@ -67,13 +111,26 @@ function updateFormCounts(form_element){
         else
             total++;
 
-        $('#id_' + inputType + '-TOTAL_FORMS').val(total);
+        $total.val(total);
         $('#id_' + inputType + '-MAX_NUM_FORMS').val(total);
     });
 }
 
 $('.add-more').on('click', function(event) {
     cloneMore($(this).prev('.question-group'));
+});
+
+
+$('.add-row').on('click', function(event) {
+    $grid_row = $(this).parents('tr').prev();
+    AddRow($grid_row);
+    $grid.find('tr').each(function(i, el){
+        var $tr = $(this);
+        $tr.find('input[type=hidden]').each(function(index, element){
+            $(element).val(i);
+        });
+    });
+
 });
 
 $('textarea').on('keyup', function(event){

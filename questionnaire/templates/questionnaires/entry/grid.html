@@ -47,50 +47,16 @@
                 {% endfor %}
             </tr>
         {% endif %}
-
         </thead>
-        <tbody>
+
+        <tbody {% if a_group.allow_multiples%}class="grid"{% endif %}>
         {% for order in a_group.question_orders %}
-            {% if  order.question.is_primary %}
-                {% for option in order.question.options.all %}
-                    <tr>
-                    <td>
-                        <div class="question-number">
-                            {% spaceless %}
-                            <span>{{ section.order }}</span>
-                            {% if section.has_at_least_two_subsections %}
-                                <span>.{{ subsection.order }}</span>{% endif %}
-                            <span>.</span>
-                            {% if subsection.has_at_least_two_groups %}
-                                <span>{{ group.order }}.</span>{% endif %}
-                            {% if group.has_at_least_two_questions %}
-                                <span>{{ forloop.counter }}</span>{% endif %}
-                            {% endspaceless %}
-                        </div>
-                    </td>
-                    {% for field in order.question|get_form:formsets %}
-                        <td>{{ field }}</td>
-                    {% endfor %}
-                    {% for question in a_group.all_non_primary_questions %}
-                        {% for field in question|get_form:formsets %}
-                            <td>
-                                {% if field.errors %}
-                                    <div class="field-error grid-error" data-toggle="popover" data-html="true"
-                                         data-placement="right" data-trigger="hover"
-                                         data-content="{{ field.errors|striptags }}">
-
-                                {% endif %}
-                                {{ field }}
-                                {% if field.errors %}
-                                    </div>
-                                {% endif %}
-
-                            </td>
-                        {% endfor %}
-                    {% endfor %}
-                {% endfor %}
+            {% if  order.question.is_primary and a_group.display_all%}
+                {% include 'questionnaires/entry/_grid_display_all.html' %}
             {% endif %}
-        </tr>
+            {% if  order.question.is_primary and a_group.allow_multiples%}
+                {% include 'questionnaires/entry/_grid_allow_multiples.html' %}
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>

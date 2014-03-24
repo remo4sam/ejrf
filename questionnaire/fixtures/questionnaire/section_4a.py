@@ -8,7 +8,7 @@ section_1 = Section.objects.create(order=4, questionnaire=questionnaire, name="R
 
 sub_section = SubSection.objects.create(order=1, section=section_1, title="Administrative coverage")
 
-question1 = Question.objects.create(text="Vaccine/Supplement",
+question1 = Question.objects.create(text="Vaccine/Supplement", is_primary=True,
                                     UID='C00048', answer_type='MultiChoice',
                                     instructions="Please complete separately for each vaccine,  even if they are given in combination (e.g., if Pentavalent vaccine DTP-HepB-Hib is used, fill in the data for DTP3, HepB3 and Hib3)")
 
@@ -64,7 +64,7 @@ question4 = Question.objects.create(text="Number of doses administered through r
                                     UID='C00051', answer_type='Number')
 question5 = Question.objects.create(text="Percent coverage (=C/B*100)", UID='C00052', answer_type='Number')
 
-parent1 = QuestionGroup.objects.create(subsection=sub_section, order=1, allow_multiples=True)
+parent1 = QuestionGroup.objects.create(subsection=sub_section, order=1, allow_multiples=True, grid=True)
 parent1.question.add(question1, question2, question3, question3, question4, question5)
 
 QuestionGroupOrder.objects.create(question=question1, question_group=parent1, order=1)

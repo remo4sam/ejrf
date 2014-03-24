@@ -59,7 +59,7 @@ class QuestionGroup(BaseModel):
 
     def map_orders_with_answer_type(self, mapped_orders):
         orders = self.orders.order_by('order').select_related()
-        if self.primary_question() and self.grid:
+        if self.primary_question() and self.grid and self.display_all:
             for option in self.primary_question()[0].options.all():
                 map_question_type_with(orders, mapped_orders, option)
         else:

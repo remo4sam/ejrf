@@ -17,6 +17,7 @@ class QuestionList(PermissionRequiredMixin, View):
     def get(self, *args, **kwargs):
         finalized_questionnaire = Questionnaire.objects.filter(status=Questionnaire.FINALIZED)
         active_questions = None
+
         if finalized_questionnaire.exists():
             active_questions = finalized_questionnaire.latest('created').get_all_questions()
         questions = self.get_questions_for_user().filter(child=None)

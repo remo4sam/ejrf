@@ -2,6 +2,7 @@ from django.forms.formsets import formset_factory
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
 from questionnaire.models import Question, AnswerGroup, QuestionGroupOrder, Answer
 from questionnaire.models.answers import MultiChoiceAnswer, NumericalAnswer, DateAnswer, TextAnswer
+from questionnaire.utils.questionnaire_entry_helpers import extra_rows
 
 
 ANSWER_FORM = {
@@ -40,8 +41,10 @@ class QuestionnaireEntryFormService(object):
         for answer_type in ANSWER_FORM.keys():
             mapped_orders = self.mapped_question_orders.get(answer_type)
             if mapped_orders:
-                _formset_factory = formset_factory(ANSWER_FORM[answer_type], max_num=len(mapped_orders))
-                initial = self._get_initial(mapped_orders)
+                max_num = self.data.get('%s-TOTAL_FORMS'%answer_type, None) if self.data else len(mapped_orders)
+                max_num = int(max_num)
+                _formset_factory = formset_factory(ANSWER_FORM[answer_type], max_num=max_num)
+                initial = self._get_initial(mapped_orders, max_num, answer_type)
                 formsets[answer_type] = _formset_factory(prefix=answer_type, initial=initial, data=self.data)
         return formsets
 
@@ -80,8 +83,20 @@ class QuestionnaireEntryFormService(object):
         if answer.is_draft():
             initial['answer'] = answer
 
-    def _get_initial(self, orders):
-        return [self._initial(order_dict=order) for order in orders]
+    def _get_initial(self, orders, max_num, answer_type):
+        if max_num == len(orders):
+            return [self._initial(order_dict=order) for order in orders]
+        initial =[]
+        row_numbers = iter(extra_rows(self.data, answer_type))
+        for order_dict in orders:
+            order = order_dict['order']
+            group = order.question_group
+            if group.allow_multiples:
+                for row_number in row_numbers.next():
+                    questions = group.ordered_questions()
+                    question_orders = filter(lambda order: order['order'].question in questions, orders)
+                    [initial.append(self._initial(order_dict=extra_order)) for extra_order in question_orders]
+        return initial
 
     def is_valid(self):
         formset_checks = [formset.is_valid() for formset in self.formsets.values()]

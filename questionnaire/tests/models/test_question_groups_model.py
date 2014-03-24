@@ -238,3 +238,26 @@ class QuestionGroupTest(BaseTest):
 
         for order in question_group.orders.order_by('order'):
             self.assertEqual([{'option': '', 'order': order}], type_order_mapping[order.question.answer_type])
+
+    def test_for_allow_multiples_grids_it_still_maps_orders_for_non_primary_questions(self):
+        available_answer_types = ['Date', 'Number', 'MultiChoice', 'Text']
+        type_order_mapping = {type_: [] for type_ in available_answer_types}
+        question_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1, grid=True, allow_multiples=True)
+        question1 = Question.objects.create(text='Favorite beer 1', UID='C00001', answer_type='MultiChoice', is_primary=True)
+        QuestionOption.objects.create(text='tusker lager', question=question1)
+        QuestionOption.objects.create(text='tusker lager1', question=question1)
+        QuestionOption.objects.create(text='tusker lager2', question=question1)
+        question2 = Question.objects.create(text='question 2', instructions="instruction 2", UID='C00002', answer_type='Text')
+        question3 = Question.objects.create(text='question 3', instructions="instruction 3", UID='C00003', answer_type='Number')
+        question4 = Question.objects.create(text='question 4', instructions="instruction 2", UID='C00005', answer_type='Date')
+        question_group.question.add(question1, question3, question2, question4)
+
+        QuestionGroupOrder.objects.create(question=question1, question_group=question_group, order=1)
+        QuestionGroupOrder.objects.create(question=question2, question_group=question_group, order=2)
+        QuestionGroupOrder.objects.create(question=question3, question_group=question_group, order=3)
+        QuestionGroupOrder.objects.create(question=question4, question_group=question_group, order=4)
+
+        question_group.map_orders_with_answer_type(type_order_mapping)
+
+        for order in question_group.orders.order_by('order'):
+            self.assertEqual([{'option': '', 'order': order}], type_order_mapping[order.question.answer_type])
