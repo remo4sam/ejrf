@@ -12,6 +12,7 @@ $(function(){
         var url = $(this).attr('data-href'),
             modalId = $('#preview_modal');
 
+        $("#ajax-content").html("<img src=\"/static/img/spinner.gif\"> Loading, please wait...");
         modalId.modal('show');
         modalId.removeData('bs.modal');
 
