@@ -1,6 +1,6 @@
-<div class="modal fade" id="edit_questionnaire_name" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+<div class="modal fade" id="edit_questionnaire_name_{{ questionnaire.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
-    <form action="{% url "edit_qestionnaire_name" questionnaire.id %}" method="POST">
+    <form action="{% url "edit_questionnaire_name" questionnaire.id %}" method="POST">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -8,16 +8,13 @@
                     <h4 class="modal-title cyan" id="myModalLabel">Edit Name Of Questionnaire</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="questionnaire_name">New Questionnaire Name</label>
-                        <input class="form-control" id="questionnaire_name" maxlength="100" name="name" type="text"
-                               value="{{ questionnaire.name }}">
-                    </div>
+                    <input class="form-control" id="questionnaire_name" maxlength="100" name="name" type="text"
+                           value="{{ questionnaire.name }}">
                     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal"> Close</button>
-                    <button type="submit" class="btn btn-primary">SAVE</button>
+                    <button type="submit" class="btn btn-default"><span class="green bold"><i class="glyphicon glyphicon-ok"></i> SAVE</span></button>
                 </div>
             </div>
         </div>

@@ -67,7 +67,6 @@ class EditQuestionnaireNameViewTest(BaseTest):
         self.assertRedirects(response, expected_url='/manage/')
         self.assertIn('Name of Questionnaire updated successfully.', response.cookies['messages'].value)
 
-    
 
 class FinalizeRegionalQuestionnaireViewTest(BaseTest):
     def setUp(self):

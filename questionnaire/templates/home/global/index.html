@@ -29,19 +29,16 @@
                                        href="{% url 'questionnaire_entry_page' questionnaire.id first_section.id %}">{{ questionnaire.name }} {{ questionnaire.year }}</a>
                                     <span class="pull-right">
                                     <a href="" class="btn btn-xs btn-default" data-toggle="modal"
-                                       data-target="#edit_questionnaire_name" id="id-edit"><span
+                                       data-target="#edit_questionnaire_name_{{ questionnaire.id }}" id="id-edit-questionnaire-{{ questionnaire.id }}"><span
                                             class="glyphicon glyphicon-pencil"></span> Edit</a>
                                     <a class="btn btn-xs btn-default" id="id-finalize-{{ questionnaire.id }}"
                                        post="true" phref="/questionnaire/{{ questionnaire.id }}/finalize/"
                                        pdata='{"questionnaire_id": {{ questionnaire.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}"}'><span><img
                                             class="glyph-icon" src="/static/img/glyphicons_lock.png"></span></a>
-
-
-                                    {% include 'base/modals/edit_name.html' with a_form=filter_form modal_id='edit_questionnaire_name' action=action %}
-
                                 </span>
                                 {% endwith %}
                             </li>
+                            {% include 'base/modals/edit_name.html' with a_form=filter_form modal_id='edit_questionnaire_name' action=action %}
                         {% endfor %}
                     </ul>
                 </div>

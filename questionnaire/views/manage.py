@@ -41,12 +41,6 @@ class ManageJRF(MultiplePermissionsRequiredMixin, View):
 class EditQuestionnaireNameView(PermissionRequiredMixin, View):
     permission_required = 'auth.can_edit_questionnaire'
 
-    def __init__(self, *args, **kwargs):
-        super(EditQuestionnaireNameView, self).__init__(*args, **kwargs)
-        self.model = Questionnaire
-        self.template_name = "home/global/index.html"
-        self.pk_url_kwarg = 'questionnaire_id'
-
     def post(self, *args, **kwargs):
         questionnaire = Questionnaire.objects.get(id=kwargs['questionnaire_id'])
         questionnaire.name = self.request.POST['name']
