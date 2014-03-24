@@ -20,6 +20,7 @@ class Question(BaseModel):
     UID = models.CharField(blank=False, null=False, max_length=6)
     answer_type = models.CharField(blank=False, null=False, max_length=20, choices=ANSWER_TYPES)
     region = models.ForeignKey("Region", blank=False, null=True, related_name="questions")
+    theme = models.ForeignKey("Theme", null=True, related_name="questions")
     is_primary = models.BooleanField(blank=False, null=False, default=False)
     is_required = models.BooleanField(blank=False, null=False, default=False)
     parent = models.ForeignKey("Question",blank=False, null=True, related_name="child")

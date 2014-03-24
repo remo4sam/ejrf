@@ -1,6 +1,7 @@
+from time import sleep
 from lettuce import step, world
 from questionnaire.features.pages.questions import QuestionListingPage, CreateQuestionPage
-from questionnaire.models import Question
+from questionnaire.models import Question, Theme
 
 
 @step(u'And I have 100 questions')
@@ -11,8 +12,13 @@ def and_i_have_100_questions(step):
 
 @step(u'And I visit the question listing page')
 def and_i_visit_the_question_listing_page(step):
-    world.page.click_by_id('id-question-bank-link')
     world.page = QuestionListingPage(world.browser)
+    world.page.visit()
+
+@step(u'And I have two themes')
+def and_i_have_two_themes(step):
+    world.theme1 = Theme.objects.create(name="Theme 1")
+    world.theme2 = Theme.objects.create(name="Theme 2")
 
 @step(u'Then I should see all questions paginated')
 def then_i_should_see_all_questions_paginated(step):
@@ -24,9 +30,10 @@ def then_i_should_see_all_questions_paginated(step):
 def and_i_click_add_new_question_page(step):
     world.page.click_by_id('id-add-new-question-link')
 
-world.data = {'text': 'How many measles cases did you find this year',
-              'instructions': 'Just give an answer',
-              'export_label': 'blah'}
+    world.data = {'text': 'How many measles cases did you find this year',
+                  'instructions': 'Just give an answer',
+                  'export_label': 'blah',
+                  'theme': world.theme1.id}
 
 @step(u'And I fill in the question details')
 def and_i_fill_in_the_question_details(step):
@@ -74,7 +81,8 @@ def then_i_should_not_see_that_option_field(step):
 def and_i_fill_in_the_multichoice_question_form_data(step):
     data = {'text': 'How many measles cases did you find this year',
             'instructions': 'Just give an answer',
-            'export_label': 'blah'}
+            'export_label': 'blah',
+            'theme': world.theme2.id}
     world.page.fill_form(data)
 
 @step(u'And I check custom option')
@@ -85,7 +93,8 @@ def and_i_check_custom_option(step):
 def and_i_have_a_question_without_answers(step):
     data = {'text': 'B. Number of cases tested',
             'instructions': "Enter the total number of cases",
-            'UID': '00001', 'answer_type': 'Number'}
+            'UID': '00001', 'answer_type': 'Number',
+            'theme': world.theme1}
     world.question = Question.objects.create(**data)
 
 @step(u'And I click delete on that question')

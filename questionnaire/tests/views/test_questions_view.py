@@ -2,7 +2,8 @@ from urllib import quote
 from django.core.urlresolvers import reverse
 from django.test import Client
 from questionnaire.forms.questions import QuestionForm
-from questionnaire.models import Question, Questionnaire, Section, SubSection, Country, Answer, Region, QuestionGroup
+from questionnaire.models import Question, Questionnaire, Section, SubSection, Country, Answer, Region, QuestionGroup, \
+    Theme, QuestionOption
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -16,10 +17,13 @@ class QuestionViewTest(BaseTest):
         self.client.login(username=self.user.username, password='pass')
 
         self.url = '/questions/'
+        self.theme = Theme.objects.create(name="Another theme")
         self.form_data = {'text': 'How many kids were immunised this year?',
                           'instructions': 'Some instructions',
-                          'export_label': 'blah',
-                          'answer_type': 'Number'}
+                          'answer_type': 'Number',
+                          'export_label': 'Some export text',
+                          'options': ['', ],
+                          'theme': self.theme.id}
 
     def test_get_list_question(self):
         questions = Question.objects.create(text='B. Number of cases tested',
@@ -107,15 +111,18 @@ class QuestionViewTest(BaseTest):
         self.assertEqual('New Question', response.context['title'])
 
     def test_post_create_question(self):
-        self.assertRaises(Question.DoesNotExist, Question.objects.get, **self.form_data)
+        data = self.form_data.copy()
+        del data['options']
+        self.assertRaises(Question.DoesNotExist, Question.objects.get, **data)
         response = self.client.post(self.url + 'new/', data=self.form_data)
         self.assertRedirects(response, self.url)
-        self.failUnless(Question.objects.get(**self.form_data))
+        self.failUnless(Question.objects.get(**data))
         self.assertIn("Question successfully created.", response.cookies['messages'].value)
 
     def test_post_create_with_invalid_form_returns_errors(self):
         form_data = self.form_data.copy()
         form_data['text'] = ''
+        del form_data['options']
 
         self.assertRaises(Question.DoesNotExist, Question.objects.get, **form_data)
         response = self.client.post(self.url + 'new/', data=form_data)
@@ -131,8 +138,11 @@ class QuestionViewTest(BaseTest):
         form_data = self.form_data.copy()
         form_data['answer_type'] = 'MultiChoice'
         question_options = ['yes, No, Maybe, Nr, Chill']
+        del form_data['options']
         self.assertRaises(Question.DoesNotExist, Question.objects.get, **form_data)
-        form_data['options'] = question_options
+
+        form_data.update({'options': question_options})
+
         response = self.client.post(self.url + 'new/', data=form_data)
         self.assertRedirects(response, self.url)
         questions = Question.objects.filter(text=form_data['text'], instructions=form_data['instructions'],
@@ -146,8 +156,11 @@ class QuestionViewTest(BaseTest):
     def test_post_multichoice_question_with_options_with_form_errors(self):
         form_data = self.form_data.copy()
         form_data['answer_type'] = 'MultiChoice'
+        del form_data['options']
+
         self.assertRaises(Question.DoesNotExist, Question.objects.get, **form_data)
-        form_data['options'] = []
+        form_data.update({'options': []})
+
         response = self.client.post(self.url + 'new/', data=form_data)
         self.assertRaises(Question.DoesNotExist, Question.objects.get, text=form_data['text'], instructions=form_data['instructions'], answer_type=form_data['answer_type'])
         self.assertIn('Question NOT created. See errors below.', response.content)
@@ -158,8 +171,11 @@ class QuestionViewTest(BaseTest):
     def test_delete_question(self):
         data = {'text': 'B. Number of cases tested',
                 'instructions': "Enter the total number of cases",
-                'UID': '00001', 'answer_type': 'Number'}
-        question = Question.objects.create(**data)
+                'UID': '00001', 'answer_type': 'Number',
+                'theme': self.theme.id}
+        query_data = data.copy()
+        del query_data['theme']
+        question = Question.objects.create(**query_data)
         response = self.client.post('/questions/%s/delete/' % question.id, {})
         self.assertRedirects(response, self.url)
         self.assertRaises(Question.DoesNotExist, Question.objects.get, **data)
@@ -169,8 +185,11 @@ class QuestionViewTest(BaseTest):
     def test_does_not_delete_question_when_it_belongs_to_others(self):
         data = {'text': 'B. Number of cases tested',
                 'instructions': "Enter the total number of cases",
-                'UID': '00001', 'answer_type': 'Number'}
-        question = Question.objects.create(region=Region.objects.create(name="AFR"), **data)
+                'UID': '00001', 'answer_type': 'Number',
+                'theme': self.theme.id}
+        query_data = data.copy()
+        del query_data['theme']
+        question = Question.objects.create(region=Region.objects.create(name="AFR"), **query_data)
         delete_url = '/questions/%s/delete/' % question.id
         response = self.client.post(delete_url, {})
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(delete_url))
@@ -178,7 +197,8 @@ class QuestionViewTest(BaseTest):
     def test_does_not_delete_question_when_it_has_answers(self):
         data = {'text': 'B. Number of cases tested',
                 'instructions': "Enter the total number of cases",
-                'UID': '00001', 'answer_type': 'Number'}
+                'UID': '00001', 'answer_type': 'Number',
+                'theme': self.theme}
         question = Question.objects.create(**data)
         country = Country.objects.create(name="Peru")
         Answer.objects.create(question=question, country=country, status="Submitted")
@@ -204,10 +224,12 @@ class RegionalQuestionsViewTest(BaseTest):
         self.client.login(username=self.user.username, password='pass')
 
         self.url = '/questions/'
+        self.theme = Theme.objects.create(name="Another theme")
         self.form_data = {'text': 'How many kids were immunised this year?',
                           'instructions': 'Some instructions',
                           'export_label': 'blah',
-                          'answer_type': 'Number'}
+                          'answer_type': 'Number',
+                          'theme': self.theme.id}
 
     def test_get_regional_questions(self):
         question1 = Question.objects.create(text='Q1', UID='C00003', answer_type='Number', region=self.region)
@@ -235,7 +257,8 @@ class RegionalQuestionsViewTest(BaseTest):
     def test_delete_question(self):
         data = {'text': 'B. Number of cases tested',
                 'instructions': "Enter the total number of cases",
-                'UID': '00001', 'answer_type': 'Number'}
+                'UID': '00001', 'answer_type': 'Number',
+                'theme': self.theme}
         question = Question.objects.create(region=self.region, **data)
         response = self.client.post('/questions/%s/delete/' % question.id, {})
         self.assertRedirects(response, self.url)
@@ -249,7 +272,8 @@ class RegionalQuestionsViewTest(BaseTest):
                                                                                         region_name="ASEAN")
         data = {'text': 'B. Number of cases tested',
                 'instructions': "Enter the total number of cases",
-                'UID': '00001', 'answer_type': 'Number'}
+                'UID': '00001', 'answer_type': 'Number',
+                'theme': self.theme}
         paho = Region.objects.create(name="paho")
         question = Question.objects.create(region=paho, **data)
         self.assert_permission_required(self.url)
@@ -276,10 +300,12 @@ class DoesNotExistExceptionViewTest(BaseTest):
         self.client.login(username=self.user.username, password='pass')
 
         self.url = '/questions/'
+        self.theme = Theme.objects.create(name="Another theme")
         self.form_data = {'text': 'How many kids were immunised this year?',
                           'instructions': 'Some instructions',
                           'export_label': 'blah',
-                          'answer_type': 'Number'}
+                          'answer_type': 'Number',
+                          'theme': self.theme.id}
 
     def test_get_regional_questions(self):
         unexisting_id_question = 123
@@ -305,12 +331,13 @@ class EditQuestionViewTest(BaseTest):
         self.question1 = Question.objects.create(text='q1', UID='C00003', answer_type='Number')
         self.parent_group = QuestionGroup.objects.create(subsection=self.sub_section, name="group1")
         self.parent_group.question.add(self.question1)
-
+        self.theme = Theme.objects.create(name="Another theme")
         self.url = '/questions/%d/edit/'%self.question1.id
         self.form_data = {'text': 'How many kids were immunised this year?',
                           'instructions': 'Some instructions',
                           'export_label': 'blah',
-                          'answer_type': 'Number'}
+                          'answer_type': 'Number',
+                          'theme': self.theme.id}
 
     def test_get_edit_question(self):
         response = self.client.get(self.url)
@@ -448,7 +475,8 @@ class EditQuestionViewTest(BaseTest):
                 'instructions': 'Some instructions',
                 'export_label': 'blah',
                 'answer_type': 'MultiChoice',
-                'options': changed_options}
+                'options': changed_options,
+                'theme': self.theme.id}
 
         response = self.client.post(self.url, data=data)
 

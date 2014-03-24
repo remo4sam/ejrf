@@ -36,7 +36,13 @@
                                 <li><a href="{% url 'list_users_page' %}">USERS</a></li>
                             {% endif %}
                             {% if perms.auth.can_view_users or perms.auth.can_edit_questionnaire %}
-                                <li><a href="{% url 'list_questions_page' %}" id="id-question-bank-link">QUESTION BANK</a></li>
+                                 <li class="dropdown" id="id-questions-drop-down">
+                                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">QUESTIONS <b class="caret"></b></a>
+                                  <ul class="dropdown-menu">
+                                        <li><a href="{% url 'list_questions_page' %}" id="id-question-bank-link">QUESTION BANK</a></li>
+                                        <li><a href="{% url 'theme_list_page' %}" id="id-themes">THEMES</a></li>
+                                  </ul>
+                                </li>
                             {% endif %}
                         </ul>
                     </div>

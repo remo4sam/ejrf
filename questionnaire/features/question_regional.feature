@@ -2,6 +2,7 @@ Feature: Regional Questions
     Scenario: Regional Admin deleting questions from Question Bank
         Given that I am logged in as a regional admin
         And I have regional questions in the question bank
+        And I have two themes
         When I navigate to the question bank
         Then I should see an option to delete each question
         When I choose to delete a question
@@ -12,6 +13,7 @@ Feature: Regional Questions
 
     Scenario: Regional Admin Creating Simple Question
         Given that I am logged in as a regional admin
+        And I have two themes
         And I visit the question listing page
         And I click add new question page
         And I fill in the question details
@@ -20,6 +22,7 @@ Feature: Regional Questions
 
     Scenario: Regional Admin Creating Simple MultiChoice Question
         Given that I am logged in as a regional admin
+        And I have two themes
         And I visit the question listing page
         And I click add new question page
         And I fill in the multichoice question form data

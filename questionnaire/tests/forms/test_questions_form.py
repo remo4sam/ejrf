@@ -1,17 +1,21 @@
 from questionnaire.forms.questions import QuestionForm
-from questionnaire.models import Question, QuestionOption, Questionnaire, Section, SubSection, QuestionGroup, Region
+from questionnaire.models import Question, QuestionOption, Questionnaire, Section, SubSection, QuestionGroup, Region, \
+    Theme
 from questionnaire.tests.base_test import BaseTest
 
 
 class QuestionsFormTest(BaseTest):
 
     def setUp(self):
+        self.theme = Theme.objects.create(name="Another theme")
         self.form_data = {'text': 'How many kids were immunised this year?',
                           'instructions': 'Some instructions',
                           'short_instruction': 'short version',
                           'answer_type': 'Number',
                           'export_label': 'Some export text',
-                          'options': ['', ]}
+                          'options': ['', ],
+                          'theme': self.theme.id}
+
 
     def test_valid(self):
         section_form = QuestionForm(data=self.form_data)
@@ -56,7 +60,8 @@ class QuestionsFormTest(BaseTest):
                 'short_instruction': 'short version',
                 'export_label': 'blah',
                 'answer_type': 'MultiChoice',
-                'options': options}
+                'options': options,
+                'theme': self.theme.id}
 
         question_form = QuestionForm(data=form)
         question = question_form.save(commit=True)
@@ -72,7 +77,8 @@ class QuestionsFormTest(BaseTest):
                 'short_instruction': 'short version',
                 'export_label': 'blah',
                 'answer_type': 'MultiChoice',
-                'options': options}
+                'options': options,
+                'theme': self.theme.id}
 
         question_form = QuestionForm(data=form)
         question = question_form.save(commit=True)
@@ -87,7 +93,8 @@ class QuestionsFormTest(BaseTest):
                 'instructions': 'Some instructions',
                 'short_instruction': 'short version',
                 'export_label': 'blah',
-                'answer_type': 'Text'}
+                'answer_type': 'Text',
+                'theme': self.theme.id}
         question_form = QuestionForm(region=region, data=form)
         question = question_form.save(commit=True)
         self.assertEqual(region, question.region)
@@ -98,7 +105,8 @@ class QuestionsFormTest(BaseTest):
                 'short_instruction': 'short version',
                 'export_label': 'blah',
                 'answer_type': 'MultiChoice',
-                'options': ['', '']}
+                'options': ['', ''],
+                'theme': self.theme.id}
         question_form = QuestionForm(data=form)
 
         self.assertFalse(question_form.is_valid())
@@ -114,11 +122,13 @@ class QuestionHistoryTest(BaseTest):
         self.sub_section = SubSection.objects.create(title="subsection", order=1, section=self.section)
         self.question1 = Question.objects.create(text='q1', UID='C00003', answer_type='Number')
         self.parent_group = QuestionGroup.objects.create(subsection=self.sub_section, name="group1")
+        self.theme = Theme.objects.create(name="Theme1")
         self.parent_group.question.add(self.question1)
 
         self.form_data = {'text': 'q1 edited.',
                           'answer_type': 'Number',
-                          'export_label': 'Some export text'}
+                          'export_label': 'Some export text',
+                          'theme': self.theme.id}
 
     def test_editing_question_used_in_an_unpublished_questionnaire_updates_question(self):
         data = self.form_data.copy()
@@ -267,6 +277,7 @@ class QuestionHistoryTest(BaseTest):
                 'instructions': 'Some instructions',
                 'export_label': 'blah',
                 'answer_type': 'MultiChoice',
+                'theme': self.theme.id,
                 'options': changed_options}
 
         history_form = QuestionForm(data=data, instance=self.question1)

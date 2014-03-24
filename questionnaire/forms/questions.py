@@ -23,13 +23,15 @@ class QuestionForm(ModelForm):
         self.fields['answer_type'].label = 'Response Type'
         self.fields['text'].label = 'Display label (Online)'
         self.fields['export_label'].label = 'Export label (Detail)'
+        self.fields['theme'].empty_label = 'Select theme'
 
     class Meta:
         model = Question
-        fields = ('text', 'export_label', 'instructions', 'answer_type', 'options')
+        fields = ('text', 'export_label', 'instructions', 'answer_type', 'options', 'theme')
         widgets = {'text':  forms.Textarea(attrs={"rows": 6, "cols": 50}),
                    'instructions':  forms.Textarea(attrs={"rows": 6, "cols": 50}),
                    'answer_type': forms.Select(attrs={'class': 'form-control'}),
+                   'theme': forms.Select(attrs={'class': 'form-control'}),
                    'export_label': forms.Textarea(attrs={"rows": 2, "cols": 50})}
 
     def clean(self):
@@ -82,7 +84,8 @@ class QuestionForm(ModelForm):
         attributes = model_to_dict(self.instance, exclude=('id',))
         attributes.update({'parent': self.instance})
         del attributes['region']
-        return Question.objects.create(region=self.instance.region, **attributes)
+        del attributes['theme']
+        return Question.objects.create(region=self.instance.region, theme=self.instance.theme, **attributes)
 
     def _editing_published_question(self):
         if not (self.instance and self.instance.id):

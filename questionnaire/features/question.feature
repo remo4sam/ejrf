@@ -7,6 +7,7 @@ Feature: Questions feature
 
   Scenario: Create a simple question
     Given I am logged in as a global admin
+    And I have two themes
     And I visit the question listing page
     And I click add new question page
     And I fill in the question details
@@ -15,6 +16,7 @@ Feature: Questions feature
 
     Scenario: Create a simple multiChoice question
       Given I am logged in as a global admin
+      And I have two themes
       And I visit the question listing page
       And I click add new question page
       And I fill in the multichoice question form data
@@ -31,6 +33,7 @@ Feature: Questions feature
       
     Scenario: Delete a simple question
       Given I am logged in as a global admin
+      And I have two themes
       And I have a question without answers
       And I visit the question listing page
       And I click delete on that question

@@ -1,9 +1,7 @@
-from time import sleep
 from lettuce import world, step
-from splinter import Browser
+
 from questionnaire.features.pages.home import HomePage
 from questionnaire.features.pages.manage import ManageJrfPage
-from questionnaire.features.pages.users import LoginPage
 from questionnaire.models import Questionnaire, Section, Organization, Region, SubSection, Question, QuestionGroup
 
 
@@ -37,7 +35,7 @@ def and_i_have_two_draft_questionnaires_for_two_years(step):
 
 @step(u'Then I should see manage JRF, users, question bank, extract links')
 def then_i_should_see_manage_jrf_users_question_bank_extract_and_attachments_links(step):
-    world.page.is_text_present("HOME", "EXTRACT", "MANAGE JRF", "USERS", "QUESTION BANK")
+    world.page.is_text_present("HOME", "EXTRACT", "MANAGE JRF", "USERS", "QUESTIONS")
 
 
 @step(u'Then I should see a list of the three most recent finalised questionnaires')

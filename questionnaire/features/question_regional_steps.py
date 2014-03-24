@@ -1,4 +1,5 @@
 from lettuce import step, world
+from questionnaire.features.pages.questions import QuestionListingPage
 from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign
 from questionnaire.features.pages.users import LoginPage
 from questionnaire.models import Question
@@ -23,7 +24,8 @@ def and_i_have_regional_questions_in_the_question_bank(step):
 
 @step(u'When I navigate to the question bank')
 def when_i_navigate_to_the_question_bank(step):
-    world.page.click_by_id('id-question-bank-link')
+    world.page = QuestionListingPage(world.browser)
+    world.page.visit()
 
 
 @step(u'Then I should see an option to delete each question')

@@ -1,7 +1,4 @@
-from django.contrib.auth.models import User
-from questionnaire.models import Country
 from questionnaire.models.themes import Theme
-from questionnaire.models.users import UserProfile
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -17,3 +14,7 @@ class ThemeTest(BaseTest):
     def test_theme_stores(self):
         theme = Theme.objects.create(name="Theme1", description="Our theme.")
         self.failUnless(theme.id)
+
+    def test_theme_unicode(self):
+        theme = Theme.objects.create(name="Theme1", description="Our theme.")
+        self.assertEqual(str(theme), "Theme1".encode('utf8'))
