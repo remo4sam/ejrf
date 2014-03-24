@@ -2,8 +2,12 @@
 
 <div id="question-list">
     <div class="tab-content">
+
+    <input type="checkbox" id="hide-assigned-questions" subsection-id="{{ subsection.id }}"/>
+    <label> Hide assigned questions</label>
         {% for question_page in questions|divide_to_paginate %}
-            <div class="tab-pane {% if forloop.first %}active in{% endif %}" id="page_{{ assign_question_form.subsection.id }}_{{ forloop.counter }}">
+            <div class="tab-pane {% if forloop.first %}active in{% endif %}"
+                 id="page_{{ assign_question_form.subsection.id }}_{{ forloop.counter }}">
                 <table class="table table-hover table-bordered">
                     <thead>
                     <tr>
@@ -15,8 +19,9 @@
                     </thead>
                     <tbody>
                     {% for question in question_page %}
-                        <tr {% if question in active_questions %} class="grey-bg" {% endif %}>
-                            <td><input type="checkbox" value="{{ question.id }}" name="questions" {% if question in active_questions %} disabled="disabled" checked {% endif %}/></td>
+                        <tr {% if question in active_questions %} class="grey-bg" {% endif %} id="id-question-{{ question.id }}">
+                            <td><input type="checkbox" value="{{ question.id }}" name="questions"
+                                    {% if question in active_questions %} disabled="disabled" checked {% endif %}/></td>
                             <td>{{ question.UID }} </td>
                             <td id="text-td">{{ question.export_label }}</td>
                             <td>{{ question.answer_type }}</td>
@@ -31,8 +36,9 @@
     <div class="pagination">
         <ul class="pagination">
             {% for question_page in questions|divide_to_paginate %}
-                <li {% if forloop.first %}class="active"{% endif %}><a href="#page_{{ assign_question_form.subsection.id }}_{{ forloop.counter }}"
-                                                                       data-toggle="tab">{{ forloop.counter }}</a></li>
+                <li {% if forloop.first %}class="active"{% endif %}><a
+                        href="#page_{{ assign_question_form.subsection.id }}_{{ forloop.counter }}"
+                        data-toggle="tab">{{ forloop.counter }}</a></li>
             {% endfor %}
         </ul>
     </div>

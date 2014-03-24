@@ -50,6 +50,7 @@ class AssignQuestionViewTest(BaseTest):
 
         self.assertEqual(1, len(response.context['active_questions']))
         self.assertIn(question1, response.context['active_questions'])
+        self.assertIn(question1, response.context['questions'])
 
     def test_GET_does_not_put_parent_questions_in_the_context(self):
         parent_question = Question.objects.create(text='parent q', UID='C000R3', answer_type='Number')
@@ -126,6 +127,16 @@ class AssignQuestionViewTest(BaseTest):
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url))
         response = self.client.post(self.url)
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(self.url))
+
+    def test_GET_with_hide_param_puts_list_of_only_unused_questions_in_context(self):
+        question1 = Question.objects.create(text='USed question', UID='C00033', answer_type='Number',
+                                            region=self.region)
+        question1.question_group.create(subsection=self.subsection)
+
+        hide_url = '/subsection/%d/assign_questions/?hide=1' % self.subsection.id
+        response = self.client.get(hide_url)
+        self.assertIn(question1, response.context['active_questions'])
+        self.assertNotIn(question1, response.context['questions'])
 
 
 class UnAssignQuestionViewTest(BaseTest):
