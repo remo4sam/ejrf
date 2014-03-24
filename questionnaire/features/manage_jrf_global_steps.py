@@ -95,7 +95,7 @@ def and_i_give_it_a_new_name(step):
 
 @step(u'When I choose to duplicate the questionnaire')
 def when_i_choose_to_duplicate_the_questionnaire(step):
-    world.page.click_by_id('save-select_survey_wizard')
+    world.page.click_by_id('save-questionnaire--btn')
 
 
 @step(u'Then I should see a message that the questionnaire was duplicated successfully')

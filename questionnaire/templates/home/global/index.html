@@ -13,10 +13,10 @@
                     <span>
                         <h3 class="panel-title">In Progress
                             <a href="" class="btn btn-default btn-xs pull-right" data-toggle="modal"
-                               data-target="#select_survey_wizard" id="id-create-new">
+                               data-target="#duplicate-questionnaire--modal" id="id-create-new">
                                 <span class="glyphicon glyphicon-plus-sign"></span> Create new
                             </a>
-                            {% include 'base/modals/_filter.html' with a_form=filter_form modal_id='select_survey_wizard' action=action modal_title='Choose a Finalized Questionnaire to duplicate' %}
+                            {% include 'base/modals/_filter.html' with action='duplicate' a_form=filter_form object_type='Questionnaire' object_id=theme.id url=action modal_title='Choose a Finalized Questionnaire to duplicate' btn_label="Duplicate" %}
                         </h3>
                     </span>
                 </div>

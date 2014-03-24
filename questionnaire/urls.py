@@ -8,7 +8,7 @@ from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
 from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection, DeleteSubSection
 from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion, EditQuestion
 from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire, FinalizeQuestionnaire, UnfinalizeQuestionnaire, PublishQuestionnaire, ApproveQuestionnaire
-from questionnaire.views.theme import Theme, ThemeList, NewTheme
+from questionnaire.views.theme import Theme, ThemeList, NewTheme, EditTheme
 from questionnaire.views.upload_document import UploadDocument, DownloadDocument, DeleteDocument
 from questionnaire.views.users import UsersList, CreateUser, EditUser
 
@@ -50,6 +50,7 @@ urlpatterns = patterns('',
     url(r'^subsection/(?P<subsection_id>\d+)/edit/$', EditSubSection.as_view(), name="edit_subsection_page"),
     url(r'^subsection/(?P<subsection_id>\d+)/delete/$', DeleteSubSection.as_view(), name="delete_subsection_page"),
     url(r'^themes/$', ThemeList.as_view(), name="theme_list_page"),
+    url(r'^themes/(?P<theme_id>\d+)/edit/$', EditTheme.as_view(), name="edit_theme_page"),
     url(r'^themes/new/$', NewTheme.as_view(), name="new_theme_page"),
     url(r'^users/$', UsersList.as_view(), name="list_users_page"),
     url(r'^users/new/$', CreateUser.as_view(), name="create_user_page"),

@@ -386,3 +386,11 @@ table td input[type='text'], select{
 .preview-btn-url{
     margin-bottom: 0 !important;
 }
+
+.modal input[type='text']{
+    width: 257px !important;
+}
+
+.modal textarea{
+    width: inherit !important;
+}

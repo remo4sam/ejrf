@@ -1,9 +1,9 @@
 $(function () {
-    $('#select_survey_wizard-form').validate({
+    $('#duplicate-questionnaire-form').validate({
         rules: { 'questionnaire': 'required', 'year': 'required', 'name': 'required'}
     });
 
-    var elementID = '#select_survey_wizard-form #id_questionnaire',
+    var elementID = '#duplicate-questionnaire-form #id_questionnaire',
         selectQuestionnaireElement = $(elementID),
         questionnaireNameElement = $('#id_name');
     selectQuestionnaireElement.on('change', function () {

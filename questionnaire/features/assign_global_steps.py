@@ -3,7 +3,6 @@ from django.contrib.contenttypes.models import ContentType
 from lettuce import step, world
 import time
 from questionnaire.features.pages.manage import AssignModal, ManageJrfPage
-from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign
 from questionnaire.features.pages.users import LoginPage
 from questionnaire.models import UserProfile, Organization, Question, QuestionGroup, QuestionGroupOrder, Questionnaire, Section, SubSection
 

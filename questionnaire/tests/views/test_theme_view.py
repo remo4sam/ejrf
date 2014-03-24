@@ -47,3 +47,35 @@ class ThemeViewTest(BaseTest):
         self.assertRaises(Theme.DoesNotExist, Theme.objects.get, **self.form_data)
         message = "Theme was not created, see Errors below"
         self.assertIn(message, str(response.content))
+
+
+class EditThemeViewTest(BaseTest):
+
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+        self.assign('can_edit_questionnaire', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.theme = Theme.objects.create(name="Some theme", description="some description")
+        self.url = '/themes/%d/edit/' % self.theme.id
+        self.form_data = {'name': 'Edited Theme',
+                          'description': self.theme.description}
+
+    def test_post_save_theme(self):
+        self.assertRaises(Theme.DoesNotExist, Theme.objects.get, **self.form_data)
+        response = self.client.post(self.url, self.form_data)
+        self.assertRedirects(response, reverse("theme_list_page"))
+        self.failIf(Theme.objects.filter(name=getattr(self.theme, 'name'), description=getattr(self.theme, 'description')))
+        self.failUnless(Theme.objects.filter(**self.form_data))
+        message = "Theme successfully updated."
+        self.assertIn(message, response.cookies['messages'].value)
+
+    def test_post_with_form_errors(self):
+        data = self.form_data.copy()
+        data['name'] = ''
+        self.assertRaises(Theme.DoesNotExist, Theme.objects.get, **self.form_data)
+        response = self.client.post(self.url, data=data)
+        self.assertRaises(Theme.DoesNotExist, Theme.objects.get, **self.form_data)
+        message = "Theme was not updated, see Errors below"
+        self.assertIn(message, str(response.content))

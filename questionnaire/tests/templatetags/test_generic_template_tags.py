@@ -1,6 +1,7 @@
-from questionnaire.models import Question, QuestionOption
+from questionnaire.forms.theme import ThemeForm
+from questionnaire.models import Question, QuestionOption, Theme
 from questionnaire.templatetags.generic_tags import display_list, bootstrap_message, get_url_with_ids, divide_to_paginate, ASSIGN_QUESTION_PAGINATION_SIZE, add_string, get_questionnaire_from, \
-    bootstrap_class, packaged_options, custom_options
+    bootstrap_class, packaged_options, custom_options, get_theme_form_with_instance
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -52,3 +53,9 @@ class GeneralTemplateTagTest(BaseTest):
         QuestionOption.objects.create(text="ho", question=question)
 
         self.assertEqual('checked', custom_options(question))
+
+    def test_gets_theme_form_for_given_instance_of_theme(self):
+        theme = Theme.objects.create(name="haha")
+
+        self.assertIsInstance(get_theme_form_with_instance(theme), ThemeForm)
+        self.assertEqual(get_theme_form_with_instance(theme).instance, theme)

@@ -1,6 +1,7 @@
 from django import template
 from django.core.urlresolvers import reverse
 from questionnaire.forms.questions import QuestionForm
+from questionnaire.forms.theme import ThemeForm
 from questionnaire.models import Questionnaire
 
 ASSIGN_QUESTION_PAGINATION_SIZE = 30
@@ -64,3 +65,8 @@ def custom_options(question):
     options_string = ", ".join(question_options)
     if not options_string in QuestionForm.KNOWN_OPTIONS:
         return 'checked'
+
+
+@register.filter
+def get_theme_form_with_instance(theme):
+    return ThemeForm(instance=theme)
