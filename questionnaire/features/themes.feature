@@ -10,7 +10,10 @@ Feature: Themes
   Scenario: Create theme
     And I visit the themes listing page
     And I click New Theme button
-    And I fill in theme details form
+    And I fill in only description
+    And I click the save theme button
+    Then I should see errors on the form
+    When I fill in valid theme details
     And I click the save theme button
     Then I should see the success message
     And I should see the newly created theme in the themes list

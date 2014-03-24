@@ -1,0 +1,6 @@
+{% extends 'base/form.html' %}
+{% block display_form_fields %}
+    <h3>{{ title }}</h3>
+    <hr/>
+    {% include 'base/naked_form.html' with a_form=form %}
+{% endblock %}

@@ -7,6 +7,7 @@ from questionnaire.tests.base_test import BaseTest
 
 
 class ThemeViewTest(BaseTest):
+
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -36,3 +37,13 @@ class ThemeViewTest(BaseTest):
         self.failUnless(Theme.objects.filter(**self.form_data))
         message = "Theme successfully created."
         self.assertIn(message, response.cookies['messages'].value)
+
+    def test_post_with_form_errors(self):
+        url = '/themes/new/'
+        data = self.form_data.copy()
+        data['name'] = ''
+        self.assertRaises(Theme.DoesNotExist, Theme.objects.get, **self.form_data)
+        response = self.client.post(url, data=data)
+        self.assertRaises(Theme.DoesNotExist, Theme.objects.get, **self.form_data)
+        message = "Theme was not created, see Errors below"
+        self.assertIn(message, str(response.content))

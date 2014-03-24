@@ -26,8 +26,8 @@ def and_i_click_new_theme_button(step):
     sleep(2)
 
 
-@step(u'And I fill in theme details form')
-def and_i_fill_in_theme_details_form(step):
+@step(u'When I fill in valid theme details')
+def when_i_fill_in_valid_theme_details(step):
     world.theme_data = {
         'name': "Immunization",
         'description': 'About Immunization'}
@@ -46,3 +46,11 @@ def and_i_should_see_the_newly_created_theme_in_the_themes_list(step):
 @step(u'And I click the save theme button')
 def and_i_click_the_save_theme_button(step):
     world.page.click_by_id("save-new-themes-modal")
+
+@step(u'And I fill in only description')
+def and_i_fill_in_only_description(step):
+    world.page.fill_form({'description': 'name of the theme is missing'})
+
+@step(u'Then I should see errors on the form')
+def then_i_should_see_errors_on_the_form(step):
+    world.page.is_text_present("This field is required.")

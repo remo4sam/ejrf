@@ -18,9 +18,16 @@ class ThemeList(ListView):
 class NewTheme(CreateView):
     model = Theme
     success_url = "/themes/"
+    template_name = "themes/new.html"
 
     def form_valid(self, form):
         response = super(NewTheme, self).form_valid(form)
         message = "Theme successfully created."
         messages.success(self.request, message)
+        return response
+
+    def form_invalid(self, form):
+        response = super(NewTheme, self).form_invalid(form)
+        message = "Theme was not created, see Errors below"
+        messages.error(self.request, message)
         return response
