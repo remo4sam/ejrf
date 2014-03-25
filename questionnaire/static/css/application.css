@@ -387,10 +387,10 @@ table td input[type='text'], select{
     margin-bottom: 0 !important;
 }
 
-.modal input[type='text']{
+.filter-modal input[type='text']{
     width: 257px !important;
 }
 
-.modal textarea{
+.filter-modal textarea{
     width: inherit !important;
 }

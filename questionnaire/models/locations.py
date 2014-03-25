@@ -27,7 +27,8 @@ class Region(Location):
     organization = models.ForeignKey(Organization, blank=False, null=True, related_name="regions")
 
     def latest_questionnaire(self):
-        return self.questionnaire.latest('modified')
+        from questionnaire.models import Questionnaire
+        return self.questionnaire.filter(status=Questionnaire.PUBLISHED).latest('modified')
 
 
 class Country(Location):
