@@ -10,3 +10,9 @@ class QuestionGroupOrder(BaseModel):
     class Meta:
         ordering = ('order',)
         app_label = 'questionnaire'
+
+    def is_last_answer_type_in_group(self):
+        max_order_of_same_type = QuestionGroupOrder.objects.filter(question_group=self.question_group,
+                                                                   question__answer_type=self.question.answer_type).\
+                                                                    order_by('-order')
+        return self == max_order_of_same_type[0]

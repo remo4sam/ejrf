@@ -23,3 +23,14 @@ class QuestionGroupOrderTest(BaseTest):
         self.failUnless(question_group_order.id)
         self.assertEqual(self.question, question_group_order.question)
         self.assertEqual(self.grouped_question, question_group_order.question_group)
+
+    def test_order_knows_it_is_last_of_his_type_in_group(self):
+        last_text_question = Question.objects.create(text='another text q', UID='123', answer_type='Text')
+        number_question = Question.objects.create(text='number q', UID='abc', answer_type='Number')
+        question_group_order = QuestionGroupOrder.objects.create(question_group=self.grouped_question, question=self.question, order=1)
+        another_question_group_order = QuestionGroupOrder.objects.create(question_group=self.grouped_question, question=last_text_question, order=2)
+        number_group_order = QuestionGroupOrder.objects.create(question_group=self.grouped_question, question=number_question, order=3)
+
+        self.assertFalse(question_group_order.is_last_answer_type_in_group())
+        self.assertTrue(another_question_group_order.is_last_answer_type_in_group())
+        self.assertTrue(number_group_order.is_last_answer_type_in_group())

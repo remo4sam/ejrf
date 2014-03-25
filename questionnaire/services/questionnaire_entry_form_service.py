@@ -1,8 +1,9 @@
+import copy
 from django.forms.formsets import formset_factory
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
 from questionnaire.models import Question, AnswerGroup, QuestionGroupOrder, Answer
 from questionnaire.models.answers import MultiChoiceAnswer, NumericalAnswer, DateAnswer, TextAnswer
-from questionnaire.utils.questionnaire_entry_helpers import extra_rows
+from questionnaire.utils.questionnaire_entry_helpers import extra_rows, clean_data_dict
 
 
 ANSWER_FORM = {
@@ -18,6 +19,7 @@ class QuestionnaireEntryFormService(object):
     def __init__(self, section, initial={}, data=None, highlight=False, edit_after_submit=False):
         self.initial = initial
         self.data = data
+        self.cleaned_data = clean_data_dict(dict(copy.deepcopy(data))) if data else None
         self.section = section
         self.mapped_question_orders = section.mapped_question_orders()
         self.formsets = self._formsets()
@@ -87,12 +89,13 @@ class QuestionnaireEntryFormService(object):
         if max_num == len(orders):
             return [self._initial(order_dict=order) for order in orders]
         initial =[]
-        row_numbers = iter(extra_rows(self.data, answer_type))
         for order_dict in orders:
+            initial.append(self._initial(order_dict=order_dict))
             order = order_dict['order']
             group = order.question_group
-            if group.allow_multiples:
-                for row_number in row_numbers.next():
+            if group.allow_multiples and order.is_last_answer_type_in_group():
+                row_numbers = extra_rows(self.cleaned_data, answer_type, group.id)
+                for row_number in row_numbers[1:]:
                     questions = group.ordered_questions()
                     question_orders = filter(lambda order: order['order'].question in questions, orders)
                     [initial.append(self._initial(order_dict=extra_order)) for extra_order in question_orders]

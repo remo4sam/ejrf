@@ -124,10 +124,11 @@ $('.add-more').on('click', function(event) {
 $('.add-row').on('click', function(event) {
     $grid_row = $(this).parents('tr').prev();
     AddRow($grid_row);
+    var group_id = $(this).parents('table').attr('data-group-id');
     $grid.find('tr').each(function(i, el){
         var $tr = $(this);
         $tr.find('input[type=hidden]').each(function(index, element){
-            $(element).val(i);
+            $(element).val([i, group_id]);
         });
     });
 
