@@ -9,7 +9,7 @@ from questionnaire.models import Theme
 class ThemeList(PermissionRequiredMixin, ListView):
     model = Theme
     template_name = "themes/index.html"
-    permission_required = 'auth.can_view_users'
+    permission_required = 'auth.can_edit_questionnaire'
 
     def get_context_data(self, **kwargs):
         context = super(ThemeList, self).get_context_data(**kwargs)
@@ -21,7 +21,7 @@ class NewTheme(PermissionRequiredMixin, CreateView):
     model = Theme
     success_url = reverse_lazy('theme_list_page')
     template_name = "themes/new.html"
-    permission_required = 'auth.can_view_users'
+    permission_required = 'auth.can_edit_questionnaire'
 
     def form_valid(self, form):
         response = super(NewTheme, self).form_valid(form)
@@ -41,7 +41,7 @@ class EditTheme(PermissionRequiredMixin, UpdateView):
     pk_url_kwarg = 'theme_id'
     success_url = reverse_lazy('theme_list_page')
     template_name = "themes/new.html"
-    permission_required = 'auth.can_view_users'
+    permission_required = 'auth.can_edit_questionnaire'
 
     def form_valid(self, form):
         response = super(EditTheme, self).form_valid(form)
@@ -61,7 +61,7 @@ class DeleteTheme(PermissionRequiredMixin, DeleteView):
     pk_url_kwarg = 'theme_id'
     success_url = reverse_lazy('theme_list_page')
     template_name = "themes/index.html"
-    permission_required = 'auth.can_view_users'
+    permission_required = 'auth.can_edit_questionnaire'
 
     def delete(self, request, *args, **kwargs):
         theme_to_delete = self.model.objects.get(id=kwargs['theme_id'])
