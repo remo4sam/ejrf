@@ -11,6 +11,9 @@ class PageObject(object):
     def visit(self):
         self.browser.visit(django_url(self.url))
 
+    def visit_url(self, url):
+        self.browser.visit(django_url(url))
+
     def validate_url(self):
         assert self.browser.url == django_url(self.url)
 
