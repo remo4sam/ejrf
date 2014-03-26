@@ -7,7 +7,6 @@ from questionnaire.tests.base_test import BaseTest
 
 
 class ThemeViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -54,7 +53,6 @@ class ThemeViewTest(BaseTest):
 
 
 class EditThemeViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()
@@ -90,7 +88,6 @@ class EditThemeViewTest(BaseTest):
 
 
 class DeleteThemeViewTest(BaseTest):
-
     def setUp(self):
         self.client = Client()
         self.user, self.country, self.region = self.create_user_with_no_permissions()

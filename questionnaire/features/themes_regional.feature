@@ -3,7 +3,7 @@ Feature: Regional Themes
   Background:
     Given I am logged in as a regional admin
 
-  Scenario: Create Core Theme
+  Scenario: Create Theme
     And I am on the home page
     Then I should see questions on the top menu
     And I visit the themes listing page

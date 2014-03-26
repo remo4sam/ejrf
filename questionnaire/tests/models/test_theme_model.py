@@ -8,8 +8,8 @@ class ThemeTest(BaseTest):
     def test_user_fields(self):
         theme = Theme()
         fields = [str(item.attname) for item in theme._meta.fields]
-        self.assertEqual(5, len(fields))
-        for field in ['id', 'created', 'modified', 'name', 'description']:
+        self.assertEqual(6, len(fields))
+        for field in ['id', 'created', 'modified', 'name', 'description', 'region_id']:
             self.assertIn(field, fields)
 
     def test_theme_stores(self):
