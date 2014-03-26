@@ -3,7 +3,7 @@
 <div id="question-list">
     <div class="tab-content">
 
-    <input type="checkbox" id="hide-assigned-questions" subsection-id="{{ subsection.id }}"/>
+    <input type="checkbox" id="hide-assigned-questions" value="hide-assigned-questions" subsection-id="{{ subsection.id }}"/>
     <label> Hide assigned questions</label>
         {% for question_page in questions|divide_to_paginate %}
             <div class="tab-pane {% if forloop.first %}active in{% endif %}"

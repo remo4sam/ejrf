@@ -10,6 +10,10 @@ Feature: Global Admin Assigning Questions
         Then I should see options to assign questions to sub-sections
         When I choose to assign a question to a sub-section
         Then I should see the question bank with both assigned and unassigned questions
+        And I should see an option to hide already assigned questions
+        When I select the option to hide already assigned questions
+        Then I should only see the unassigned questions in the question bank
+        And I should not see the assigned questions in the question bank
         When I select questions to assign to the questionnaire
         Then I should see the newly assigned questions in the questionnaire when I am done editing
 
