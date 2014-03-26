@@ -16,8 +16,8 @@
             </div>
         </td>
         {% for field in order.question|get_form:formsets %}
-            <td> {{ field }}
-                 {{ field.as_hidden }}
+            <td>{{ field.as_hidden }}
+                {{ field }}
             </td>
         {% endfor %}
         {% for question in a_group.all_non_primary_questions %}
@@ -29,13 +29,11 @@
                              data-content="{{ field.errors|striptags }}">
 
                     {% endif %}
+                     {{ field.as_hidden }}
                     {{ field }}
                     {% if field.errors %}
                         </div>
                     {% endif %}
-
-                     {{ field.as_hidden }}
-
                 </td>
             {% endfor %}
         {% endfor %}

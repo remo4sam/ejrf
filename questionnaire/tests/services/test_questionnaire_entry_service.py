@@ -808,17 +808,17 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
         self.version = 1
         self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123'}
         self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
-                u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': [1, '0,%d'%self.question_group.id],
-                u'MultiChoice-1-response': [2, '1,%d'%self.question_group.id], u'MultiChoice-2-response': [3, '2,%d'%self.question_group.id],
+                u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': ['0,%d' % self.question_group.id, 1],
+                u'MultiChoice-1-response': [ '1,%d' % self.question_group.id, 2], u'MultiChoice-2-response': ['2,%d' % self.question_group.id, 3],
                 u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
-                u'Number-INITIAL_FORMS': u'3', u'Number-0-response': ['22', '0,%d'%self.question_group.id],
-                u'Number-1-response': ['44', '1,%d'%self.question_group.id], u'Number-2-response': ['33', '2,%d'%self.question_group.id],
+                u'Number-INITIAL_FORMS': u'3', u'Number-0-response': ['0,%d' % self.question_group.id, '22'],
+                u'Number-1-response': [ '1,%d' % self.question_group.id, '44'], u'Number-2-response': ['2,%d' % self.question_group.id, '33'],
                 u'Text-MAX_NUM_FORMS': u'3', u'Text-TOTAL_FORMS': u'3',
-                u'Text-INITIAL_FORMS': u'3', u'Text-0-response': ['Haha', '0,%d'%self.question_group.id],
-                u'Text-1-response': ['Hehe', '1,%d'%self.question_group.id], u'Text-2-response': ['hehehe', '2,%d'%self.question_group.id],
+                u'Text-INITIAL_FORMS': u'3', u'Text-0-response': ['0,%d' % self.question_group.id, 'Haha'],
+                u'Text-1-response': [ '1,%d' % self.question_group.id, 'Hehe',], u'Text-2-response': ['2,%d' % self.question_group.id, 'hehehe'],
                 u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
-                u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['2014-2-2', '0,%d'%self.question_group.id],
-                u'Date-1-response': ['2014-2-2', '1,%d'%self.question_group.id], u'Date-2-response': ['2014-2-2', '2,%d'%self.question_group.id],
+                u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['0,%d' % self.question_group.id, '2014-2-2', ],
+                u'Date-1-response': [ '1,%d' % self.question_group.id, '2014-2-2'], u'Date-2-response': ['2,%d' % self.question_group.id, '2014-2-2'],
             }
 
     def test_returns_multiple_forms_in_formsets_for_all_questions(self):
@@ -865,21 +865,21 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
         QuestionGroupOrder.objects.create(question=question21, question_group=question_group1, order=2)
 
         data = {u'MultiChoice-MAX_NUM_FORMS': u'6', u'MultiChoice-TOTAL_FORMS': u'6',
-             u'MultiChoice-INITIAL_FORMS': u'6', u'MultiChoice-0-response': [1, '0,%d'%self.question_group.id],
-             u'MultiChoice-1-response': [5, '0,%d'%question_group.id], u'MultiChoice-2-response': [2],
-             u'MultiChoice-3-response': [2, '1,%d'%self.question_group.id],  u'MultiChoice-4-response': [3, '2,%d'%self.question_group.id],
-             u'MultiChoice-5-response': [6, '1,%d'%question_group.id],
+             u'MultiChoice-INITIAL_FORMS': u'6', u'MultiChoice-0-response': ['0,%d'%self.question_group.id, 1],
+             u'MultiChoice-1-response': [ '0,%d'%question_group.id, 5,], u'MultiChoice-2-response': [2],
+             u'MultiChoice-3-response': [ '1,%d'%self.question_group.id, 2,],  u'MultiChoice-4-response': [ '2,%d'%self.question_group.id, 3],
+             u'MultiChoice-5-response': [ '1,%d'%question_group.id, 6,],
              u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
-             u'Number-INITIAL_FORMS': u'3', u'Number-0-response': ['22','0,%d'%self.question_group.id],
-             u'Number-1-response': ['44','1,%d'%self.question_group.id],  u'Number-2-response': ['33', '2,%d'%self.question_group.id],
+             u'Number-INITIAL_FORMS': u'3', u'Number-0-response': ['0,%d'%self.question_group.id, '22',],
+             u'Number-1-response': ['1,%d'%self.question_group.id, '44',],  u'Number-2-response': ['2,%d'%self.question_group.id, '33', ],
              u'Text-MAX_NUM_FORMS': u'6', u'Text-TOTAL_FORMS': u'6',
-             u'Text-INITIAL_FORMS': u'6', u'Text-0-response': ['Haha','0,%d'%self.question_group.id],
-             u'Text-1-response': ['Hehe1', '0,%d'%question_group.id], u'Text-2-response': ['hehe2'],
-             u'Text-3-response': ['Hehe','1,%d'%self.question_group.id],  u'Text-4-response': ['hehehe', '2,%d'%self.question_group.id],
-             u'Text-5-response': ['Hehe','1,%d'%question_group.id],
+             u'Text-INITIAL_FORMS': u'6', u'Text-0-response': ['0,%d'%self.question_group.id, 'Haha',],
+             u'Text-1-response': [ '0,%d'%question_group.id, 'Hehe1',], u'Text-2-response': ['hehe2'],
+             u'Text-3-response': ['1,%d'%self.question_group.id, 'Hehe',],  u'Text-4-response': ['2,%d'%self.question_group.id, 'hehehe', ],
+             u'Text-5-response': ['1,%d'%question_group.id, 'Hehe',],
              u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
-             u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['2014-2-2', '0,%d'%self.question_group.id],
-             u'Date-1-response': ['2014-2-2','1,%d'%self.question_group.id],  u'Date-2-response': ['2014-2-2','2,%d'%self.question_group.id],
+             u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['0,%d'%self.question_group.id, '2014-2-2', ],
+             u'Date-1-response': ['1,%d'%self.question_group.id, '2014-2-2',],  u'Date-2-response': ['2,%d'%self.question_group.id, '2014-2-2',],
              }
 
         questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial, data=data)
@@ -911,3 +911,50 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
         self.assertEqual(question1, formsets['MultiChoice'][3].initial['question'])
         self.assertEqual(question1, formsets['MultiChoice'][4].initial['question'])
         self.assertEqual(question11, formsets['MultiChoice'][5].initial['question'])
+
+    def xtest_returns_save_grid_with_display_all(self):
+        self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
+                u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': [ '0,%d'%self.question_group.id, 1,],
+                u'MultiChoice-1-response': [ '1,%d'%self.question_group.id, 2,], u'MultiChoice-2-response': ['2,%d'%self.question_group.id, 3],
+                u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
+                u'Number-INITIAL_FORMS': u'3', u'Number-0-response': [ '0,%d'%self.question_group.id, '22',],
+                u'Number-1-response': [ '1,%d'%self.question_group.id, '44',], u'Number-2-response': [ '2,%d'%self.question_group.id, '33',],
+                u'Text-MAX_NUM_FORMS': u'3', u'Text-TOTAL_FORMS': u'3',
+                u'Text-INITIAL_FORMS': u'3', u'Text-0-response': [ '0,%d' % self.question_group.id, 'Haha',],
+                u'Text-1-response': ['1,%d'%self.question_group.id, 'Hehe'], u'Text-2-response': ['2,%d'%self.question_group.id, 'hehehe',],
+                u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
+                u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['0,%d'%self.question_group.id, '2014-2-2', ],
+                u'Date-1-response': ['1,%d'%self.question_group.id, '2014-2-2',], u'Date-2-response': ['2,%d'%self.question_group.id, '2014-2-2', ],
+            }
+
+        data = self.data
+        self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response'][0])))
+        self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-1-response'])))
+        self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-0-response'])))
+        self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-1-response'])))
+
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial, data=data)
+        questionnaire_entry_form.is_valid()
+        questionnaire_entry_form.save()
+
+        self.failUnless(
+            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response']), question=self.question1))
+        self.failUnless(
+            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-1-response']), question=self.question1))
+        self.failUnless(
+            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-2-response']), question=self.question1))
+
+        self.failUnless(
+            NumericalAnswer.objects.filter(response=int(data['Number-0-response']), question=self.question3))
+        self.failUnless(
+            NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3))
+        self.failUnless(
+            NumericalAnswer.objects.filter(response=int(data['Number-2-response']), question=self.question3))
+
+        self.failUnless(TextAnswer.objects.filter(response=data['Text-0-response'], question=self.question2))
+        self.failUnless(TextAnswer.objects.filter(response=data['Text-1-response'], question=self.question2))
+        self.failUnless(TextAnswer.objects.filter(response=data['Text-2-response'], question=self.question2))
+
+        self.failUnless(DateAnswer.objects.filter(response=data['Date-0-response'], question=self.question4))
+        self.failUnless(DateAnswer.objects.filter(response=data['Date-1-response'], question=self.question4))
+        self.failUnless(DateAnswer.objects.filter(response=data['Date-2-response'], question=self.question4))

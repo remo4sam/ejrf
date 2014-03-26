@@ -30,7 +30,7 @@ function AddRow(selector) {
     newElement.find(':input').each(function(){
         var $el = $(this);
         var name = $el.attr('name')
-        $el.after('<input type="hidden" name="' + name + '" />')
+        $el.before('<input type="hidden" name="' + name + '" />')
     });
     $(selector).after(newElement);
      assignRowNumbers()
