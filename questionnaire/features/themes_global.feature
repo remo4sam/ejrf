@@ -19,7 +19,7 @@ Feature: Themes
         And I should see the newly created theme in the themes list
 
     Scenario: Edit Theme
-        And I have two themes
+        And I have two global themes
         And I visit the themes listing page
         And I click Edit theme button
         And i fill in the theme name
@@ -28,7 +28,7 @@ Feature: Themes
         And I should see the updated theme in the themes list
 
     Scenario: Global Admin Deletes Theme
-        And I have two themes
+        And I have two global themes
         And I visit the themes listing page
         And I click Delete theme button
         Then I should see a delete theme confirmation message

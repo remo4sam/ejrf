@@ -1,7 +1,7 @@
 Feature: Regional Themes
 
   Background:
-    Given I am logged in as a regional admin
+    Given Given that I am logged in as a regional admin
 
   Scenario: Create Theme
     And I am on the home page
@@ -14,7 +14,7 @@ Feature: Regional Themes
     And I should see the newly created theme in the themes list
 
   Scenario: Regional Admin Edit Theme
-    And I have two themes
+    And And I have two regional themes
     And I visit the themes listing page
     And I click Edit theme button
     And i fill in the theme name
@@ -23,7 +23,7 @@ Feature: Regional Themes
     And I should see the updated theme in the themes list
 
   Scenario: Regional Admin Deletes Theme
-    And I have two themes
+    And And I have two regional themes
     And I visit the themes listing page
     And I click Delete theme button
     Then I should see a delete theme confirmation message

@@ -2,7 +2,7 @@ from braces.views import AccessMixin, MultiplePermissionsRequiredMixin
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseRedirect
-from questionnaire.models import Questionnaire, Region, SubSection, Question, Section
+from questionnaire.models import Questionnaire, Region, SubSection, Question, Section, Theme
 
 
 class RegionalPermissionRequired(AccessMixin):

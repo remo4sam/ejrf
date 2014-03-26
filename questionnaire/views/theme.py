@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from questionnaire.forms.theme import ThemeForm
+from questionnaire.mixins import OwnerAndPermissionRequiredMixin
 from questionnaire.models import Theme
 
 
@@ -24,6 +25,9 @@ class NewTheme(PermissionRequiredMixin, CreateView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def form_valid(self, form):
+        theme = form.save(commit=False)
+        theme.region = self.request.user.user_profile.region
+        theme.save()
         response = super(NewTheme, self).form_valid(form)
         message = "Theme successfully created."
         messages.success(self.request, message)
@@ -36,7 +40,7 @@ class NewTheme(PermissionRequiredMixin, CreateView):
         return response
 
 
-class EditTheme(PermissionRequiredMixin, UpdateView):
+class EditTheme(OwnerAndPermissionRequiredMixin, UpdateView):
     model = Theme
     pk_url_kwarg = 'theme_id'
     success_url = reverse_lazy('theme_list_page')
@@ -44,6 +48,9 @@ class EditTheme(PermissionRequiredMixin, UpdateView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def form_valid(self, form):
+        theme = form.save(commit=False)
+        theme.region = self.request.user.user_profile.region
+        theme.save()
         response = super(EditTheme, self).form_valid(form)
         message = "Theme successfully updated."
         messages.success(self.request, message)
@@ -56,7 +63,7 @@ class EditTheme(PermissionRequiredMixin, UpdateView):
         return response
 
 
-class DeleteTheme(PermissionRequiredMixin, DeleteView):
+class DeleteTheme(OwnerAndPermissionRequiredMixin, DeleteView):
     model = Theme
     pk_url_kwarg = 'theme_id'
     success_url = reverse_lazy('theme_list_page')
