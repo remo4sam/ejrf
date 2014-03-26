@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
-from questionnaire.models import NumericalAnswer, TextAnswer, DateAnswer, MultiChoiceAnswer, AnswerGroup
+from questionnaire.models import NumericalAnswer, TextAnswer, DateAnswer, MultiChoiceAnswer
 
 
 class AnswerForm(ModelForm):

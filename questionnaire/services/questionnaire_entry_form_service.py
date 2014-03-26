@@ -1,8 +1,7 @@
 import copy
 from django.forms.formsets import formset_factory
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
-from questionnaire.models import Question, AnswerGroup, QuestionGroupOrder, Answer
-from questionnaire.models.answers import MultiChoiceAnswer, NumericalAnswer, DateAnswer, TextAnswer
+from questionnaire.models import AnswerGroup, Answer, NumericalAnswer, TextAnswer, DateAnswer, MultiChoiceAnswer
 from questionnaire.utils.questionnaire_entry_helpers import extra_rows, clean_data_dict
 
 
@@ -148,6 +147,11 @@ class QuestionnaireEntryFormService(object):
                     if group.grid and group.display_all:
                         if order.question.is_primary:
                             for option in order.question.options.all():
+                                answer_group = self._add_answer_to_group(order)
+                                self._assign_non_primary_answers_to(answer_group, question_group=group)
+                    elif group.grid and group.allow_multiples:
+                        if order.question.is_primary:
+                            for option in extra_rows(self.cleaned_data, order.question.answer_type, group.id):
                                 answer_group = self._add_answer_to_group(order)
                                 self._assign_non_primary_answers_to(answer_group, question_group=group)
                     else:

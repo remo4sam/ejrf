@@ -1,3 +1,5 @@
+import urllib
+from django.http.request import QueryDict
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
 from questionnaire.models import Questionnaire, Section, SubSection, QuestionGroup, Question, QuestionGroupOrder, NumericalAnswer, Answer, AnswerGroup, Country, TextAnswer, QuestionOption, MultiChoiceAnswer, DateAnswer
@@ -808,8 +810,8 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
         self.version = 1
         self.initial = {'country': self.country, 'status': 'Draft', 'version': self.version, 'code': 'ABC123'}
         self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
-                u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': ['0,%d' % self.question_group.id, 1],
-                u'MultiChoice-1-response': [ '1,%d' % self.question_group.id, 2], u'MultiChoice-2-response': ['2,%d' % self.question_group.id, 3],
+                u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': ['0,%d' % self.question_group.id, self.option1.id],
+                u'MultiChoice-1-response': [ '1,%d' % self.question_group.id, self.option2.id], u'MultiChoice-2-response': ['2,%d' % self.question_group.id, self.option3.id],
                 u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
                 u'Number-INITIAL_FORMS': u'3', u'Number-0-response': ['0,%d' % self.question_group.id, '22'],
                 u'Number-1-response': [ '1,%d' % self.question_group.id, '44'], u'Number-2-response': ['2,%d' % self.question_group.id, '33'],
@@ -817,8 +819,8 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
                 u'Text-INITIAL_FORMS': u'3', u'Text-0-response': ['0,%d' % self.question_group.id, 'Haha'],
                 u'Text-1-response': [ '1,%d' % self.question_group.id, 'Hehe',], u'Text-2-response': ['2,%d' % self.question_group.id, 'hehehe'],
                 u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
-                u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['0,%d' % self.question_group.id, '2014-2-2', ],
-                u'Date-1-response': [ '1,%d' % self.question_group.id, '2014-2-2'], u'Date-2-response': ['2,%d' % self.question_group.id, '2014-2-2'],
+                u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['0,%d' % self.question_group.id, '2014-2-22', ],
+                u'Date-1-response': [ '1,%d' % self.question_group.id, '2014-2-21'], u'Date-2-response': ['2,%d' % self.question_group.id, '2014-2-23'],
             }
 
     def test_returns_multiple_forms_in_formsets_for_all_questions(self):
@@ -865,8 +867,8 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
         QuestionGroupOrder.objects.create(question=question21, question_group=question_group1, order=2)
 
         data = {u'MultiChoice-MAX_NUM_FORMS': u'6', u'MultiChoice-TOTAL_FORMS': u'6',
-             u'MultiChoice-INITIAL_FORMS': u'6', u'MultiChoice-0-response': ['0,%d'%self.question_group.id, 1],
-             u'MultiChoice-1-response': [ '0,%d'%question_group.id, 5,], u'MultiChoice-2-response': [2],
+             u'MultiChoice-INITIAL_FORMS': u'6', u'MultiChoice-0-response': ['0,%d'%self.question_group.id, option11.id],
+             u'MultiChoice-1-response': [ '0,%d'%question_group.id, option21.id,], u'MultiChoice-2-response': [2],
              u'MultiChoice-3-response': [ '1,%d'%self.question_group.id, 2,],  u'MultiChoice-4-response': [ '2,%d'%self.question_group.id, 3],
              u'MultiChoice-5-response': [ '1,%d'%question_group.id, 6,],
              u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
@@ -912,49 +914,66 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
         self.assertEqual(question1, formsets['MultiChoice'][4].initial['question'])
         self.assertEqual(question11, formsets['MultiChoice'][5].initial['question'])
 
-    def xtest_returns_save_grid_with_display_all(self):
-        self.data = {u'MultiChoice-MAX_NUM_FORMS': u'3', u'MultiChoice-TOTAL_FORMS': u'3',
-                u'MultiChoice-INITIAL_FORMS': u'3', u'MultiChoice-0-response': [ '0,%d'%self.question_group.id, 1,],
-                u'MultiChoice-1-response': [ '1,%d'%self.question_group.id, 2,], u'MultiChoice-2-response': ['2,%d'%self.question_group.id, 3],
-                u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
-                u'Number-INITIAL_FORMS': u'3', u'Number-0-response': [ '0,%d'%self.question_group.id, '22',],
-                u'Number-1-response': [ '1,%d'%self.question_group.id, '44',], u'Number-2-response': [ '2,%d'%self.question_group.id, '33',],
-                u'Text-MAX_NUM_FORMS': u'3', u'Text-TOTAL_FORMS': u'3',
-                u'Text-INITIAL_FORMS': u'3', u'Text-0-response': [ '0,%d' % self.question_group.id, 'Haha',],
-                u'Text-1-response': ['1,%d'%self.question_group.id, 'Hehe'], u'Text-2-response': ['2,%d'%self.question_group.id, 'hehehe',],
-                u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
-                u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['0,%d'%self.question_group.id, '2014-2-2', ],
-                u'Date-1-response': ['1,%d'%self.question_group.id, '2014-2-2',], u'Date-2-response': ['2,%d'%self.question_group.id, '2014-2-2', ],
-            }
+    def test_save_answers_and_answer_groups(self):
+        data=self.data
+        query_dict_data = self.cast_to_queryDict(data)
 
-        data = self.data
-        self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response'][0])))
-        self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-1-response'])))
-        self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-0-response'])))
-        self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-1-response'])))
+        self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response'][-1])))
+        self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-1-response'][-1])))
+        self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-2-response'][-1])))
+        self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-0-response'][-1])))
+        self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-1-response'][-1])))
+        self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-2-response'][-1])))
+        self.failIf(TextAnswer.objects.filter(response=data['Text-0-response'][-1]))
+        self.failIf(TextAnswer.objects.filter(response=data['Text-1-response'][-1]))
+        self.failIf(TextAnswer.objects.filter(response=data['Text-2-response'][-1]))
+        self.failIf(DateAnswer.objects.filter(response=data['Date-0-response'][-1]))
+        self.failIf(DateAnswer.objects.filter(response=data['Date-1-response'][-1]))
+        self.failIf(DateAnswer.objects.filter(response=data['Date-2-response'][-1]))
 
-        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial, data=data)
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial, data=query_dict_data)
         questionnaire_entry_form.is_valid()
         questionnaire_entry_form.save()
 
-        self.failUnless(
-            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-0-response']), question=self.question1))
-        self.failUnless(
-            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-1-response']), question=self.question1))
-        self.failUnless(
-            MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-2-response']), question=self.question1))
+        question1_answer0 = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-0-response'][-1]),
+                                                             question=self.question1)
+        question1_answer1 = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-1-response'][-1]),
+                                                          question=self.question1)
+        question1_answer2 = MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-2-response'][-1]),
+                                                             question=self.question1)
 
-        self.failUnless(
-            NumericalAnswer.objects.filter(response=int(data['Number-0-response']), question=self.question3))
-        self.failUnless(
-            NumericalAnswer.objects.filter(response=int(data['Number-1-response']), question=self.question3))
-        self.failUnless(
-            NumericalAnswer.objects.filter(response=int(data['Number-2-response']), question=self.question3))
+        question3_answer0 = NumericalAnswer.objects.get(response=int(data['Number-0-response'][-1]),
+                                                           question=self.question3)
+        question3_answer1 = NumericalAnswer.objects.get(response=int(data['Number-1-response'][-1]),
+                                                        question=self.question3)
+        question3_answer2 = NumericalAnswer.objects.get(response=int(data['Number-2-response'][-1]),
+                                                           question=self.question3)
 
-        self.failUnless(TextAnswer.objects.filter(response=data['Text-0-response'], question=self.question2))
-        self.failUnless(TextAnswer.objects.filter(response=data['Text-1-response'], question=self.question2))
-        self.failUnless(TextAnswer.objects.filter(response=data['Text-2-response'], question=self.question2))
+        question2_answer0 = TextAnswer.objects.get(response=data['Text-0-response'][-1], question=self.question2)
+        question2_answer1 = TextAnswer.objects.get(response=data['Text-1-response'][-1], question=self.question2)
+        question2_answer2 = TextAnswer.objects.get(response=data['Text-2-response'][-1], question=self.question2)
 
-        self.failUnless(DateAnswer.objects.filter(response=data['Date-0-response'], question=self.question4))
-        self.failUnless(DateAnswer.objects.filter(response=data['Date-1-response'], question=self.question4))
-        self.failUnless(DateAnswer.objects.filter(response=data['Date-2-response'], question=self.question4))
+        question4_answer0 = DateAnswer.objects.get(response=data['Date-0-response'][-1], question=self.question4)
+        question4_answer1 = DateAnswer.objects.get(response=data['Date-1-response'][-1], question=self.question4)
+        question4_answer2 = DateAnswer.objects.get(response=data['Date-2-response'][-1], question=self.question4)
+
+        answer_group_row_0 = question1_answer0.answergroup.get(grouped_question=self.question_group)
+        answer_group_row_0_answers = answer_group_row_0.answer.all().select_subclasses()
+        self.assertEqual(4, answer_group_row_0_answers.count())
+        self.assertIn(question2_answer0, answer_group_row_0_answers)
+        self.assertIn(question3_answer0, answer_group_row_0_answers)
+        self.assertIn(question4_answer0, answer_group_row_0_answers)
+
+        answer_group_row_1 = question1_answer1.answergroup.get(grouped_question=self.question_group)
+        answer_group_row_1_answers = answer_group_row_1.answer.all().select_subclasses()
+        self.assertEqual(4, answer_group_row_1_answers.count())
+        self.assertIn(question2_answer1, answer_group_row_1_answers)
+        self.assertIn(question3_answer1, answer_group_row_1_answers)
+        self.assertIn(question4_answer1, answer_group_row_1_answers)
+
+        answer_group_row_2 = question1_answer2.answergroup.get(grouped_question=self.question_group)
+        answer_group_row_2_answers = answer_group_row_2.answer.all().select_subclasses()
+        self.assertEqual(4, answer_group_row_2_answers.count())
+        self.assertIn(question2_answer2, answer_group_row_2_answers)
+        self.assertIn(question3_answer2, answer_group_row_2_answers)
+        self.assertIn(question4_answer2, answer_group_row_2_answers)

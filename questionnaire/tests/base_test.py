@@ -1,6 +1,7 @@
 import csv
 from django.contrib.auth.models import User, Permission, Group
 from django.contrib.contenttypes.models import ContentType
+from django.http.request import QueryDict
 from django.test import TestCase
 from urllib import quote
 from questionnaire.models import Country, UserProfile, Region
@@ -50,3 +51,9 @@ class BaseTest(TestCase):
         response = self.client.get(url)
         self.assertRedirects(response, expected_url='/accounts/login/?next=%s' % quote(url),
                              status_code=302, target_status_code=200, msg_prefix='')
+
+    def cast_to_queryDict(self, original_dict):
+        data_query_dict = QueryDict('', mutable=True)
+        for key, val in original_dict.items():
+            data_query_dict.setlist(key, val)
+        return data_query_dict
