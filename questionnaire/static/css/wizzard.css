@@ -49,7 +49,7 @@
     padding-top: 3px;
 }
 .section-list{
-    display: flex !important;
+    display: table-row !important;
 }
 .edit-section{
     float:none;
@@ -57,4 +57,27 @@
 }
 .section_tab{
     width: 100%;
+}
+.section-list-div{
+    display:table;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width:100%;
+}
+.section-list-title{
+    display:table-cell;
+    padding-right: 1px;
+    width:100%;
+}
+.section-list-button{
+    display:table-cell;
+    vertical-align: middle;
+}
+.section-list-link{
+    padding: 0px 8px 0px 8px !important;
+    height: 100%;
+    margin-right: 1px;
+}
+.section-list-span{
+    line-height: 34px;
 }

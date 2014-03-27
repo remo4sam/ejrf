@@ -2,23 +2,32 @@
     <ul class="nav nav-pills nav-stacked">
         {% for section_ in ordered_sections %}
             <li class="section-list">
-                <a class="{% if section_.id == section.id %}current {% endif %} section_tab col-md-10"
-                   href="{% url 'questionnaire_entry_page' questionnaire.id section_.id %}{% if preview %}?preview=1{% endif %}"
-                   id="section-{{ section_.id }}"> {% if section_.region %}{{ section_.region.name }} - {% endif %}
-                    {{ section_.name }}</a>
-                {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region and user.user_profile.region == section_.region %}
-                    <a id="id-edit-section-{{ section_.id }}" href="#"
-                       class="{% if section_.id == section.id %}current {% endif %} col-md-1 edit-section"
-                       data-toggle="modal" data-target="#edit_section_{{ section_.id }}"> <span
-                            class="glyphicon glyphicon-pencil"></span> </a>
-                    {% if questionnaire.has_more_than_one_section %}
-                        <a id="id-delete-section-{{ section_.id }}" href="#"
-                           class="{% if section_.id == section.id %}current {% endif %} col-md-1 delete-section"
-                           data-toggle="modal" data-target="#delete-section-modal-{{ section_.id }}"> <span
-                                class="glyphicon glyphicon-trash"></span>
-                        </a>
-                     {% endif %}
-                {% endif %}
+                <div class="section-list-div">
+                    <div class="section-list-title">
+                        <a class="{% if section_.id == section.id %}current {% endif %} section_tab col-md-10"
+                           href="{% url 'questionnaire_entry_page' questionnaire.id section_.id %}{% if preview %}?preview=1{% endif %}"
+                           id="section-{{ section_.id }}">
+                            {% if section_.region %}{{ section_.region.name }} - {% endif %}
+                            {{ section_.name }}</a>
+                    </div>
+                    {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region and user.user_profile.region == section_.region %}
+                        <div class="section-list-button"><a class="section-list-link"
+                                                            id="id-edit-section-{{ section_.id }}" href="#"
+                                                            class="{% if section_.id == section.id %}current {% endif %} edit-section"
+                                                            data-toggle="modal"
+                                                            data-target="#edit_section_{{ section_.id }}"> <span
+                                class="glyphicon glyphicon-pencil section-list-span"></span> </a></div>
+                        {% if questionnaire.has_more_than_one_section %}
+                            <div class="section-list-button"><a class="section-list-link"
+                                                                id="id-delete-section-{{ section_.id }}" href="#"
+                                                                class="{% if section_.id == section.id %}current {% endif %} delete-section"
+                                                                data-toggle="modal"
+                                                                data-target="#delete-section-modal-{{ section_.id }}"> <span
+                                    class="glyphicon glyphicon-trash section-list-span"></span>
+                            </a></div>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </li>
         {% endfor %}
         {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
@@ -32,9 +41,8 @@
 
     <a class="btn btn-default attachement cyan bold section_tab {% if upload_form %}current{% endif %}"
        href="{% url 'upload_document' questionnaire.id %}" id="id_attachments">ATTACHMENTS
-    {% if documents %}<span class="badge"><span class="cyan bold">{{ documents.count }}</span></span>{% endif %}
+        {% if documents %}<span class="badge"><span class="cyan bold">{{ documents.count }}</span></span>{% endif %}
     </a>
-
 
 
 </div>
