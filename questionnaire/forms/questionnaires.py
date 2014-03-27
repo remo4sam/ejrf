@@ -5,7 +5,7 @@ from questionnaire.utils.form_utils import _set_year_choices
 
 
 class QuestionnaireFilterForm(forms.Form):
-    questionnaire = forms.ModelChoiceField(queryset=Questionnaire.objects.filter(status__in=[Questionnaire.FINALIZED, Questionnaire.PUBLISHED]),
+    questionnaire = forms.ModelChoiceField(queryset=Questionnaire.objects.filter(status__in=[Questionnaire.FINALIZED, Questionnaire.PUBLISHED], region=None),
                                            empty_label="Select Questionnaire",
                                            widget=forms.Select(attrs={"class": 'form-control'}), required=True)
     year = forms.ChoiceField(widget=forms.Select(attrs={"class": 'form-control'}), required=True, choices=[])
