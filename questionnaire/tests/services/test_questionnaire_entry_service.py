@@ -868,17 +868,17 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
 
         data = {u'MultiChoice-MAX_NUM_FORMS': u'6', u'MultiChoice-TOTAL_FORMS': u'6',
              u'MultiChoice-INITIAL_FORMS': u'6', u'MultiChoice-0-response': ['0,%d'%self.question_group.id, option11.id],
-             u'MultiChoice-1-response': [ '0,%d'%question_group.id, option21.id,], u'MultiChoice-2-response': [2],
-             u'MultiChoice-3-response': [ '1,%d'%self.question_group.id, 2,],  u'MultiChoice-4-response': [ '2,%d'%self.question_group.id, 3],
-             u'MultiChoice-5-response': [ '1,%d'%question_group.id, 6,],
+             u'MultiChoice-1-response': ['1,%d'%self.question_group.id, 2,], u'MultiChoice-2-response': [ '2,%d'%self.question_group.id, 3],
+             u'MultiChoice-3-response': ['0,%d'%question_group.id, option21.id,], u'MultiChoice-4-response': [ '1,%d'%question_group.id, 6,],
+             u'MultiChoice-5-response': [2],
              u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3',
              u'Number-INITIAL_FORMS': u'3', u'Number-0-response': ['0,%d'%self.question_group.id, '22',],
              u'Number-1-response': ['1,%d'%self.question_group.id, '44',],  u'Number-2-response': ['2,%d'%self.question_group.id, '33', ],
              u'Text-MAX_NUM_FORMS': u'6', u'Text-TOTAL_FORMS': u'6',
              u'Text-INITIAL_FORMS': u'6', u'Text-0-response': ['0,%d'%self.question_group.id, 'Haha',],
-             u'Text-1-response': [ '0,%d'%question_group.id, 'Hehe1',], u'Text-2-response': ['hehe2'],
-             u'Text-3-response': ['1,%d'%self.question_group.id, 'Hehe',],  u'Text-4-response': ['2,%d'%self.question_group.id, 'hehehe', ],
-             u'Text-5-response': ['1,%d'%question_group.id, 'Hehe',],
+             u'Text-1-response': ['1,%d'%self.question_group.id, 'Hehe',],  u'Text-2-response': ['2,%d'%self.question_group.id, 'hehehe', ],
+             u'Text-3-response': ['0,%d'%question_group.id, 'Hehe1',], u'Text-4-response': ['1,%d'%question_group.id, 'Hehe',],
+             u'Text-5-response': ['hehe2'],
              u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3',
              u'Date-INITIAL_FORMS': u'3', u'Date-0-response': ['0,%d'%self.question_group.id, '2014-2-2', ],
              u'Date-1-response': ['1,%d'%self.question_group.id, '2014-2-2',],  u'Date-2-response': ['2,%d'%self.question_group.id, '2014-2-2',],
@@ -977,3 +977,121 @@ class AllowMultiplesGridEntryServiceTest(BaseTest):
         self.assertIn(question2_answer2, answer_group_row_2_answers)
         self.assertIn(question3_answer2, answer_group_row_2_answers)
         self.assertIn(question4_answer2, answer_group_row_2_answers)
+
+    def test_save_answers_and_answer_groups_when_there_are_more_than_one_grid_and_same_answer_type_in_the_same_grid(self):
+        sub_section = SubSection.objects.create(title="subs", order=3, section=self.section1)
+
+        question_group = QuestionGroup.objects.create(subsection=sub_section, order=1, grid=True,
+                                                      allow_multiples=True)
+
+        question1 = Question.objects.create(text='Favorite bar', UID='C00011', answer_type='MultiChoice', is_primary=True)
+        option1 = QuestionOption.objects.create(text='bubles', question=question1)
+        option2 = QuestionOption.objects.create(text='Iguana', question=question1)
+        option3 = QuestionOption.objects.create(text='big mikes', question=question1)
+
+        question2 = Question.objects.create(text='q2',  UID='C00012', answer_type='Text')
+        question3 = Question.objects.create(text='another text q2',  UID='C00013', answer_type='Text')
+
+        question_group.question.add(question1, question2, question3)
+
+        QuestionGroupOrder.objects.create(question=question1, question_group=question_group, order=1)
+        QuestionGroupOrder.objects.create(question=question2, question_group=question_group, order=2)
+        QuestionGroupOrder.objects.create(question=question3, question_group=question_group, order=3)
+
+        sub_section1 = SubSection.objects.create(title="subs1", order=4, section=self.section1)
+
+        question_group1 = QuestionGroup.objects.create(subsection=sub_section1, order=1, name="not grid group")
+
+        question11 = Question.objects.create(text='Favorite spirit', UID='C00111', answer_type='MultiChoice', is_primary=True)
+        option11 = QuestionOption.objects.create(text='waragi', question=question11)
+        option21 = QuestionOption.objects.create(text='bond7', question=question11)
+        option31 = QuestionOption.objects.create(text='V&A', question=question11)
+
+        question21 = Question.objects.create(text='q21',  UID='C00112', answer_type='Text')
+
+        question_group1.question.add(question11, question21)
+
+        QuestionGroupOrder.objects.create(question=question11, question_group=question_group1, order=1)
+        QuestionGroupOrder.objects.create(question=question21, question_group=question_group1, order=2)
+
+        data = {
+            u'MultiChoice-MAX_NUM_FORMS': u'6', u'MultiChoice-TOTAL_FORMS': u'6', u'MultiChoice-INITIAL_FORMS': u'6',
+            u'MultiChoice-0-response': ['0,%d' % self.question_group.id, self.option1.id],
+            u'MultiChoice-1-response': ['1,%d' % self.question_group.id, self.option2.id],
+            u'MultiChoice-2-response': ['2,%d' % self.question_group.id, self.option3.id],
+            u'MultiChoice-3-response': ['0,%d' % question_group.id, option1.id],
+            u'MultiChoice-4-response': ['1,%d' % question_group.id, option2.id],
+            u'MultiChoice-5-response': [option11.id],
+            u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3', u'Number-INITIAL_FORMS': u'3',
+            u'Number-0-response': ['0,%d' % self.question_group.id, '22'],
+            u'Number-1-response': ['1,%d' % self.question_group.id, '44'],
+            u'Number-2-response': ['2,%d' % self.question_group.id, '33'],
+            u'Text-MAX_NUM_FORMS': u'8', u'Text-TOTAL_FORMS': u'8', u'Text-INITIAL_FORMS': u'8',
+            u'Text-0-response': ['0,%d' % self.question_group.id, 'row-0-self'],
+            u'Text-1-response': ['1,%d' % self.question_group.id, 'row-1-self'],
+            u'Text-2-response': ['2,%d' % self.question_group.id, 'row-2-self'],
+            u'Text-3-response': ['0,%d' % question_group.id, 'row0-next-grid'],
+            u'Text-4-response': ['0,%d' % question_group.id, 'second-text-row0-next-grid'],
+            u'Text-5-response': ['1,%d' % question_group.id, 'row-1-next-grid'],
+            u'Text-6-response': ['1,%d' % question_group.id, 'second-text-row1-next-grid'],
+            u'Text-7-response': ['row-0-non-grid'],
+            u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3', u'Date-INITIAL_FORMS': u'3',
+            u'Date-0-response': ['0,%d' % self.question_group.id, '2014-2-21'],
+            u'Date-1-response': ['1,%d' % self.question_group.id, '2014-2-22'],
+            u'Date-2-response': ['2,%d' % self.question_group.id, '2014-2-23'],
+            }
+
+        for index in range(5):
+            self.failIf(MultiChoiceAnswer.objects.filter(response__id=int(data['MultiChoice-%d-response'%index][-1])))
+        for index in range(3):
+            self.failIf(NumericalAnswer.objects.filter(response=int(data['Number-%d-response'%index][-1])))
+            self.failIf(DateAnswer.objects.filter(response=data['Date-%d-response'%index][-1]))
+        for index in range(8):
+            self.failIf(TextAnswer.objects.filter(response=data['Text-%d-response'%index][-1]))
+
+        query_dict_data = self.cast_to_queryDict(data)
+        questionnaire_entry_form = QuestionnaireEntryFormService(self.section1, initial=self.initial, data=query_dict_data)
+        questionnaire_entry_form.is_valid()
+        questionnaire_entry_form.save()
+
+
+        ordered_multichoice_question =[self.question1, self.question1, self.question1,  question1, question1, question11]
+        multichoice_answers = []
+        for index in range(6):
+            multichoice_answers.append(MultiChoiceAnswer.objects.get(response__id=int(data['MultiChoice-%d-response'%index][-1]),
+                                                             question=ordered_multichoice_question[index]))
+        number_answers = []
+        date_answers = []
+        for index in range(3):
+            number_answers.append(NumericalAnswer.objects.get(response=int(data['Number-%d-response'%index][-1]),
+                                                               question=self.question3))
+            date_answers.append(DateAnswer.objects.get(response=data['Date-%d-response' % index][-1], question=self.question4))
+
+        ordered_text_question =[self.question2, self.question2, self.question2,  question2, question3, question2, question3, question21]
+        text_answers = []
+        for index in range(8):
+            text_answers.append(TextAnswer.objects.get(response=data['Text-%d-response' % index][-1], question=ordered_text_question[index]))
+
+        FIRST_GROUP_GRID = range(3)
+        for index in FIRST_GROUP_GRID:
+            answer_group_row= multichoice_answers[index].answergroup.get(grouped_question=self.question_group)
+            answer_group_row_answers = answer_group_row.answer.all().select_subclasses()
+            self.assertEqual(4, answer_group_row_answers.count())
+            self.assertIn(number_answers[index], answer_group_row_answers)
+            self.assertIn(text_answers[index], answer_group_row_answers)
+            self.assertIn(date_answers[index], answer_group_row_answers)
+
+        SECOND_GROUP_GRID = range(2)
+        for index in SECOND_GROUP_GRID:
+            answer_group_row= multichoice_answers[3+index].answergroup.get(grouped_question=question_group)
+            answer_group_row_answers = answer_group_row.answer.all().select_subclasses()
+            self.assertEqual(3, answer_group_row_answers.count())
+            self.assertIn(text_answers[2*index+3], answer_group_row_answers)
+            self.assertIn(text_answers[2*(index+1)+2], answer_group_row_answers)
+
+        LAST_GROUP_NOT_GRID = range(1)
+        for index in LAST_GROUP_NOT_GRID:
+            non_grid_multichoice_answer_group = multichoice_answers[-1].answergroup.get(grouped_question=question_group1)
+            non_grid_text_answer_group = text_answers[-1].answergroup.get(grouped_question=question_group1)
+            self.assertEqual(1, non_grid_multichoice_answer_group.answer.count())
+            self.assertEqual(1, non_grid_text_answer_group.answer.count())

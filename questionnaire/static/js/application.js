@@ -23,17 +23,42 @@ $(document).ready(function() {
         });
 });
 
+function replaceAttributes($el, index) {
+    return {'name': _replace($el, 'name', index),
+            'id': _replace($el, 'id', index)};
+}
+
+function _replace($el, attr, index){
+    return $el.attr(attr).replace(/-[\d]+-/g, '-'+ index.toString()+'-')
+}
+
+function reIndexFieldNames($selector) {
+    var fieldTypes = ['MultiChoice', 'Date', 'Number', 'Text'];
+    fieldTypes.forEach(function(type){
+        $('#questionnaire_entry').find(":input[name^="+ type +"][type!=hidden]").each(function(index, el){
+            var $el = $(el),
+                name = $el.attr('name');
+            var attributeMap = replaceAttributes($el, index);
+            $el.attr({'name': attributeMap.name, 'id': attributeMap.id});
+            var $hidden = $el.prev("input[name="+ name +"]");
+            $hidden.attr({'name': attributeMap.name, 'id': attributeMap.id});
+        });
+    });
+}
+
 function AddRow(selector) {
-    var newElement = $(selector).clone(true);
+    var $selector = $(selector);
+    var newElement = $selector.clone(true);
     newElement.find('input[type=hidden]').each(function(){ $(this).remove()});
     updateFormCounts(newElement);
     newElement.find(':input').each(function(){
         var $el = $(this);
-        var name = $el.attr('name')
+        var name = $el.attr('name');
         $el.before('<input type="hidden" name="' + name + '" />')
     });
-    $(selector).after(newElement);
-     assignRowNumbers()
+    $selector.after(newElement);
+    assignRowNumbers();
+    reIndexFieldNames($selector);
 }
 
 function assignRowNumbers(){
