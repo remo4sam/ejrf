@@ -7,7 +7,7 @@ $(function () {
         selectQuestionnaireElement = $(elementID),
         questionnaireNameElement = $('#id_name');
     selectQuestionnaireElement.on('change', function () {
-        questionnaireNameElement.val($(elementID + ' option:selected').text() + " Copy");
+        questionnaireNameElement.val($(elementID + ' option:selected').text());
         questionnaireNameElement.attr('type', 'text').wrap("<p></p>").before("<label>New Questionnaire</label>");
     });
 
