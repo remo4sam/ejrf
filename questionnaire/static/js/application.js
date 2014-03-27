@@ -8,7 +8,7 @@ $(document).ready(function() {
     loadRoleTemplate();
     $('p:empty').remove();
 
-    $('.datetimepicker').datetimepicker({ pickTime: false });
+    $('.datetimepicker').datepicker({ pickTime: false, autoclose: true });
     $('textarea').autosize();
 
     $('.grid-error').hover(function(){
@@ -42,7 +42,7 @@ function cloneMore(selector) {
 
     $('a[data-toggle=popover]').popover();
     $('textarea').autosize().trigger('autosize.resize');
-    $('.datetimepicker').datetimepicker({ pickTime: false });
+    $('.datetimepicker').datepicker({ pickTime: false, autoclose: true });
 }
 
 function updateFormCounts(form_element){
