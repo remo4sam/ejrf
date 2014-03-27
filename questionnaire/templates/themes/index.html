@@ -23,8 +23,14 @@
             <td>{{ theme.description }}</td>
             <td>
                 <div class="btn-group">
-                    <a data-target="#edit-theme-{{ theme.id }}-modal"  data-toggle="modal" id="edit-theme-{{ theme.id }}-btn" class="btn btn-sm btn-default cyan"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
-                    <a data-target="#delete-theme-modal-{{ theme.id }}" data-toggle="modal" id="delete-theme-{{ theme.id }}-btn" class="btn btn-sm btn-default red" id="delete-theme-{{ theme.id }}"> <span class="glyphicon glyphicon-trash"></span> Delete</a>
+                    {% if theme.region == user.user_profile.region %}
+                        <a data-target="#edit-theme-{{ theme.id }}-modal"  data-toggle="modal" id="edit-theme-{{ theme.id }}-btn" class="btn btn-sm btn-default cyan">
+                            <span class="glyphicon glyphicon-pencil"></span> Edit
+                        </a>
+                        <a data-target="#delete-theme-modal-{{ theme.id }}" data-toggle="modal" id="delete-theme-{{ theme.id }}-btn" class="btn btn-sm btn-default red" id="delete-theme-{{ theme.id }}">
+                            <span class="glyphicon glyphicon-trash"></span> Delete
+                        </a>
+                    {% endif %}
                 </div>
                 {% include 'base/modals/_filter.html' with action='edit' object_type='Theme' object_id=theme.id a_form=theme|get_theme_form_with_instance url=theme.id|get_url_with_ids:"edit_theme_page" modal_title="Edit Theme" btn_label="SAVE" %}
                 {% include 'base/modals/_delete.html' with object_type='Theme' title='Confirm Delete' action="delete" object=theme  url=theme.id|get_url_with_ids:"delete_theme_page"  confirm='Yes'%}
