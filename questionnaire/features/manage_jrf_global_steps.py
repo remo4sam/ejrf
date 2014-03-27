@@ -189,12 +189,12 @@ def then_it_should_open_in_a_preview_mode(step):
 
 @step(u'And I have two finalised questionnaires')
 def and_i_have_two_finalised_questionnaires(step):
-    world.questionnaire7 = Questionnaire.objects.create(name="JRF Kampala Test version1", description="description",
+    world.questionnaire7 = Questionnaire.objects.create(name="JRF Kampala", description="description",
                                                         year=2014, status=Questionnaire.FINALIZED)
 
     Section.objects.create(title="School Based Section1", order=0, questionnaire=world.questionnaire7, name="Name")
 
-    world.questionnaire8 = Questionnaire.objects.create(name="JRF Brazil Test version1", description="description",
+    world.questionnaire8 = Questionnaire.objects.create(name="JRF Brazil", description="description",
                                                         year=2015, status=Questionnaire.FINALIZED)
     Section.objects.create(title="School Section1", order=0, questionnaire=world.questionnaire8, name="Section1 name")
 
@@ -234,20 +234,6 @@ def and_i_should_be_able_to_select_one_region_to_which_to_publish_the_finalised_
     world.page.click_by_css('button.submit')
 
 
-@step(u'And I should be able to confirm that the Core Questionnaire is published to the region I selected')
-def and_i_should_be_able_to_confirm_that_the_core_questionnaire_is_published_to_the_region_i_selected(step):
-    world.page.is_text_present("The questionnaire has been published to %s" % world.afro.name)
-    world.page.is_text_present("%s" % world.afro.name)
-    world.page.is_element_present_by_id("%s" % world.questionnaire7.id)
-
-
-@step(u'And I should be able to confirm that the region to which I published the questionnaire is not on the list')
-def and_i_should_be_able_to_confirm_that_the_region_to_which_i_published_the_questionnaire_is_not_on_the_list(step):
-    world.page.click_by_id('id-older-jrf')
-    world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire7.id)
-    world.page.is_text_present("%s" % world.afro.name, status=False)
-
-
 @step(u'And I select two regions to which to publish the finalised Core Questionnaire')
 def and_i_select_two_regions_to_which_to_publish_the_finalised_core_questionnaire(step):
     world.page.check(world.amer.id)
@@ -271,27 +257,6 @@ def and_i_should_be_able_to_confirm_that_the_regions_to_which_i_published_the_qu
     world.page.click_by_id('id-publish-questionnaire-%s' % world.questionnaire7.id)
     world.page.is_text_present("%s" % world.amer.name, status=False)
     world.page.is_text_present("%s" % world.asia.name, status=False)
-
-
-@step(u'And I click finalize my regional questionnaire')
-def and_i_click_finalize_my_regional_questionnaire(step):
-    world.page.click_by_id("id-finalize-%s" % world.questionnaire.id)
-
-
-@step(u'Then I should see that the questionnaire was sent to the global admin successfully')
-def then_i_should_see_that_the_questionnaire_was_sent_to_the_global_admin_successfully(step):
-    world.page.is_text_present("The questionnaire has been finalized successfully.")
-    world.page = ManageJrfPage(world.browser)
-
-
-@step(u'And I should not see the lock icon any more')
-def and_i_should_not_see_the_lock_icon_any_more(step):
-    world.page.validate_icon_present("id-finalize-%s" % world.questionnaire.id, status=False)
-
-
-@step(u'And I should see the unlock icon')
-def and_i_should_see_the_unlock_icon(step):
-    world.page.validate_icon_present("id-unfinalize-%s" % world.questionnaire.id)
 
 
 @step(u'And I have a finalised regional questionnaire')

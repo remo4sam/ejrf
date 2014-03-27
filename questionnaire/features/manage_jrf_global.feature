@@ -55,17 +55,6 @@ Feature: Manage JRF
          And I see finalized questionnaires
          Then I should see an option to send to regions on each of the finalized questionnaires
 
-    Scenario: Send finalized core questionnaire to one region
-        Given I am logged in as a global admin
-        And I have two finalised questionnaires
-        And I visit the manage JRF page
-        And I see finalized questionnaires
-        When I choose option to send core questionnaire to regions
-        Then I should see an interface to choose the regions to which to publish the finalised Core Questionnaire
-        And I should be able to select one region to which to publish the finalised Core Questionnaire
-        And I should be able to confirm that the Core Questionnaire is published to the region I selected
-        And I should be able to confirm that the region to which I published the questionnaire is not on the list
-
     Scenario: Send finalized core questionnaire to two regions
         Given I am logged in as a global admin
         And I have two finalised questionnaires
@@ -77,16 +66,6 @@ Feature: Manage JRF
         When I click publish button
         And I should be able to confirm that the Core Questionnaire is published to the regions I selected
         And I should be able to confirm that the regions to which I published the questionnaire is not on the list
-
-    Scenario: Send finalized regional questionnaire to global admin
-        Given I am a Regional Admin
-        And I have a questionnaire for my region with sections and subsections
-        And I have regional questions already assigned to my questionnaire
-        And I login the regional user
-        And I click finalize my regional questionnaire
-        Then I should see that the questionnaire was sent to the global admin successfully
-        And I should not see the lock icon any more
-        And I should see the unlock icon
 
     Scenario: Global admin approves regional questionnaire
         Given I am logged in as a global admin

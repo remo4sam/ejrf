@@ -28,3 +28,13 @@ Feature: Regional Admin manage eJRF versions
         When a questionnaire is published for my region
         And I am viewing the homepage
         Then I should now see that published questionnaire
+
+    Scenario: Send finalized regional questionnaire to global admin
+        Given I am a Regional Admin
+        And I have a questionnaire for my region with sections and subsections
+        And I have regional questions already assigned to my questionnaire
+        And I login the regional user
+        And I click finalize my regional questionnaire
+        Then I should see that the questionnaire was sent to the global admin successfully
+        And I should not see the lock icon any more
+        And I should see the unlock icon
