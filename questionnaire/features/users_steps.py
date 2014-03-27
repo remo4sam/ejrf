@@ -3,21 +3,15 @@ from django.contrib.contenttypes.models import ContentType
 from lettuce import step, world
 from questionnaire.features.pages.extract import ExtractPage
 from questionnaire.features.pages.home import HomePage
+from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign
 from questionnaire.features.pages.users import LoginPage, UserListingPage, CreateUserPage
 from questionnaire.models import Region, Country, UserProfile, Organization
 
 
 @step(u'Given I am registered user')
 def given_i_am_registered_user(step):
-    password = 'pass'
-    world.uganda = Country.objects.create(name="Uganda")
-    world.user = User.objects.create_user('Rajni', 'rajni@kant.com', password)
-    UserProfile.objects.create(user=world.user, country=world.uganda)
-    auth_content = ContentType.objects.get_for_model(Permission)
-    group = Group.objects.create(name="Data Submitter")
-    permission, out = Permission.objects.get_or_create(codename='can_submit_responses', content_type=auth_content)
-    group.permissions.add(permission)
-    group.user_set.add(world.user)
+    world.user, world.uganda, world.region = create_user_with_no_permissions(username="Cool")
+    assign('can_submit_responses', world.user)
 
 @step(u'And I visit the login page')
 def and_i_visit_the_login_page(step):

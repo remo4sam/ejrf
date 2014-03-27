@@ -1,13 +1,14 @@
 from lettuce import step, world
 from questionnaire.features.pages.questions import QuestionListingPage
-from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign
+from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign, \
+    create_regional_admin_with_no_permissions
 from questionnaire.features.pages.users import LoginPage
 from questionnaire.models import Question
 
 
 @step(u'Given that I am logged in as a regional admin')
 def given_that_i_am_logged_in_as_a_regional_admin(step):
-    world.user, world.country, world.region = create_user_with_no_permissions()
+    world.user, world.region = create_regional_admin_with_no_permissions()
     world.user = assign('can_edit_questionnaire', world.user)
     world.page = LoginPage(world.browser)
     world.page.visit()

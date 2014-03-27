@@ -3,28 +3,20 @@ from django.contrib.contenttypes.models import ContentType
 from lettuce import step, world
 import time
 from questionnaire.features.pages.manage import AssignModal, ManageJrfPage
+from questionnaire.features.pages.step_utils import create_global_admin_with_no_permissions, assign
 from questionnaire.features.pages.users import LoginPage
 from questionnaire.models import UserProfile, Organization, Question, QuestionGroup, QuestionGroupOrder, Questionnaire, Section, SubSection
 
 
 @step(u'Given I am a logged-in Global Admin')
 def given_i_am_a_logged_in_global_admin(step):
-    world.unicef = Organization.objects.create(name="UNICEF")
-    user = User.objects.create_user('globaladmin', 'global@unicef.com', 'pass')
-    UserProfile.objects.create(user=user, organization=world.unicef)
-
-    auth_content = ContentType.objects.get_for_model(Permission)
-    group = Group.objects.create(name="Global Admin")
-    permission, out = Permission.objects.get_or_create(codename='can_view_users', content_type=auth_content)
-    permission_edit_questionnaire, out = Permission.objects.get_or_create(codename='can_edit_questionnaire',
-                                                                          content_type=auth_content)
-    group.permissions.add(permission, permission_edit_questionnaire)
-    group.user_set.add(user)
+    user = create_global_admin_with_no_permissions('globaladmin', 'UNICEF')
+    assign('can_edit_questionnaire', user)
+    assign('can_view_users', user)
 
     world.page = LoginPage(world.browser)
     world.page.visit()
     world.page.login(user, 'pass')
-
 
 @step(u'And I have a questionnaire with sections and with subsections')
 def and_i_have_a_questionnaire_with_sections_and_with_subsections(step):

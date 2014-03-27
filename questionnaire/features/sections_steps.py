@@ -3,14 +3,15 @@ from lettuce import step, world
 from questionnaire.features.pages.home import HomePage
 from questionnaire.features.pages.questionnaires import QuestionnairePage
 from questionnaire.features.pages.sections import CreateSectionPage
-from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign
+from questionnaire.features.pages.step_utils import create_user_with_no_permissions, assign, \
+    create_global_admin_with_no_permissions
 from questionnaire.features.pages.users import LoginPage
 from nose.tools import assert_false
 
 
 @step(u'Given I am logged in as a global admin')
 def given_i_am_logged_in_as_a_global_admin(step):
-    user, _, _ = create_user_with_no_permissions(username='Rajni', region_name=None)
+    user = create_global_admin_with_no_permissions(username='Rajni')
     world.user = assign('can_view_users', user)
     world.user = assign('can_edit_questionnaire', world.user)
 
