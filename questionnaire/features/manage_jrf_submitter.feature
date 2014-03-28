@@ -6,9 +6,10 @@ Feature: Data Submitter Managing JRF
         Then that questionnaire should appear under the list of "<questionnaire type>"  questionnaires
         When I open the "<questionnaire type>" questionnaire for editing
         Then that questionnaire should open in "<questionnaire mode>"
+        And uploading attachments should be "<attachment upload status>"
 
     Examples:
-        | questionnaire type  | questionnaire mode |
-        | new                 | edit mode          |
-        | draft               | edit mode          |
-        | submitted           | preview mode       |
+        | questionnaire type  | questionnaire mode | attachment upload status
+        | new                 | edit mode          | allowed
+        | draft               | edit mode          | allowed
+        | submitted           | preview mode       | not allowed

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Permission, Group
 from django.contrib.contenttypes.models import ContentType
-from questionnaire.models import Region, UserProfile, Country, Organization, Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionGroupOrder
+from questionnaire.models import Region, UserProfile, Country, Organization, Questionnaire, Section, SubSection, Question, QuestionGroup, QuestionGroupOrder, AnswerGroup
 
 
 def create_user_with_no_permissions(username=None, country_name="Uganda", region_name="Afro", password="pass"):
@@ -67,5 +67,6 @@ def create_regional_questionnaire_with_one_question(region):
     parent = QuestionGroup.objects.create(subsection=subsection, order=1)
     parent.question.add(question1)
     QuestionGroupOrder.objects.create(question=question1, question_group=parent, order=1)
+    answer_group = AnswerGroup.objects.create(grouped_question=parent, row=1)
 
-    return regional_questionnaire, question1
+    return regional_questionnaire, question1, answer_group
