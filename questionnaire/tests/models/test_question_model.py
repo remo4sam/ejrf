@@ -245,6 +245,18 @@ class QuestionTest(BaseTest):
         self.assertTrue(question1.is_multichoice())
         self.assertFalse(question2.is_multichoice())
 
+    def test_question_can_get_nth_option(self):
+        country = Country.objects.create(name="Kenya")
+        question = Question.objects.create(text='what do you drink?', UID='C_2013', answer_type='MultiChoice', is_primary=True)
+        option1 = QuestionOption.objects.create(text='tusker lager', question=question)
+        option2 = QuestionOption.objects.create(text='tusker lite', question=question)
+        option3 = QuestionOption.objects.create(text='tusker malt', question=question)
+        MultiChoiceAnswer.objects.create(response=option1, question=question, questionnaire=self.questionnaire, version=1, country=self.country)
+        MultiChoiceAnswer.objects.create(response=option2, question=question, questionnaire=self.questionnaire, version=1, country=country)
+        self.assertIn(option1, question.answered_options(questionnaire=self.questionnaire, country=self.country))
+        self.assertNotIn(option2, question.answered_options(questionnaire=self.questionnaire, country=self.country))
+        self.assertNotIn(option3, question.answered_options(questionnaire=self.questionnaire, country=self.country))
+
 
 class QuestionOptionTest(BaseTest):
 

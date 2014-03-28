@@ -72,10 +72,10 @@ class Entry(AdvancedMultiplePermissionsRequiredMixin, FormView):
                    'documents': user_questionnaire_service.attachments()}
 
         if formsets.is_valid():
-            return self._form_valid(request, formsets, user_questionnaire_service, context)
+            return self._form_valid(request, formsets, context)
         return self._form_invalid(request, context)
 
-    def _form_valid(self, request, formsets, user_questionnaire_service, context):
+    def _form_valid(self, request, formsets, context):
         formsets.save()
         message = 'Draft saved.'
         messages.success(request, message)

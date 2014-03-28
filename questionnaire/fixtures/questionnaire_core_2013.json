@@ -633,7 +633,7 @@
             "export_label": "",
             "modified": "2014-03-03T05:36:22.325",
             "answer_type": "MultiChoice",
-            "is_primary": false,
+            "is_primary": true,
             "is_required": false,
             "region": null,
             "instructions": "Please complete separately for each vaccine,  even if they are given in combination (e.g., if Pentavalent vaccine DTP-HepB-Hib is used, fill in the data for DTP3, HepB3 and Hib3)"
@@ -857,7 +857,7 @@
             "export_label": "",
             "modified": "2014-03-03T05:36:22.521",
             "answer_type": "MultiChoice",
-            "is_primary": false,
+            "is_primary": true,
             "is_required": false,
             "region": null,
             "instructions": null
@@ -7588,7 +7588,7 @@
             "display_all": false,
             "question": [41, 42, 43, 44, 45],
             "modified": "2014-03-03T05:36:22.393",
-            "grid": false,
+            "grid": true,
             "subsection": 8,
             "order": 1,
             "instructions": null
@@ -7707,7 +7707,7 @@
             "display_all": false,
             "question": [55, 56, 57, 58],
             "modified": "2014-03-03T05:36:22.542",
-            "grid": false,
+            "grid": true,
             "subsection": 13,
             "order": 1,
             "instructions": null

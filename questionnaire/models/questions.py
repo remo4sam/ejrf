@@ -93,6 +93,11 @@ class Question(BaseModel):
     def is_multichoice(self):
         return self.answer_type == self.MULTICHOICE
 
+    def answered_options(self, questionnaire, country, version=1):
+        all_answers = self.answers.filter(questionnaire=questionnaire, country=country, version=version).\
+                                        order_by('modified').select_subclasses()
+        return [answer.response for answer in all_answers]
+
     @classmethod
     def next_uid(cls):
         return stringify(largest_uid(cls) + 1)

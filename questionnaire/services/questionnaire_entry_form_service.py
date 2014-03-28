@@ -1,7 +1,7 @@
 import copy
 from django.forms.formsets import formset_factory
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
-from questionnaire.models import AnswerGroup, Answer, NumericalAnswer, TextAnswer, DateAnswer, MultiChoiceAnswer
+from questionnaire.models import AnswerGroup, Answer, NumericalAnswer, TextAnswer, DateAnswer, MultiChoiceAnswer, QuestionOption
 from questionnaire.utils.questionnaire_entry_helpers import extra_rows, clean_data_dict
 
 
@@ -21,6 +21,10 @@ class QuestionnaireEntryFormService(object):
         self.cleaned_data = clean_data_dict(dict(copy.deepcopy(data))) if data else None
         self.section = section
         self.mapped_question_orders = section.mapped_question_orders()
+        self.country = self.initial.get('country')
+        self.version = self.initial.get('version')
+        self.questionnaire = self.initial.get('questionnaire')
+        self.extra_rows = {}
         self.formsets = self._formsets()
         self.ANSWER_FORM_COUNTER = self._initialize_form_counter()
         self._highlight_required_answers(highlight)
@@ -42,38 +46,38 @@ class QuestionnaireEntryFormService(object):
         for answer_type in ANSWER_FORM.keys():
             mapped_orders = self.mapped_question_orders.get(answer_type)
             if mapped_orders:
-                max_num = self.data.get('%s-TOTAL_FORMS'%answer_type, None) if self.data else len(mapped_orders)
-                max_num = int(max_num)
-                _formset_factory = formset_factory(ANSWER_FORM[answer_type], max_num=max_num)
-                initial = self._get_initial(mapped_orders, max_num, answer_type)
+                initial = self._get_initial(mapped_orders,  answer_type)
+                _formset_factory = formset_factory(ANSWER_FORM[answer_type], max_num=len(initial))
                 formsets[answer_type] = _formset_factory(prefix=answer_type, initial=initial, data=self.data)
         return formsets
 
     def _initial(self, order_dict):
         option = order_dict.get('option', None)
         order = order_dict.get('order', None)
-        country = self.initial.get('country')
-        version = self.initial.get('version')
-        questionnaire = self.initial.get('questionnaire')
         question = order.question
         question_group = order.question_group
 
-        initial = {'question': question, 'group': question_group, 'country': country, 'questionnaire': questionnaire}
+        initial = {'question': question, 'group': question_group, 'country': self.country,
+                   'questionnaire': self.questionnaire}
 
         answer = None
         if option:
-            primary_answer = option.answer.filter(version=version, country=country, questionnaire=questionnaire)
+            primary_answer = option.answer.filter(version=self.version, country=self.country,
+                                                  questionnaire=self.questionnaire)
             if question.is_primary:
-                initial['option'] = option
+                if question_group.display_all:
+                    initial['option'] = option
                 answer = primary_answer
             elif primary_answer.exists():
                 answer_group = primary_answer[0].answergroup.filter(grouped_question=question_group)
                 if answer_group:
-                    answer = answer_group[0].answer.filter(question=order.question, country=country, version=version,
-                                                           questionnaire=questionnaire).select_subclasses()
+                    answer = answer_group[0].answer.filter(question=order.question, country=self.country,
+                                                           version=self.version,
+                                                           questionnaire=self.questionnaire).select_subclasses()
         else:
-            answer = question.answers.filter(answergroup__grouped_question=question_group, country=country,
-                                             version=version, questionnaire=questionnaire).select_subclasses()
+            answer = question.answers.filter(answergroup__grouped_question=question_group, country=self.country,
+                                             version=self.version,
+                                             questionnaire=self.questionnaire).select_subclasses()
         if answer:
             self._append(answer, initial)
         return dict(self.initial.items() + initial.items())
@@ -84,21 +88,35 @@ class QuestionnaireEntryFormService(object):
         if answer.is_draft():
             initial['answer'] = answer
 
-    def _get_initial(self, orders, max_num, answer_type):
-        if max_num == len(orders):
-            return [self._initial(order_dict=order) for order in orders]
+    def _get_initial(self, orders, answer_type):
         initial =[]
         for order_dict in orders:
-            initial.append(self._initial(order_dict=order_dict))
             order = order_dict['order']
             group = order.question_group
-            if group.allow_multiples and order.is_last_answer_type_in_group():
-                row_numbers = extra_rows(self.cleaned_data, answer_type, group.id)
-                for row_number in row_numbers[1:]:
+            if group.allow_multiples:
+                if order.is_first_answer_type_in_group():
+                    row_numbers = self.get_extra_rows(answer_type, group)
+                    self.extra_rows[group] = row_numbers
                     questions = group.ordered_questions()
-                    question_orders = filter(lambda order: order['order'].question in questions, orders)
-                    [initial.append(self._initial(order_dict=extra_order)) for extra_order in question_orders]
+                    for row_number in row_numbers:
+                        self._update(row_number, questions, orders, initial)
+            else:
+                initial.append(self._initial(order_dict=order_dict))
+
         return initial
+
+    def _update(self, row_number, questions, orders, initial):
+        question_orders = filter(lambda order: order['order'].question in questions, orders)
+        option = row_number if isinstance(row_number, QuestionOption) else ''
+        for order_dict in question_orders:
+            initial.append(self._initial({'option': option, 'order': order_dict['order']}))
+
+    def get_extra_rows(self, answer_type, group):
+        if self.cleaned_data:
+            return extra_rows(self.cleaned_data, answer_type, group.id)
+        primary_question = group.primary_question()[0]
+        return primary_question.answered_options(questionnaire=self.questionnaire, country=self.country,
+                                                 version=self.version) or [0]
 
     def is_valid(self):
         formset_checks = [formset.is_valid() for formset in self.formsets.values()]

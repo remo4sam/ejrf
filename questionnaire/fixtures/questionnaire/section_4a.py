@@ -142,7 +142,7 @@ QuestionGroupOrder.objects.create(question=question51, question_group=parent8, o
 sub_section6 = SubSection.objects.create(order=6, section=section_1, title="Seasonal Influenza Vaccine Doses Administered",
                                          description="In an updated position paper (2012), WHO recommends that countries considering the initiation or expansion of seasonal influenza vaccination programmes give the highest priority to pregnant women. Additional risk groups to be considered for vaccination, in no particular order of priority, are: children aged 6-59 months; the elderly; individuals with specific chronic medical conditions; and healthcare workers. Report immunization coverage in this table using data collected from vaccination clinics/sites on the number of doses administered for each of the risk groups that are included in the country-specific policy for seasonal influenza vaccination. ")
 
-question61 = Question.objects.create(text="Description of target population", UID='C00062', answer_type='MultiChoice')
+question61 = Question.objects.create(text="Description of target population", UID='C00062', answer_type='MultiChoice', is_primary=True)
 QuestionOption.objects.create(text="Children 6-23 months", question=question61)
 QuestionOption.objects.create(text="Children >=24 months up to 9 years", question=question61)
 QuestionOption.objects.create(text="Elderly (please specify minimum age under explanatory comments)", question=question61)
@@ -157,7 +157,7 @@ question62 = Question.objects.create(text="Number in target group (denominator)"
 question63 = Question.objects.create(text="Number of doses administered through routine services (numerator)", UID='C00064', answer_type='Number')
 question64 = Question.objects.create(text="Percent coverage (=C/B*100)", UID='C00065', answer_type='Number')
 
-parent6 = QuestionGroup.objects.create(subsection=sub_section6, order=1, allow_multiples=True)
+parent6 = QuestionGroup.objects.create(subsection=sub_section6, order=1, grid=True, allow_multiples=True)
 parent6.question.add(question61, question62, question63, question64)
 QuestionGroupOrder.objects.create(question=question61, question_group=parent6, order=1)
 QuestionGroupOrder.objects.create(question=question62, question_group=parent6, order=2)

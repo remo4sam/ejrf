@@ -2,7 +2,7 @@ from mock import patch, MagicMock
 from questionnaire.models import Questionnaire, Section
 
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
-from questionnaire.templatetags.questionnaire_entry_tags import get_form, _filename
+from questionnaire.templatetags.questionnaire_entry_tags import get_form, _filename, get_value
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -26,3 +26,7 @@ class QuestionnaireEntryTagTest(BaseTest):
     def test_gets_filename_from_path(self):
         filename = _filename('user_uploads/TechRadar_Jan_2014_V1_1.pdf')
         self.assertEqual('TechRadar_Jan_2014_V1_1.pdf', filename)
+
+    def test_gets_value_from_dictionary(self):
+        a_dict = {'key': 'value'}
+        self.assertEqual('value', get_value('key', a_dict))

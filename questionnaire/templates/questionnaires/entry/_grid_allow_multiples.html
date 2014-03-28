@@ -1,5 +1,5 @@
 {% load questionnaire_entry_tags %}
-{% with order.question.options.all|first as option %}
+{% for extra_row in  a_group|get_value:formsets.extra_rows %}
    <tr class="grid_row">
         <td>
             <div class="question-number">
@@ -38,11 +38,12 @@
             {% endfor %}
         {% endfor %}
 {#    </tr>#}
-    <tr>
-        <td colspan="6">
-            <button type="button" href="#" class="btn btn-default add-row"><span class="cyan bold"><i
-                class="glyphicon glyphicon-plus"></i> Add More</span></button>
-        </td>
-    </tr>
+{% endfor %}
+<tr>
+    <td colspan="6">
+        <button type="button" href="#" class="btn btn-default add-row"><span class="cyan bold"><i
+            class="glyphicon glyphicon-plus"></i> Add More</span></button>
+    </td>
+</tr>
 
-{% endwith %}
+

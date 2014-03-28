@@ -12,7 +12,13 @@ class QuestionGroupOrder(BaseModel):
         app_label = 'questionnaire'
 
     def is_last_answer_type_in_group(self):
-        max_order_of_same_type = QuestionGroupOrder.objects.filter(question_group=self.question_group,
+        return self.first_by('-order')
+
+    def first_by(self, attribute_string):
+        ordered_by_attributes =  QuestionGroupOrder.objects.filter(question_group=self.question_group,
                                                                    question__answer_type=self.question.answer_type).\
-                                                                    order_by('-order')
-        return self == max_order_of_same_type[0]
+                                                                    order_by(attribute_string)
+        return self == ordered_by_attributes[0]
+
+    def is_first_answer_type_in_group(self):
+        return self.first_by('order')

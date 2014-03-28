@@ -1,7 +1,5 @@
 var form_has_changed = false;
 var editable = false;
-var $grid = $(".grid");
-var $grid_row = $('.grid_row');
 
 $(document).ready(function() {
     $('.pagination').children('ul').addClass('pagination')
@@ -32,7 +30,7 @@ function _replace($el, attr, index){
     return $el.attr(attr).replace(/-[\d]+-/g, '-'+ index.toString()+'-')
 }
 
-function reIndexFieldNames($selector) {
+function reIndexFieldNames() {
     var fieldTypes = ['MultiChoice', 'Date', 'Number', 'Text'];
     fieldTypes.forEach(function(type){
         $('#questionnaire_entry').find(":input[name^="+ type +"][type!=hidden]").each(function(index, el){
@@ -57,12 +55,13 @@ function AddRow(selector) {
         $el.before('<input type="hidden" name="' + name + '" />')
     });
     $selector.after(newElement);
-    assignRowNumbers();
-    reIndexFieldNames($selector);
+    assignRowNumbers($selector);
+    reIndexFieldNames();
 }
 
-function assignRowNumbers(){
-    $grid.find("span.number").each(function(i, element){
+function assignRowNumbers($selector){
+    var $table = $selector.parents('table');
+    $table.find("span.number").each(function(i, element){
         $(element).text(++i);
     });
 }
@@ -147,16 +146,16 @@ $('.add-more').on('click', function(event) {
 
 
 $('.add-row').on('click', function(event) {
-    $grid_row = $(this).parents('tr').prev();
+    var $grid_row = $(this).parents('tr').prev();
     AddRow($grid_row);
-    var group_id = $(this).parents('table').attr('data-group-id');
-    $grid.find('tr').each(function(i, el){
+    var $table = $(this).parents('table');
+    var group_id = $table.attr('data-group-id');
+    $table.find('tr').each(function(i, el){
         var $tr = $(this);
         $tr.find('input[type=hidden]').each(function(index, element){
             $(element).val([i, group_id]);
         });
     });
-
 });
 
 $('textarea').on('keyup', function(event){
