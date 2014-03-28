@@ -81,7 +81,7 @@
                                 <ul>
                                     {% for version in versions %}
                                         <li>
-                                            <a href="{% url 'preview_specific_questionnaire' questionnaire_.id %}?country={{ user.user_profile.country.id }}&version={{ version }}&preview=1">
+                                            <a id="questionnaire-{{ questionnaire_.id }}-version-{{ version }}" href="{% url 'preview_specific_questionnaire' questionnaire_.id %}?country={{ user.user_profile.country.id }}&version={{ version }}&preview=1">
                                             View Version {{ version }}
                                             </a>
                                         </li>

@@ -25,7 +25,7 @@ def given_i_am_a_logged_in_user_with_a_user_profile(step):
 @step(u'And I have a questionnaire with questions')
 def given_i_have_a_questionnaire_with_questions(step):
     world.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.PUBLISHED,
-                                                       region=world.afro)
+                                                       region=world.region)
 
     world.section_1 = Section.objects.create(order=0,
                         title="WHO/UNICEF Joint Reporting Form on Immunization for the Period January-December, 2013",
@@ -163,3 +163,17 @@ def then_the_response_fields_should_be_enabled(step):
 def then_the_action_for_edit_should_be_replaced_with_submit(step):
     assert world.page.is_element_present_by_id('submit_questionnaire_btn')
     assert world.page.is_element_not_present_by_id('edit_questionnaire_link')
+
+@step(u'When I modify my responses to the questionnaire')
+def when_i_modify_my_responses_to_the_questionnaire(step):
+    world.page.fill_form({'Text-0-response': 'Updated Name'})
+
+@step(u'When I choose to submit my modified responses')
+def when_i_choose_to_submit_my_modified_responses(step):
+    step.given('When I choose to submit my responses')
+    step.given('When I choose to submit the responses in the preview')
+
+@step(u'Then I should see a new submitted version listed in my Home Page')
+def then_i_should_see_a_new_submitted_version_listed_in_my_home_page(step):
+    step.given('When I am viewing the home page')
+    assert world.page.is_element_present_by_id('questionnaire-%s-version-2' % world.questionnaire.id)

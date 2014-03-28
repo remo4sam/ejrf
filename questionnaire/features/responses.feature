@@ -31,5 +31,8 @@ Feature: Responses
         And I should see my submitted responses
         When I select the option to edit my responses
         Then the response fields should be enabled
-        When I click the save button
+        When I modify my responses to the questionnaire
+        And I click the save button
         Then the action for edit should be replaced with submit
+        When I choose to submit my modified responses
+        Then I should see a new submitted version listed in my Home Page
