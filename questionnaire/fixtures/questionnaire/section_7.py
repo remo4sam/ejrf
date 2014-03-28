@@ -9,24 +9,26 @@ section_1 = Section.objects.create(order=7, questionnaire=questionnaire, name="I
 sub_section = SubSection.objects.create(order=1, section=section_1, title="Planning and management")
 
 question1 = Question.objects.create(text="Does the country have a  multi-year plan (MYP) for immunization?",
+                                    export_label='Does the country have a  multi-year plan (MYP) for immunization?',
                                     UID='C00074', answer_type='MultiChoice')
 
 QuestionOption.objects.create(text="Yes", question=question1)
 QuestionOption.objects.create(text="No", question=question1)
 QuestionOption.objects.create(text="NR", question=question1)
 
-question2 = Question.objects.create(text="If yes, what years does the MYP cover?", UID='C00075', answer_type='Text')
+question2 = Question.objects.create(text="If yes, what years does the MYP cover?", UID='C00075', answer_type='Text',
+                                    export_label='If yes, what years does the MYP cover?')
 
 
 question3 = Question.objects.create(text="Did the country have an annual workplan for immunization activities in 2013?",
-                                    UID='C00076', answer_type='MultiChoice')
+                                    UID='C00076', answer_type='MultiChoice', export_label='Did the country have an annual workplan for immunization activities?')
 QuestionOption.objects.create(text="Yes", question=question3)
 QuestionOption.objects.create(text="No", question=question3)
 QuestionOption.objects.create(text="NR", question=question3)
 
 
 question4 = Question.objects.create(text="Number of districts with updated micro-plans to raise immunization coverage",
-                                    UID='C00077', answer_type='Text')
+                                    UID='C00077', answer_type='Text', export_label='Number of districts with updated micro plans that include activities to raise immunization coverage')
 
 parent1 = QuestionGroup.objects.create(subsection=sub_section, order=1)
 parent1.question.add(question2, question1, question3, question4)
@@ -44,12 +46,14 @@ QuestionOption.objects.create(text="No", question=question_1)
 QuestionOption.objects.create(text="NR", question=question_1)
 
 question_2 = Question.objects.create(text="Does the advisory group have formal written terms of reference?",
+                                     export_label='Does the advisory group have formal written ToRs?',
                                      UID='C00125', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_2)
 QuestionOption.objects.create(text="No", question=question_2)
 QuestionOption.objects.create(text="NR", question=question_2)
 
 question_3 = Question.objects.create(text="Are there legislative or administrative basis for the advisory group?",
+                                     export_label='Are there legislative or administrative basis for the advisory group?',
                                      UID='C00079', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_3)
 QuestionOption.objects.create(text="No", question=question_3)
@@ -57,32 +61,38 @@ QuestionOption.objects.create(text="NR", question=question_3)
 
 
 #subgroup
-question_4 = Question.objects.create(text="pediatrics", UID='C00080', answer_type='MultiChoice')
+question_4 = Question.objects.create(text="pediatrics", UID='C00080', answer_type='MultiChoice',
+                                     export_label='Are pediatrics represented in the group as core membership?')
 QuestionOption.objects.create(text="Yes", question=question_4)
 QuestionOption.objects.create(text="No", question=question_4)
 QuestionOption.objects.create(text="NR", question=question_4)
 
-question_5 = Question.objects.create(text="public health", UID='C00126', answer_type='MultiChoice')
+question_5 = Question.objects.create(text="public health", UID='C00126', answer_type='MultiChoice',
+                                     export_label='Are public health experts represented in the group as core membership?')
 QuestionOption.objects.create(text="Yes", question=question_5)
 QuestionOption.objects.create(text="No", question=question_5)
 QuestionOption.objects.create(text="NR", question=question_5)
 
-question_6 = Question.objects.create(text="infectious diseases", UID='C00081', answer_type='MultiChoice')
+question_6 = Question.objects.create(text="infectious diseases", UID='C00081', answer_type='MultiChoice',
+                                     export_label='Are infectioous diseases experts represented in the group as core membership?')
 QuestionOption.objects.create(text="Yes", question=question_6)
 QuestionOption.objects.create(text="No", question=question_6)
 QuestionOption.objects.create(text="NR", question=question_6)
 
-question_7 = Question.objects.create(text="epidemiology", UID='C00082', answer_type='MultiChoice')
+question_7 = Question.objects.create(text="epidemiology", UID='C00082', answer_type='MultiChoice',
+                                     export_label='Are epidemiology experts represented in the group as core membership?')
 QuestionOption.objects.create(text="Yes", question=question_7)
 QuestionOption.objects.create(text="No", question=question_7)
 QuestionOption.objects.create(text="NR", question=question_7)
 
-question_8 = Question.objects.create(text="immunology", UID='C00083', answer_type='MultiChoice')
+question_8 = Question.objects.create(text="immunology", UID='C00083', answer_type='MultiChoice',
+                                     export_label='Are immunology experts represented in the group as core membership?')
 QuestionOption.objects.create(text="Yes", question=question_8)
 QuestionOption.objects.create(text="No", question=question_8)
 QuestionOption.objects.create(text="NR", question=question_8)
 
 question_9 = Question.objects.create(text="other: please specify under explanatory comments", UID='C00084',
+                                     export_label='Are other experts represented in the group as core membership?',
                                      answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_9)
 QuestionOption.objects.create(text="No", question=question_9)
@@ -94,21 +104,25 @@ QuestionOption.objects.create(text="NR", question=question_9)
 #******************************************************************
 
 question_10 = Question.objects.create(text="How many times did the advisory group meet in 2013?", UID='C00085', answer_type='Number',
-                                      instructions="Altough groups can have ad hoc meetings when necessary, it is recommended to have meetings at regular intervals on predetermined dates and at least once a year. This ensures that the group remains active and recommendations remain current. And it also facilitates increased attendance rates allowing members to plan the time commitment into their schedules in advance.")
+                                      instructions="Altough groups can have ad hoc meetings when necessary, it is recommended to have meetings at regular intervals on predetermined dates and at least once a year. This ensures that the group remains active and recommendations remain current. And it also facilitates increased attendance rates allowing members to plan the time commitment into their schedules in advance.",
+                                      export_label='How many times did the advisory group meet?')
 
 question_11 = Question.objects.create(text="Were the agenda and background documents distributed (at least 1 week) prior to meetings in 2013?", UID='C00086', answer_type='MultiChoice',
-                                      instructions="An agenda for each NITAG meeting should be distributed in advance to all members. This allows to properly prepare for the meeting. Ideally, background materials would also be distributed prior to the meetings to provide members with current research available on the topic. The distribution of this material facilitates a well rounded, informed discussion during the meeting, provided the members receive the information within sufficient time prior to the meeting.")
+                                      instructions="An agenda for each NITAG meeting should be distributed in advance to all members. This allows to properly prepare for the meeting. Ideally, background materials would also be distributed prior to the meetings to provide members with current research available on the topic. The distribution of this material facilitates a well rounded, informed discussion during the meeting, provided the members receive the information within sufficient time prior to the meeting.",
+                                      export_label='Were the agenda and background documents distributed (at least 1 week) prior to the meetings in the report year?')
 QuestionOption.objects.create(text="Yes", question=question_11)
 QuestionOption.objects.create(text="No", question=question_11)
 QuestionOption.objects.create(text="NR", question=question_11)
 
-question_12 = Question.objects.create(text="Are members of the advisory group required to disclose conflict of interest?", UID='C00087', answer_type='MultiChoice',
+question_12 = Question.objects.create(text="Are members of the advisory group required to disclose conflict of interest?",
+                                      export_label='Are members of the advisory group required to disclose conflict of interest?', UID='C00087', answer_type='MultiChoice',
                                       instructions="To ensure transparency and avoid conflicts of interests as much as possible, NITAGs should require all members to declare their interests prior to official appointment. A conflict of interest occurs in the case of the member having a personal investment, activity, or relationship which may affect, or appear to affect, their responsibilities of the NITAG. A conflict of interest, whether real or perceived, can compromise the quality of the recommendations made by the group and can compromise the reputation and integrity of the NITAG. It can also compromise the credibility of the group, even if it would not influence the recommendations. Therefore, interests should be declared prior to the individual's official appointment as a core member. The individual should only be appointed as a member if the person is considered an independent expert so that that their interests do not compromise the integrity of the NITAG.")
 QuestionOption.objects.create(text="Yes", question=question_12)
 QuestionOption.objects.create(text="No", question=question_12)
 QuestionOption.objects.create(text="NR", question=question_12)
 
-question_13 = Question.objects.create(text="Does the advisory group have a website or webpage? If yes, please provide the address in next box (explanatory comments)", UID='C00088', answer_type='MultiChoice',
+question_13 = Question.objects.create(text="Does the advisory group have a website or webpage? If yes, please provide the address in next box (explanatory comments)",
+                                      export_label=' Does the advisory group have a website or webpage?', UID='C00088', answer_type='MultiChoice',
                                       instructions=" WHO  encourages sharing experiences between countries and their NITAGs. In order to facilitate experience sharing process, WHO would like to circulate website or webpage addresses of NITAGs to others interested.")
 QuestionOption.objects.create(text="Yes", question=question_13)
 QuestionOption.objects.create(text="No", question=question_13)
@@ -207,7 +221,8 @@ QuestionGroupOrder.objects.create(question=question_6b, question_group=parent7, 
 ################################################################################################
 sub_section3 = SubSection.objects.create(order=4, section=section_1)
 
-question_1 = Question.objects.create(text="Number of districts reporting DTP drop-out rates greater than 10%", UID='C00098', answer_type='Number', instructions="Drop-out rate = (DTP1-DTP3) x 100 / DTP1")
+question_1 = Question.objects.create(text="Number of districts reporting DTP drop-out rates greater than 10%",
+                                     export_label='Number of districts reporting DTP drop-out rates greater than 10%', UID='C00098', answer_type='Number', instructions="Drop-out rate = (DTP1-DTP3) x 100 / DTP1")
 
 parent8 = QuestionGroup.objects.create(subsection=sub_section3, order=1)
 parent8.question.add(question_1)
@@ -216,7 +231,8 @@ QuestionGroupOrder.objects.create(question=question_1, question_group=parent8, o
 ################################################################################################
 sub_section4 = SubSection.objects.create(order=5, section=section_1, title="Vaccine supply for routine services")
 
-question_1 = Question.objects.create(text="Vaccine/Supplies", UID='C00099', answer_type='MultiChoice', instructions="Please complete separately for each vaccine, even if they were given in combination")
+question_1 = Question.objects.create(text="Vaccine/Supplies", UID='C00099', answer_type='MultiChoice',
+                                     instructions="Please complete separately for each vaccine, even if they were given in combination")
 QuestionOption.objects.create(text="BCG", question=question_1)
 QuestionOption.objects.create(text="DTP vaccines", question=question_1)
 QuestionOption.objects.create(text="Hepatitis B-containing vaccines", question=question_1)
@@ -233,12 +249,14 @@ parent9.question.add(question_1)
 
 ##################
 #start of subgroup
-question_2 = Question.objects.create(text="Was there a stock-out (no remaining doses for any period of time) at the national level during 2013?", UID='C00100', answer_type='MultiChoice', instructions="If a vaccine is not currently in use, select \"NR\" (not relevant) from the drop-down menu.")
+question_2 = Question.objects.create(text="Was there a stock-out (no remaining doses for any period of time) at the national level during 2013?",
+                                     export_label='Was there a stock-out at national level during report year?', UID='C00100', answer_type='MultiChoice', instructions="If a vaccine is not currently in use, select \"NR\" (not relevant) from the drop-down menu.")
 QuestionOption.objects.create(text="Yes", question=question_2)
 QuestionOption.objects.create(text="No", question=question_2)
 QuestionOption.objects.create(text="NR", question=question_2)
 
-question_3 = Question.objects.create(text="public health", UID='C00101', answer_type='Number', instructions="If the stock-out lasted less than one month (for example, a few days or weeks), enter \"1\".")
+question_3 = Question.objects.create(text="public health", UID='C00101', answer_type='Number',
+                                     instructions="If the stock-out lasted less than one month (for example, a few days or weeks), enter \"1\".")
 
 parent10 = QuestionGroup.objects.create(subsection=sub_section4, order=2, parent=parent9, name="National store")
 parent10.question.add(question_2, question_3)
@@ -248,12 +266,14 @@ parent10.question.add(question_2, question_3)
 ##################
 #start of subgroup
 question_4 = Question.objects.create(text="Was there a stock-out in any district during 2013?", UID='C00102', answer_type='MultiChoice',
+                                     export_label='Was there a stock-out at national level during report year?',
                                      instructions="Districts can experience stock-outs even if there was no stock-out at the national level. Therefore, the answer in column C may be \"yes\" even if the answer in column A is \"no\".\nIf a vaccine is not currently in use, select \"NR\" (not relevant) from the drop-down menu in column C.\n\nIf a district has no permanent vaccine store (i.e., the store is located at the provincial or higher level) but health units have been affected by vaccine shortages, select \"yes\" from the drop-down menu in column C and count the district in column D.")
 QuestionOption.objects.create(text="Yes", question=question_4)
 QuestionOption.objects.create(text="No", question=question_4)
 QuestionOption.objects.create(text="NR", question=question_4)
 
-question_5 = Question.objects.create(text="If yes, indicate the number of districts with interruption of activities due to stock-outs", UID='C00103', answer_type='Number',
+question_5 = Question.objects.create(text="If yes, indicate the number of districts with interruption of activities due to stock-outs",
+                                     UID='C00103', answer_type='Number', export_label='Number of districts with stock-out',
                                      instructions="Districts can experience stock-outs even if there was no stock-out at the national level. Therefore, the answer in column C may be \"yes\" even if the answer in column A is \"no\".\nIf a vaccine is not currently in use, select \"NR\" (not relevant) from the drop-down menu in column C.\n\nIf a district has no permanent vaccine store (i.e., the store is located at the provincial or higher level) but health units have been affected by vaccine shortages, select \"yes\" from the drop-down menu in column C and count the district in column D.")
 
 parent11 = QuestionGroup.objects.create(subsection=sub_section4, order=3, parent=parent9, name="District stores")
@@ -264,7 +284,8 @@ parent11.question.add(question_4, question_5)
 ##################
 #start of subgroup
 
-question_6 = Question.objects.create(text="Wastage (%) Please complete separately for each vaccine, even if they were given in combination", UID='C00104', answer_type='Number',
+question_6 = Question.objects.create(text="Wastage (%) Please complete separately for each vaccine, even if they were given in combination",
+                                      export_label='Wastage',UID='C00104', answer_type='Number',
                                      instructions="List the percentage of vaccine wasted throughout the country in opened vials at the service delivery points. Enter \"ND\" if no data are available. Please enter a value for the wastage rate for each vaccine listed, even if the vaccines were given in combination.")
 
 parent12 = QuestionGroup.objects.create(subsection=sub_section4, order=4, parent=parent9, name="Wastage")
@@ -282,29 +303,35 @@ QuestionGroupOrder.objects.create(question=question_6, question_group=parent9, o
 ################################################################################################
 sub_section5 = SubSection.objects.create(order=6, section=section_1, title="Safety Data")
 
-question_1 = Question.objects.create(text="In 2013 was a policy being implemented for immunization injection safety?", UID='C00105', answer_type='MultiChoice')
+question_1 = Question.objects.create(text="In 2013 was a policy being implemented for immunization injection safety?",
+                                     export_label='Was there a policy implemented for immunization injection safety in report year?', UID='C00105', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_1)
 QuestionOption.objects.create(text="No", question=question_1)
 QuestionOption.objects.create(text="NR", question=question_1)
 QuestionOption.objects.create(text="ND", question=question_1)
 
-question_2 = Question.objects.create(text="Does your country have a vaccine adverse events review committee? ", UID='C00106', answer_type='MultiChoice',
+question_2 = Question.objects.create(text="Does your country have a vaccine adverse events review committee? ",
+                                    export_label='Does your country have a vaccine adverse events review committee?', UID='C00106', answer_type='MultiChoice',
                                      instructions="Adverse events review committee is an independent committee of recognized experts that provides technical advice and recommendations to the government regarding vaccine safety issues. The adverse events review committee is a tool that enables the government to assess vaccine safety issues through a transparent, systematic process. The adverse events review committees are composed of recognized national experts, independent from the immunization program and the national regulatory authority, and their primary function should focus on offering technical recommendations. Please note that countries that have an ad hoc committee should mark the \"No\" option, as the question is asking for existence of a standing committee.")
 QuestionOption.objects.create(text="Yes", question=question_2)
 QuestionOption.objects.create(text="No", question=question_2)
 QuestionOption.objects.create(text="NR", question=question_2)
 QuestionOption.objects.create(text="ND", question=question_2)
 
-question_3 = Question.objects.create(text="Is there a national system to monitor adverse events following immunization?", UID='C00107', answer_type='MultiChoice',
+question_3 = Question.objects.create(text="Is there a national system to monitor adverse events following immunization?",
+                                     export_label='Was there a national system to monitor adverse events following immunization?',UID='C00107', answer_type='MultiChoice',
                                      instructions="A national system must include ALL of the following:<br/>1) written guidelines on monitoring and investigation of reported adverse events;<br/>2) a written list of events to monitor;<br/>3) an established mechanism to communicate data for regulatory action; and<br/>4) implementation of points 1, 2 and 3.<br/><br/>If any of the four conditions are not met, select \"no\".")
 QuestionOption.objects.create(text="Yes", question=question_3)
 QuestionOption.objects.create(text="No", question=question_3)
 QuestionOption.objects.create(text="NR", question=question_3)
 QuestionOption.objects.create(text="ND", question=question_3)
 
-question_4 = Question.objects.create(text="If yes, how many total  adverse events, including suspected or confirmed, were reported to the national level in 2013?", UID='C00108', answer_type='Number')
+question_4 = Question.objects.create(text="If yes, how many total  adverse events, including suspected or confirmed, were reported to the national level in 2013?",
+                                     export_label='Number of adverse events',UID='C00108', answer_type='Number')
 
-question_5 = Question.objects.create(text="In 2013 was there  a national policy for waste from immunization activities?", UID='C00127', answer_type='MultiChoice')
+question_5 = Question.objects.create(text="In 2013 was there  a national policy for waste from immunization activities?",
+                                     export_label='Was there a national policy for waste from immunization activities?',
+                                     UID='C00127', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_5)
 QuestionOption.objects.create(text="No", question=question_5)
 QuestionOption.objects.create(text="NR", question=question_5)
@@ -315,19 +342,19 @@ parent13.question.add(question_1, question_2, question_3, question_4, question_5
 
 ##################
 #start of subgroup
-question_6 = Question.objects.create(text="Incineration", UID='C00109', answer_type='MultiChoice')
+question_6 = Question.objects.create(text="Incineration", export_label='Incinerator', UID='C00109', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_6)
 QuestionOption.objects.create(text="No", question=question_6)
 
-question_7 = Question.objects.create(text="Open burning", UID='C00110', answer_type='MultiChoice')
+question_7 = Question.objects.create(text="Open burning", UID='C00110', export_label='Open burning', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_7)
 QuestionOption.objects.create(text="No", question=question_7)
 
-question_8 = Question.objects.create(text="Burial", UID='C00111', answer_type='MultiChoice')
+question_8 = Question.objects.create(text="Burial", UID='C00111', export_label='Burial', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_8)
 QuestionOption.objects.create(text="No", question=question_8)
 
-question_9 = Question.objects.create(text="Other", UID='C00112', answer_type='MultiChoice')
+question_9 = Question.objects.create(text="Other", export_label='Other', UID='C00112', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_9)
 QuestionOption.objects.create(text="No", question=question_9)
 
@@ -354,19 +381,22 @@ parent15 = QuestionGroup.objects.create(subsection=sub_section6, order=1)
 
 ##################
 #start of subgroup
-question_1 = Question.objects.create(text="the purchase of vaccines used in routine immunizations", UID='C00113', answer_type='MultiChoice')
+question_1 = Question.objects.create(text="the purchase of vaccines used in routine immunizations", UID='C00113',
+                                     export_label='For the purchase of vaccines used in routine immunizations',
+                                     answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_1)
 QuestionOption.objects.create(text="No", question=question_1)
 QuestionOption.objects.create(text="NR", question=question_1)
 QuestionOption.objects.create(text="ND", question=question_1)
 
-question_2 = Question.objects.create(text="the purchase of injection supplies (such as syringes, needles, and safety boxes) for routine immunizations", UID='C00114', answer_type='MultiChoice')
+question_2 = Question.objects.create(text="the purchase of injection supplies (such as syringes, needles, and safety boxes) for routine immunizations",
+                                     export_label='For the purchase of injection supplies for routine immunizations', UID='C00114', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_2)
 QuestionOption.objects.create(text="No", question=question_2)
 QuestionOption.objects.create(text="NR", question=question_2)
 QuestionOption.objects.create(text="ND", question=question_2)
 
-question_3 = Question.objects.create(text="the health care waste management ", UID='C00128', answer_type='MultiChoice')
+question_3 = Question.objects.create(text="the health care waste management ", export_label='For the health care waste management', UID='C00128', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question_3)
 QuestionOption.objects.create(text="No", question=question_3)
 QuestionOption.objects.create(text="NR", question=question_3)
@@ -383,7 +413,7 @@ parent16.question.add(question_1, question_2, question_3)
 #start of subgroup
 question_4 = Question.objects.create(text="Amount", UID='C00115', answer_type='Number')
 
-question_5 = Question.objects.create(text="Currency", UID='C00116', answer_type='MultiChoice')
+question_5 = Question.objects.create(text="Currency", UID='C00116', export_label='Currency', answer_type='MultiChoice')
 QuestionOption.objects.create(text="local currency", question=question_5)
 QuestionOption.objects.create(text="US $", question=question_5)
 
@@ -398,7 +428,7 @@ parent17.question.add(question_4, question_5)
 #start of subgroup
 question_6 = Question.objects.create(text="Amount", UID='C00117', answer_type='Number')
 
-question_7 = Question.objects.create(text="Currency", UID='C00118', answer_type='MultiChoice')
+question_7 = Question.objects.create(text="Currency", export_label='Currency', UID='C00118', answer_type='MultiChoice')
 QuestionOption.objects.create(text="local currency", question=question_7)
 QuestionOption.objects.create(text="US $", question=question_7)
 
@@ -410,13 +440,14 @@ parent18.question.add(question_6, question_7)
 ##################
 
 question_8 = Question.objects.create(text="If total amounts are not available for the previous questions please provide an estimated percentage of  total expenditure on vaccines financed by government funds", UID='C00119', answer_type='Number',
+                                     export_label='If total amounts are not available for the previous questions please provide an estimated percentage of  total expenditure on vaccines financed by government funds',
                                      instructions="Give the percentage of  expenditure on vaccines used in routine immunization that was financed solely with government funds. Government includes all administrative levels such as national and sub-national governments. The estimate can come from a previous year or a \"best guess\"")
 
 ##################
 #start of subgroup
 question_9 = Question.objects.create(text="Amount", UID='C00120', answer_type='Number')
 
-question_10 = Question.objects.create(text="Currency", UID='C00121', answer_type='MultiChoice')
+question_10 = Question.objects.create(text="Currency",export_label='Currency', UID='C00121', answer_type='MultiChoice')
 QuestionOption.objects.create(text="local currency", question=question_10)
 QuestionOption.objects.create(text="US $", question=question_10)
 
@@ -431,7 +462,7 @@ parent19.question.add(question_9, question_10)
 #start of subgroup
 question_11 = Question.objects.create(text="Amount", UID='C00122', answer_type='Number')
 
-question_12 = Question.objects.create(text="Currency", UID='C00123', answer_type='MultiChoice')
+question_12 = Question.objects.create(text="Currency",export_label='Currency', UID='C00123', answer_type='MultiChoice')
 QuestionOption.objects.create(text="local currency", question=question_12)
 QuestionOption.objects.create(text="US $", question=question_12)
 
@@ -442,7 +473,9 @@ parent20.question.add(question_11, question_12)
 #end of subgroup
 ##################
 
-question_13 = Question.objects.create(text="If total amounts are not available for the previous question please provide an estimated percentage of total expenditure on routine immunization  financed by government funds?", UID='C00124', answer_type='Number',
+question_13 = Question.objects.create(text="If total amounts are not available for the previous question please provide an estimated percentage of total expenditure on routine immunization  financed by government funds?",
+                                      export_label='If total amounts are not available for the previous questions please provide an estimated percentage of  total expenditure on vaccines financed by government funds',
+                                      UID='C00124', answer_type='Number',
                                      instructions="Give the percentage of expenditure on routine immunization that was financed solely with government funds. Government includes all administrative levels such as national and sub-national governments. The estimate can come from a previous year or a \"best guess\".")
 
 parent15.question.add(question_8, question_13)

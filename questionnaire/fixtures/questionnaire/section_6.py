@@ -9,7 +9,8 @@ section_1 = Section.objects.create(order=6, questionnaire=questionnaire, name="O
 
 sub_section = SubSection.objects.create(order=1, section=section_1, title=" ")
 
-question1 = Question.objects.create(text="Vaccine/Supplement", UID='C00071', answer_type='MultiChoice')
+question1 = Question.objects.create(text="Vaccine/Supplement", UID='C00071', export_label='Vaccine or supplement name',
+                                    answer_type='MultiChoice')
 
 QuestionOption.objects.create(text="BCG", question=question1)
 QuestionOption.objects.create(text="HepB, birth dose", question=question1)
@@ -43,6 +44,7 @@ QuestionGroupOrder.objects.create(question=question2, question_group=parent1, or
 
 sub_section1 = SubSection.objects.create(order=2, section=section_1, title=" ")
 question_1 = Question.objects.create(text="Please explain why these are your official estimates and where they come from",
+                                      export_label='Explanatory comments on official coverage estimates',
                                      UID='C00073', answer_type='Text', instructions="")
 
 parent2 = QuestionGroup.objects.create(subsection=sub_section1, order=1)

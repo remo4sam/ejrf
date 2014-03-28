@@ -12,7 +12,8 @@ please consider as ""routine"" only those doses that are part of the national im
 Do not include doses given in campaigns, even if during those campaigns schools were used as vaccination sites.""")
 sub_section_3 = SubSection.objects.create(order=1, section=section_2)
 
-question7 = Question.objects.create(text='Are any routine doses of vaccine given to children at school?', UID='C00007', answer_type='MultiChoice')
+question7 = Question.objects.create(text='Are any routine doses of vaccine given to children at school?', UID='C00007', answer_type='MultiChoice',
+                                    export_label='Are any routine doses of vaccine given to children at school?')
 QuestionOption.objects.create(text="Yes", question=question7)
 QuestionOption.objects.create(text="No", question=question7)
 QuestionOption.objects.create(text="NR", question=question7)
@@ -22,19 +23,19 @@ question_7_group.question.add(question7)
 
 QuestionGroupOrder.objects.create(question=question7, question_group=question_7_group, order=1)
 
-question8 = Question.objects.create(text='Vaccine procurement', UID='C00008', answer_type='MultiChoice')
+question8 = Question.objects.create(text='Vaccine procurement', UID='C00008', answer_type='MultiChoice', export_label='Which activities is the EPI Program responsible for (and not the school staff per se) Vaccine procurement')
 QuestionOption.objects.create(text="Yes", question=question8)
 QuestionOption.objects.create(text="No", question=question8)
 
-question9 = Question.objects.create(text='Vaccinators', UID='C00009', answer_type='MultiChoice')
+question9 = Question.objects.create(text='Vaccinators', UID='C00009', answer_type='MultiChoice', export_label=' Which activities is the EPI Program responsible for (and not the school staff per se) Vaccinators')
 QuestionOption.objects.create(text="Yes", question=question9)
 QuestionOption.objects.create(text="No", question=question9)
 
-question10 = Question.objects.create(text='Supervision', UID='C00010', answer_type='MultiChoice')
+question10 = Question.objects.create(text='Supervision', UID='C00010', answer_type='MultiChoice', export_label='Which activities is the EPI Program responsible for (and not the school staff per se) Supervision')
 QuestionOption.objects.create(text="Yes", question=question10)
 QuestionOption.objects.create(text="No", question=question10)
 
-question11 = Question.objects.create(text='Planing', UID='C00011', answer_type='MultiChoice')
+question11 = Question.objects.create(text='Planing', UID='C00011', answer_type='MultiChoice', export_label='Which activities is the EPI Program responsible for (and not the school staff per se) Planning')
 QuestionOption.objects.create(text="Yes", question=question11)
 QuestionOption.objects.create(text="No", question=question11)
 
@@ -49,11 +50,12 @@ QuestionGroupOrder.objects.create(question=question10, question_group=question_8
 QuestionGroupOrder.objects.create(question=question11, question_group=question_8_11__group, order=4)
 
 question12 = Question.objects.create(text='Is this part of a comprehensive school health program that delivers other '
-                                          'health intervention also?', UID='C00012', answer_type='MultiChoice')
+                                          'health intervention also?', export_label='Is this part of a comprehensive school health program that delivers other health interventions also?', UID='C00012', answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question12)
 QuestionOption.objects.create(text="No", question=question12)
 
-question13 = Question.objects.create(text='Which interventions are given in the school health program?', UID='C00013', answer_type='Text')
+question13 = Question.objects.create(text='Which interventions are given in the school health program?', UID='C00013',
+                                     answer_type='Text', export_label='If "yes", which interventions are given in the school health program?')
 
 
 question_12__13_group = QuestionGroup.objects.create(subsection=sub_section_3, order=3)
@@ -72,48 +74,49 @@ sub_section_4 = SubSection.objects.create(order=2, section=section_2, title="Rou
       (TT-8 years; MR-8 years; TT-14 years)
      """)
 
-question14 = Question.objects.create(text='Vaccine', UID='C00014', answer_type='Text', is_primary=True)
-question15 = Question.objects.create(text='Grade/Level', UID='C00015', answer_type='Number',
+
+question14 = Question.objects.create(text='Vaccine', UID='C00014', answer_type='Text', export_label='Vaccine')
+question15 = Question.objects.create(text='Grade/Level', UID='C00015', answer_type='Number', export_label='Grade or level',
 instructions="""
 "Grade / Level" indicates the class or grade that is targeted for
 the vaccine concerned. Complete this cell if children in school are targeted by class or grade,
  regardless of their age. Please use the local gradation system, or use a class grading system of 1 to 12, where class 1
   equals the first year in primary school, class 2 the second year of primary school, etc.  """)
 
-question16 = Question.objects.create(text='Age Group', UID='C00016', answer_type='Number',
+question16 = Question.objects.create(text='Age Group', UID='C00016', answer_type='Number', export_label='Age group',
 instructions="""
 "Age group" indicates the age groups that are targeted for the vaccine concerned. Complete this cell if children are
  targeted according to their age rather than according to the class they are in.
 """)
-question17 = Question.objects.create(text='Sex', UID='C00017', answer_type='MultiChoice')
+question17 = Question.objects.create(text='Sex', UID='C00017', answer_type='MultiChoice', export_label='Sex')
 QuestionOption.objects.create(text="Female", question=question17)
 QuestionOption.objects.create(text="Male", question=question17)
 QuestionOption.objects.create(text="Both", question=question17)
 
-question18 = Question.objects.create(text='Geographic Area', UID='C00018', answer_type='MultiChoice')
+question18 = Question.objects.create(text='Geographic Area', UID='C00018', answer_type='MultiChoice', export_label='Geographic Area')
 QuestionOption.objects.create(text="Subnational", question=question18)
 QuestionOption.objects.create(text="National", question=question18)
 
-question19 = Question.objects.create(text='Number in target group', UID='C00019', answer_type='Number',
+question19 = Question.objects.create(text='Number in target group', UID='C00019', answer_type='Number', export_label='No. Targeted',
 instructions="""
 "Number targeted" is the number of children targeted through the school-based immunization for each dose.
 If school-based immunization is not given in all the areas of the country, the target is the number of children
  in the areas where school-based immunization is being implemented
 """)
 
-question20 = Question.objects.create(text='Number of doses administered at school', UID='C00020', answer_type='Number',
+question20 = Question.objects.create(text='Number of doses administered at school', UID='C00020', answer_type='Number', export_label=' No. doses administered at school',
 instructions="""
 "Number vaccinated in school": the number for children who received this dose in the areas where school-based
 immunization is being implemented.
  """)
 
 question21 = Question.objects.create(text='Other interventions given with the vaccine', UID='C00021',
-                                     answer_type='Text',
+                                     answer_type='Text', export_label='Other interventions given with the vaccine',
 instructions="""
 "Other intervention given with the vaccine":  Mention any other intervention
 (e.g. growth monitoring, antihelmintics,...) that is given at the same time as the vaccination contact """)
 
-question22 = Question.objects.create(text='Does recorded on immunization or child death card', UID='C00022',
+question22 = Question.objects.create(text='Does recorded on immunization or child death card', UID='C00022', export_label='Doses recorded on immunizaton or child health card?',
                                      answer_type='MultiChoice')
 QuestionOption.objects.create(text="Yes", question=question22)
 QuestionOption.objects.create(text="No", question=question22)

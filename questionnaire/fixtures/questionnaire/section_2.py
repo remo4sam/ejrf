@@ -16,25 +16,27 @@ question1 = Question.objects.create(text="Vaccine, Supplement, or Injection Equi
 question1b = Question.objects.create(text="Type",
                                     UID='C0031b', answer_type='MultiChoice',)
 
-question2 = Question.objects.create(text="1st dose", UID='C00032', answer_type='Text',)
-question3 = Question.objects.create(text="2nd dose", UID='C00033', answer_type='Text',)
-question4 = Question.objects.create(text="3rd dose", UID='C00034', answer_type='Text',)
-question5 = Question.objects.create(text="4th dose", UID='C00035', answer_type='Text',)
-question6 = Question.objects.create(text="5th dose", UID='C00036', answer_type='Text',)
-question7 = Question.objects.create(text="6th dose", UID='C00037', answer_type='Text',)
+question2 = Question.objects.create(text="1st dose", UID='C00032', answer_type='Text', export_label='1st dose')
+question3 = Question.objects.create(text="2nd dose", UID='C00033', answer_type='Text', export_label='2nd dose')
+question4 = Question.objects.create(text="3rd dose", UID='C00034', answer_type='Text', export_label='3rd dose')
+question5 = Question.objects.create(text="4th dose", UID='C00035', answer_type='Text', export_label='4th dose')
+question6 = Question.objects.create(text="5th dose", UID='C00036', answer_type='Text', export_label='5th dose')
+question7 = Question.objects.create(text="6th dose", UID='C00037', answer_type='Text', export_label='6th dose')
 
-question8 = Question.objects.create(text="Planned introduction", UID='C00038', answer_type='Date',)
+question8 = Question.objects.create(text="Planned introduction", UID='C00038', answer_type='Date', export_label='Planned introduction')
 
 question10 = Question.objects.create(text="Geo-graphic area", UID='C00040', answer_type='MultiChoice',
+                                     export_label='Geographic Area',
 instructions='If a vaccine or supplement is given throughout the entire country, pick "national" from the drop-down list. If it is given only in certain regions of the country, pick "subnational". This column refers only to geographical areas and not to special target or risk groups.')
 
 question11 = Question.objects.create(text="Specific target group", UID='C00041', answer_type='Text',
+                                     export_label=' Specific target groups',
 instructions='If a vaccine is not given to the entire population, specify the target group (for example, adults over 65, travellers, diabetes patients, or displaced persons).')
 
-question12 = Question.objects.create(text="Name of manufacturer", UID='C00042', answer_type='Text',
+question12 = Question.objects.create(text="Name of manufacturer", export_label='Manufacturer', UID='C00042', answer_type='Text',
 instructions='Indicate the origin for all vaccines and supplements used in the country and also for auto-disable (AD) syringes. If AD syringes are not used in the country, leave those cells blank.')
 
-question13 = Question.objects.create(text="Which agency procured the vaccine?", UID='C00043', answer_type='MultiChoice',
+question13 = Question.objects.create(text="Which agency procured the vaccine?", export_label='Procurement source',UID='C00043', answer_type='MultiChoice',
 instructions="""
 There are four possible answers:
 <ul>
@@ -45,7 +47,8 @@ There are four possible answers:
 </ul>
 """)
 
-question14 = Question.objects.create(text="Total no. of doses procured at national level", UID='C00044', answer_type='Number',
+question14 = Question.objects.create(text="Total no. of doses procured at national level",
+                                     export_label='Total no. procured at national level', UID='C00044', answer_type='Number',
 instructions= 'Indicate how many doses of each type of vaccine and supplement were procured at the national level.')
 
 QuestionOption.objects.create(text="BCG: Bacille Calmette-Guerin vaccine", question=question1)
@@ -136,9 +139,9 @@ QuestionOption.objects.create(text="AD - BCG: AD (auto-disable) syringes for BCG
 QuestionOption.objects.create(text="AD - inj: AD syringes", question=question15)
 QuestionOption.objects.create(text="AD - Rec: AD syringes for reconstitution", question=question15)
 
-question16 = Question.objects.create(text="Which agency procured the Syringes?", UID='C00046', answer_type='MultiChoice',)
+question16 = Question.objects.create(text="Which agency procured the Syringes?", export_label='Procurement source',UID='C00046', answer_type='MultiChoice',)
 
-question17 = Question.objects.create(text="Total no. of syringes procured at national level", UID='C00047', answer_type='Number',)
+question17 = Question.objects.create(text="Total no. of syringes procured at national level", UID='C00047', export_label='Total no. procured at national level', answer_type='Number',)
 
 parent2 = QuestionGroup.objects.create(subsection=sub_section, order=2, allow_multiples=True)
 parent2.question.add(question15, question16, question17, question8, question10, question11, question12)
