@@ -175,6 +175,7 @@ def the_question_should_be_displayed_with_all_its_attributes(step):
 
 @step(u'When I update the question with invalid details')
 def when_i_update_the_question_with_invalid_details(step):
+    world.theme = Theme.objects.create(name='Sample Theme')
     question_data = {'text': '',
                      'instructions': '',
                      'export_label': '',
@@ -191,8 +192,6 @@ def i_should_see_an_error_message(step):
 
 @step(u'When I update the question with valid details')
 def when_i_update_the_question_with_valid_details(step):
-    world.theme = Theme.objects.create(name='Sample Theme')
-    world.page.browser.reload()
     question_data = {'text': 'Updated Question Text',
                      'instructions': 'Updated Question Instructions',
                      'export_label': 'Updated Question Export Label',
