@@ -67,7 +67,7 @@ class CreateQuestion(PermissionRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class EditQuestion(PermissionRequiredMixin, UpdateView):
+class EditQuestion(OwnerAndPermissionRequiredMixin, UpdateView):
     permission_required = 'auth.can_edit_questionnaire'
 
     def __init__(self, **kwargs):
