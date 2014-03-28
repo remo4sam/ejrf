@@ -72,7 +72,7 @@ def and_i_have_an_attached_file(step):
             world.document = SupportDocument.objects.create(path=File(document), country=world.uganda,
                                                             questionnaire=world.questionnaire)
 
-@step(u'And I click delete button next to that file')
+@step(u'I click delete button next to that file')
 def and_i_click_delete_button_next_to_that_file(step):
     world.page.click_by_css('.glyphicon-trash')
     sleep(3)
@@ -99,3 +99,12 @@ def and_i_clean_up_the_files(step):
 def and_i_visit_the_questionnaire_section_page(step):
     world.page = QuestionnairePage(world.browser, world.section_1)
     world.page.visit()
+
+@step(u'And I should see the number of attachments indicated in the attachments link')
+def and_i_should_see_the_number_of_attachments_indicated_in_the_attachments_link(step):
+    world.page.validate_number_of_attachments(1)
+
+@step(u'And the number of attachments indicated in the attachments link should be updated')
+def and_the_number_of_attachments_indicated_in_the_attachments_link_should_be_updated(step):
+    world.page = UploadDocumentPage(world.browser, world.questionnaire)
+    world.page.validate_number_of_attachments(0)

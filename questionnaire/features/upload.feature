@@ -10,6 +10,7 @@ Feature: Support document upload
        When I select a file to upload
        And I click upload button
        Then I should see the file was uploaded successfully
+       And I should see the number of attachments indicated in the attachments link
        And I clean up the files
 
   Scenario: Upload Unacceptable File Extension
@@ -30,7 +31,10 @@ Feature: Support document upload
         And I have an attached file
         And I visit the questionnaire section page
         And I visit the attachments page
-        And I click delete button next to that file
+        Then I should see the upload form
+        And I should see the number of attachments indicated in the attachments link
+        When I click delete button next to that file
         Then I should see a warning dialog
         When I click confirm
         Then I should see that file was deleted
+        And the number of attachments indicated in the attachments link should be updated
