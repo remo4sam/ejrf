@@ -38,7 +38,7 @@ class SpecificExportView(LoginRequiredMixin, TemplateView):
         country = Country.objects.get(id=kwargs['country_id'])
         questionnaire = Questionnaire.objects.filter(region__countries=country, status=Questionnaire.PUBLISHED).latest('modified')
         version = kwargs.get('version_number', None)
-        formatted_responses = ExportToTextService(questionnaire, country=country,
+        formatted_responses = ExportToTextService(questionnaire, countries=country,
                                                   version=version).get_formatted_responses()
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="%s-%s-%s-%s.txt"'% (questionnaire.name,
