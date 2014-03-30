@@ -33,6 +33,7 @@ function _replace($el, attr, index){
 function reIndexFieldNames() {
     var fieldTypes = ['MultiChoice', 'Date', 'Number', 'Text'];
     fieldTypes.forEach(function(type){
+        var total = 0;
         $('#questionnaire_entry').find(":input[name^="+ type +"][type!=hidden]").each(function(index, el){
             var $el = $(el),
                 name = $el.attr('name');
@@ -40,7 +41,24 @@ function reIndexFieldNames() {
             $el.attr({'name': attributeMap.name, 'id': attributeMap.id});
             var $hidden = $el.prev("input[name="+ name +"]");
             $hidden.attr({'name': attributeMap.name, 'id': attributeMap.id});
+            total = index +1;
         });
+        $('#id_' + type + '-MAX_NUM_FORMS').val(total);
+        $('#id_' + type + '-INITIAL_FORMS').val(total);
+        $('#id_' + type + '-TOTAL_FORMS').val(total);
+    });
+}
+
+function removeUsedOptions(new_row, $table) {
+    var  new_row_primary_select = new_row.find('select').first();
+
+    $table.find('tbody tr').each(function(){
+       var used_option = $(this).find("td:eq(1)").find("select").find("option:selected");
+       new_row_primary_select.find('option[value='+ used_option.val() + ']').remove();
+    });
+    new_row_primary_select.append('<option value="">Choose One</option>');
+    new_row.find(':input[type!=hidden]').each(function(){
+        $(this).val('');
     });
 }
 
@@ -55,12 +73,13 @@ function AddRow(selector) {
         $el.before('<input type="hidden" name="' + name + '" />')
     });
     $selector.after(newElement);
-    assignRowNumbers($selector);
+    var $table = $selector.parents('table');
+    assignRowNumbers($table);
+    removeUsedOptions(newElement, $table);
     reIndexFieldNames();
 }
 
-function assignRowNumbers($selector){
-    var $table = $selector.parents('table');
+function assignRowNumbers($table){
     $table.find("span.number").each(function(i, element){
         $(element).text(++i);
     });
@@ -214,4 +233,16 @@ function disableInputFields(status) {
 $('.unassign-question').hover(function(){
     var parent_question = $(this).parents('div[class^="form-group"]');
     $(parent_question).toggleClass('question-form');
+});
+
+$('.remove-table-row').on('click', function(evt){
+    var $row = $(this).parents('tr'),
+        $table = $row.parents('table'),
+        $grid_rows = $table.find('tr.grid_row');
+    if ($grid_rows.length > 1){
+        $row.remove();
+        assignRowNumbers($table);
+        reIndexFieldNames();
+    }
+    evt.preventDefault();
 });

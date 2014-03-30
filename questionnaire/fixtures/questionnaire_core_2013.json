@@ -7571,7 +7571,7 @@
             "display_all": false,
             "question": [32, 33, 34, 35, 36, 37, 38, 39, 40],
             "modified": "2014-03-03T05:36:17.126",
-            "grid": false,
+            "grid": true,
             "subsection": 7,
             "order": 1,
             "instructions": null

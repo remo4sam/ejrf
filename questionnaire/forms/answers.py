@@ -114,6 +114,8 @@ class MultiChoiceAnswerForm(AnswerForm):
         return "Choose One"
 
     def widget_is_radio_button(self, query_set):
+        if self._initial['group'].grid:
+            return False
         return query_set.count() == 2 or query_set.filter(text='Yes').exists() or query_set.filter(text='Male').exists()
 
     def _get_response_widget(self, query_set):

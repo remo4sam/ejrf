@@ -38,7 +38,7 @@ def and_i_have_a_questionnaire_with_sections_and_subsections(step):
 
 @step(u'And I have a question group and questions in that group')
 def and_i_have_a_question_group_and_questions_in_that_group(step):
-    world.question1 = Question.objects.create(text='Disease', UID='C00001', answer_type='MultiChoice')
+    world.question1 = Question.objects.create(text='Disease', UID='C00001', answer_type='MultiChoice', is_primary=True)
     world.question2 = Question.objects.create(text='B. Number of cases tested',
                                               instructions="Enter the total number of cases for which",
                                               UID='C00003', answer_type='Number')
@@ -47,7 +47,7 @@ def and_i_have_a_question_group_and_questions_in_that_group(step):
                                               instructions="Include only those cases the infectious agent.",
                                               UID='C00004', answer_type='Number')
 
-    world.question_group = QuestionGroup.objects.create(subsection=world.sub_section, order=1, name="Immunization", allow_multiples=1)
+    world.question_group = QuestionGroup.objects.create(subsection=world.sub_section, order=1, name="Immunization", grid=True, allow_multiples=1)
     world.question_group.question.add(world.question1, world.question3, world.question2)
 
     QuestionOption.objects.create(text='Option 2', question=world.question1)
@@ -114,16 +114,17 @@ def then_i_should_see_an_add_more_button(step):
 
 @step(u'When I click the Add More button')
 def when_i_click_the_add_more_button(step):
-    world.page.click_by_css('.add-more')
+    world.page.click_by_css('.add-row')
 
-@step(u'Then I should see a new question group')
-def then_i_should_see_a_new_subsection(step):
-    assert(world.page.number_of_elements("Immunization"), 2)
+@step(u'Then I should see a new row')
+def then_i_should_see_a_new_row(step):
+    world.page.is_name_present('MultiChoice-0-response', 'MultiChoice-1-response')
 
-@step(u'When I click the question group delete button')
-def when_i_click_the_sub_section_delete_button(step):
-    world.page.click_by_css('.delete-more')
+@step(u'When I click the delete row button')
+def when_i_click_the_delete_row_button(step):
+    world.page.click_by_css('.remove-table-row')
 
-@step(u'Then I should not see that question group')
-def then_i_should_not_see_that_question_group(step):
-    assert(world.page.number_of_elements("Immunization"), 1)
+@step(u'Then I should not see that row')
+def then_i_should_not_see_that_row(step):
+    world.page.is_name_present('MultiChoice-0-response')
+    world.page.is_name_present('MultiChoice-1-response', status=False)

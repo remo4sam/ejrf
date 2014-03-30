@@ -46,6 +46,13 @@ class PageObject(object):
         for text in texts:
             self._is_text_present(text, status)
 
+    def is_name_present(self, *names, **kwargs):
+        status = kwargs['status'] if 'status' in kwargs else True
+        check = []
+        for name in names:
+            check.append(bool(self.browser.find_by_name(name)))
+        assert_equals(status, len(check) == check.count(True))
+
     def validate_pagination(self):
         self.click_link_by_text('2')
 

@@ -1,43 +1,46 @@
 {% load questionnaire_entry_tags %}
 {% for extra_row in  a_group|get_value:formsets.extra_rows %}
-   <tr class="grid_row">
-        <td>
-            <div class="question-number">
-                {% spaceless %}
-                    <span>{{ section.order }}</span>
-                    {% if section.has_at_least_two_subsections %}
-                        <span>.{{ subsection.order }}</span>{% endif %}
-                    <span>.</span>
-                    {% if subsection.has_at_least_two_groups %}
-                        <span>{{ group.order }}.</span>{% endif %}
-                    {% if group.has_at_least_two_questions %}
-                        <span class="number">{{ forloop.counter }}</span>{% endif %}
-                {% endspaceless %}
-            </div>
-        </td>
-        {% for field in order.question|get_form:formsets %}
-            <td>{{ field.as_hidden }}
-                {{ field }}
+    {% with forloop.counter0 as row_number %}
+       <tr class="grid_row">
+            <td>
+                <div class="question-number">
+                    {% spaceless %}
+                        <span>{{ section.order }}</span>
+                        {% if section.has_at_least_two_subsections %}
+                            <span>.{{ subsection.order }}</span>{% endif %}
+                        <span>.</span>
+                        {% if subsection.has_at_least_two_groups %}
+                            <span>{{ group.order }}.</span>{% endif %}
+                        {% if group.has_at_least_two_questions %}
+                            <span class="number">{{ forloop.counter }}</span>{% endif %}
+                    {% endspaceless %}
+                </div>
             </td>
-        {% endfor %}
-        {% for question in a_group.all_non_primary_questions %}
-            {% for field in question|get_form:formsets %}
-                <td>
-                    {% if field.errors %}
-                        <div class="field-error grid-error" data-toggle="popover" data-html="true"
-                             data-placement="right" data-trigger="hover"
-                             data-content="{{ field.errors|striptags }}">
-
-                    {% endif %}
-                     {{ field.as_hidden }}
+            {% for field in order.question|get_form:formsets %}
+                <td><input type="hidden" id="id_{{field.html_name }}" name="{{ field.html_name}}" value="{{ row_number }},{{ a_group.id }}" />
                     {{ field }}
-                    {% if field.errors %}
-                        </div>
-                    {% endif %}
                 </td>
             {% endfor %}
-        {% endfor %}
-{#    </tr>#}
+            {% for question in a_group.all_non_primary_questions %}
+                {% for field in question|get_form:formsets %}
+                    <td>
+                        {% if field.errors %}
+                            <div class="field-error grid-error" data-toggle="popover" data-html="true"
+                                 data-placement="right" data-trigger="hover"
+                                 data-content="{{ field.errors|striptags }}">
+
+                        {% endif %}
+                         <input type="hidden" id="id_{{field.html_name }}" name="{{ field.html_name}}" value="{{ row_number }},{{ a_group.id }}" />
+                        {{ field }}
+                        {% if field.errors %}
+                            </div>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            {% endfor %}
+            <td><a href="" class="remove-table-row"><i class="glyphicon glyphicon-remove-circle red"></i></a></td>;
+        </tr>
+    {% endwith %}
 {% endfor %}
 <tr>
     <td colspan="6">
@@ -45,5 +48,3 @@
             class="glyphicon glyphicon-plus"></i> Add More</span></button>
     </td>
 </tr>
-
-

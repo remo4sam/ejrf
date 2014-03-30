@@ -366,9 +366,10 @@ table span.th-instructions{
     font-weight: normal;
     font-style: italic;
 }
-table td input[type='text'], select{
+table td input[type='text'], textarea{
     width: 100%;
 }
+
 .button-padding{
     padding-bottom: 20px;
     margin-bottom: 20px;

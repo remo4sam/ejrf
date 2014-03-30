@@ -20,14 +20,7 @@
                     {% endif %}
                     {% if not order.question.is_in_subgroup %}
                         <th rowspan="2">{{ order.question.text }}
-                            {% if order.question.instructions %}
-                                <hr/>
-                                <a class="indent" data-toggle="popover" data-html="true" data-placement="bottom"
-                                   data-trigger="hover"
-                                   data-content="{{ order.question.instructions | safe }}">
-                                    <i class="glyphicon glyphicon-info-sign cyan"></i> instructions</a>
-                            {% endif %}
-
+                        {% include 'questionnaires/entry/_question_instructions.html' %}
                         </th>
                     {% endif %}
                 {% endfor %}
@@ -35,7 +28,9 @@
             <tr>
                 {% for order in a_group.question_orders %}
                     {% if  order.question.is_in_subgroup %}
-                        <th>{{ order.question.text }}</th>
+                        <th>{{ order.question.text }}
+                            {% include 'questionnaires/entry/_question_instructions.html' %}
+                        </th>
                     {% endif %}
                 {% endfor %}
             </tr>
@@ -43,7 +38,9 @@
             <tr>
                 <th rowspan="2">Q NO</th>
                 {% for order in a_group.question_orders %}
-                    <th>{{ order.question.text }}</th>
+                    <th>{{ order.question.text }}
+                        {% include 'questionnaires/entry/_question_instructions.html' %}
+                    </th>
                 {% endfor %}
             </tr>
         {% endif %}

@@ -50,14 +50,7 @@
         {% if field.errors %}
             </div>
         {% endif %}
-            {% if order.question.instructions %}
-                <a class="indent instructions" data-toggle="popover"
-                   data-html="true"
-                   data-placement="bottom" data-trigger="hover"
-                   data-content="{{ order.question.instructions }}"
-                   id="question-{{ order.question.id }}-instructions"><i
-                        class="glyphicon glyphicon-info-sign cyan"></i> instructions</a>
-            {% endif %}
+            {% include 'questionnaires/entry/_question_instructions.html' %}
             {% if field.errors %}
                 <a class="indent red" data-toggle="popover" data-placement="bottom"
                    data-trigger="hover" data-content="{{ field.errors|striptags }}"

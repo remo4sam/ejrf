@@ -72,7 +72,7 @@ sub_section_4 = SubSection.objects.create(order=2, section=section_2, title="Rou
       (TT-8 years; MR-8 years; TT-14 years)
      """)
 
-question14 = Question.objects.create(text='Vaccine', UID='C00014', answer_type='Text')
+question14 = Question.objects.create(text='Vaccine', UID='C00014', answer_type='Text', is_primary=True)
 question15 = Question.objects.create(text='Grade/Level', UID='C00015', answer_type='Number',
 instructions="""
 "Grade / Level" indicates the class or grade that is targeted for
@@ -118,7 +118,7 @@ question22 = Question.objects.create(text='Does recorded on immunization or chil
 QuestionOption.objects.create(text="Yes", question=question22)
 QuestionOption.objects.create(text="No", question=question22)
 
-question_14_22_group = QuestionGroup.objects.create(subsection=sub_section_4, order=1, allow_multiples=True)
+question_14_22_group = QuestionGroup.objects.create(subsection=sub_section_4, order=1, allow_multiples=True, grid=True)
 question_14_22_group.question.add(question14, question15, question16, question17, question18, question19,
                                    question20, question21, question22)
 
