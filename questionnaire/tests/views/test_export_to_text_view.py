@@ -1,7 +1,7 @@
 from urllib import quote
 from django.test import Client
 from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, Organization, Region, Country, NumericalAnswer, Answer, QuestionGroupOrder, AnswerGroup, \
-    MultiChoiceAnswer, QuestionOption
+    MultiChoiceAnswer, QuestionOption, Theme
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -11,28 +11,34 @@ class ExportToTextViewTest(BaseTest):
         self.user, self.country, self.region = self.create_user_with_no_permissions()
         self.login_user()
 
+        self.organisation = Organization.objects.create(name="WHO")
+        self.regions = Region.objects.create(name="The Afro", organization=self.organisation)
+        self.country = Country.objects.create(name="Uganda", code="UGX")
+        self.regions.countries.add(self.country)
+
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English",
-                                                          description="From dropbox as given by Rouslan", year=2013)
+                                                          description="From dropbox as given by Rouslan",
+                                                          year=2013, region = self.regions)
         self.section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)",
                                                 order=1,
                                                 questionnaire=self.questionnaire, name="Reported Cases")
 
         self.sub_section = SubSection.objects.create(title="Reported cases for the year 2013", order=1,
                                                      section=self.section_1)
+
+        self.theme = Theme.objects.create(name = "Theme1", description="Some Theme")
+
         self.question1 = Question.objects.create(text='B. Number of cases tested',
                                                  instructions="Enter the total number of cases for which specimens were collected, and tested in laboratory",
-                                                 UID='C00003', answer_type='Number')
+                                                 UID='C00003', answer_type='Number', theme=self.theme)
 
         self.question2 = Question.objects.create(text='C. Number of cases positive',
                                                  instructions="Include only those cases found positive for the infectious agent.",
-                                                 UID='C00004', answer_type='Number')
+                                                 UID='C00004', answer_type='Number', theme=self.theme)
 
         self.parent = QuestionGroup.objects.create(subsection=self.sub_section, order=1)
         self.parent.question.add(self.question1, self.question2)
-        self.organisation = Organization.objects.create(name="WHO")
-        self.regions = Region.objects.create(name="The Afro", organization=self.organisation)
-        self.country = Country.objects.create(name="Uganda", code="UGX")
-        self.regions.countries.add(self.country)
+
 
         self.question1_answer = NumericalAnswer.objects.create(question=self.question1, country=self.country,
                                                                status=Answer.SUBMITTED_STATUS, response=23)
@@ -58,8 +64,10 @@ class ExportToTextViewTest(BaseTest):
         self.assertRedirects(response, expected_url='accounts/login/?next=%s' % quote('/extract/'), status_code=302)
 
     def test_post_export(self):
-        form_data = {'questionnaire': self.questionnaire.id}
-        file_name = "%s-%s.txt" % (self.questionnaire.name, self.questionnaire.year)
+        form_data = {'questionnaire': self.questionnaire.id, 'years': {'2013', '2014'}, 'regions': self.regions.id,
+                     'countries': self.country.id, 'themes': self.theme.id}
+
+        file_name = "%s-%s.txt" % ('data', '2014_2013')
         response = self.client.post('/extract/', data=form_data)
         self.assertEquals(200, response.status_code)
         self.assertEquals(response.get('Content-Type'), 'text/csv')
@@ -73,6 +81,7 @@ class ExportToTextViewTest(BaseTest):
         row1 = "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_1.encode('base64').strip(), question_text1, '23.00')
         row2 = "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_2.encode('base64').strip(), question_text_2, '1.00')
         contents = "%s\r\n%s\r\n%s" % ("".join(headings), "".join(row1), "".join(row2))
+
         self.assertEqual(contents, response.content)
 
 

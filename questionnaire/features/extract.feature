@@ -9,5 +9,5 @@ Feature: Export responses to DEF file
 		And I have a questionnaires
 		And I have questions and their answers
 	    When I click the extract link
-		Then I should see a list of questionnaires
+		Then I should see a list of filter options
 		Then I should see the export data button

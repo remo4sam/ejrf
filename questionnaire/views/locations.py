@@ -32,3 +32,16 @@ class RegionsForOrganization(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         return self.model.objects.get(pk=self.kwargs['organization_id'])
+
+class CountriesForRegion(LoginRequiredMixin, DetailView):
+
+    def get(self, request, *args, **kwargs):
+        countries = []
+        regions = Region.objects.filter(id__in = request.GET.getlist('regions'))
+
+        for region in regions:
+            countries.extend(list(region.countries.all().values('id', 'name')))
+
+        json_dump = json.dumps(countries, cls=DjangoJSONEncoder)
+        return HttpResponse(json_dump, mimetype='application/json')
+

@@ -326,7 +326,7 @@ class GRIDQuestionsExportTest(BaseTest):
         self.assertIn(expected_data[5], actual_data)
 
 
-class ExportCustomFieldsToTextServiceTest(BaseTest):
+class MultipleQuestionnaireFilterAndExportToTextServiceTest(BaseTest):
     def setUp(self):
         self.organisation = Organization.objects.create(name="WHO")
         self.regions = Region.objects.create(name="The Afro", organization=self.organisation)
@@ -340,12 +340,12 @@ class ExportCustomFieldsToTextServiceTest(BaseTest):
         self.theme = Theme.objects.create(name="First theme", description="This is a wonderful decription")
         self.theme1 = Theme.objects.create(name="Second theme", description="This is a second wonderful decription")
         self.questionnaire, self.section, self.subsection = self.setup_create_questionnaire_and_answers(name="JRF 2013 Core English",
-                                                             year=2013, theme=self.theme)
+                                                             year=2013, theme=self.theme, country=self.country)
 
         self.questionnaire2, self.section_2, self.subsection_2 = self.setup_create_questionnaire_and_answers(name="JRF 2014 Core English",
-                                                              year=2014, theme=self.theme1)
+                                                              year=2014, theme=self.theme1, country=self.country_2)
 
-    def setup_create_questionnaire_and_answers(self, name, year, theme=None):
+    def setup_create_questionnaire_and_answers(self, name, year, theme=None, country=None):
         questionnaire = Questionnaire.objects.create(name=name,
                                                     description="Description",
                                                     year=year)
@@ -372,14 +372,14 @@ class ExportCustomFieldsToTextServiceTest(BaseTest):
 
 
         def setup_create_answers():
-            question1_answer = NumericalAnswer.objects.create(question=question1, country=self.country,
+            question1_answer = NumericalAnswer.objects.create(question=question1, country=country,
                                                               status=Answer.SUBMITTED_STATUS, response=23)
 
-            question2_answer = NumericalAnswer.objects.create(question=question2, country=self.country,
+            question2_answer = NumericalAnswer.objects.create(question=question2, country=country,
                                                               status=Answer.SUBMITTED_STATUS, response=1)
 
             question3_answer = MultiChoiceAnswer.objects.create(question=question3,
-                                                                       country=self.country,
+                                                                       country=country,
                                                                        status=Answer.SUBMITTED_STATUS,
                                                                        response=option)
             answer_group_1 = question1_answer.answergroup.create(grouped_question=question_group, row=1)
@@ -411,8 +411,82 @@ class ExportCustomFieldsToTextServiceTest(BaseTest):
             answer_id = "C_%s_%s_1" % (question.UID, question.UID)
             expected_data.append(line_format % (self.country.name, answer_id.encode('base64').strip(), question_text, '23'))
 
-        export_to_text_service = ExportToTextService(questionnaire=[self.questionnaire,self.questionnaire2])
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
 
+    def test_export_questions_and_answers_for_particular_theme(self):
+        expected_data = [self.headings]
+        line_format = "UGX\t%s\t2013\t%s\t%s\t%s"
+
+        #questionnaire 1
+        for number in range(0, 3, 1):
+            question = self.subsection.all_questions()[number]
+            question_text = "%s | %s | %s" % (self.section.title, self.subsection.title, question.text)
+            answer_id = "C_%s_%s_1" % (question.UID, question.UID)
+            expected_data.append(line_format % (self.country.name, answer_id.encode('base64').strip(), question_text, '23'))
+
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], themes=self.theme)
+        actual_data = export_to_text_service.get_formatted_responses()
+        self.assertEqual(len(expected_data), len(actual_data))
+        self.assertIn(expected_data[0], actual_data)
+
+    def test_export_questions_and_answers_for_particular_country(self):
+        expected_data = [self.headings]
+        line_format = "UGX\t%s\t2013\t%s\t%s\t%s"
+
+        #questionnaire 1
+        for number in range(0, 3, 1):
+            question = self.subsection.all_questions()[number]
+            question_text = "%s | %s | %s" % (self.section.title, self.subsection.title, question.text)
+            answer_id = "C_%s_%s_1" % (question.UID, question.UID)
+            expected_data.append(line_format % (self.country.name, answer_id.encode('base64').strip(), question_text, '23'))
+
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], countries=self.country)
+        actual_data = export_to_text_service.get_formatted_responses()
+        self.assertEqual(len(expected_data), len(actual_data))
+        self.assertIn(expected_data[0], actual_data)
+
+    def test_export_of_question_and_answers_for_theme_and_country(self):
+        expected_data = [self.headings]
+        line_format = "UGX\t%s\t2013\t%s\t%s\t%s"
+
+        #questionnaire 1
+        for number in range(0, 3, 1):
+            question = self.subsection.all_questions()[number]
+            question_text = "%s | %s | %s" % (self.section.title, self.subsection.title, question.text)
+            answer_id = "C_%s_%s_1" % (question.UID, question.UID)
+            expected_data.append(line_format % (self.country.name, answer_id.encode('base64').strip(), question_text, '23'))
+
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], countries=self.country, themes=self.theme)
+        actual_data = export_to_text_service.get_formatted_responses()
+        self.assertEqual(len(expected_data), len(actual_data))
+        self.assertIn(expected_data[0], actual_data)
+
+    def test_export_of_question_and_answers_for_invalid_theme_and_country(self):
+        expected_data = [self.headings]
+        line_format = "UGX\t%s\t2013\t%s\t%s\t%s"
+
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire], countries=self.country, themes=self.theme1)
+        actual_data = export_to_text_service.get_formatted_responses()
+        self.assertEqual(len(expected_data), len(actual_data))
+        self.assertIn(expected_data[0], actual_data)
+
+    def test_export_of_question_and_answers_for_theme_and_invalid_country(self):
+        expected_data = [self.headings]
+        line_format = "UGX\t%s\t2013\t%s\t%s\t%s"
+
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire], countries=self.country_2, themes=self.theme)
+        actual_data = export_to_text_service.get_formatted_responses()
+        self.assertEqual(len(expected_data), len(actual_data))
+        self.assertIn(expected_data[0], actual_data)
+
+    def test_export_of_question_and_answers_when_no_questionnaires_available(self):
+        expected_data = [self.headings]
+        line_format = "UGX\t%s\t2013\t%s\t%s\t%s"
+
+        export_to_text_service = ExportToTextService(questionnaires=[])
+        actual_data = export_to_text_service.get_formatted_responses()
+        self.assertEqual(len(expected_data), len(actual_data))
+        self.assertIn(expected_data[0], actual_data)

@@ -3,12 +3,12 @@ from questionnaire.models import AnswerGroup, Answer, Questionnaire, Country, Th
 class ExportToTextService:
     HEADERS = "ISO\tCountry\tYear\tField code\tQuestion text\tValue"
 
-    def __init__(self, questionnaire, version=None, countries=None, themes=None):
+    def __init__(self, questionnaires, version=None, countries=None, themes=None):
         self.questionnaires = []
-        if questionnaire and isinstance(questionnaire, Questionnaire):
-            self.questionnaires.append(questionnaire)
+        if questionnaires and isinstance(questionnaires, Questionnaire):
+            self.questionnaires.append(questionnaires)
         else:
-            self.questionnaires = questionnaire
+            self.questionnaires = questionnaires
 
         self.version = version
 
@@ -19,7 +19,7 @@ class ExportToTextService:
             self.countries = countries
 
         self.themes=[]
-        if self.themes and isinstance(themes, Theme):
+        if themes and isinstance(themes, Theme):
             self.themes.append(themes)
         else:
             self.themes = themes

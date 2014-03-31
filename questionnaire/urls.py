@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 from questionnaire.views.assign_questions import AssignQuestion, UnAssignQuestion
 from questionnaire.views.export_to_text import ExportToTextView, ExportSectionPDF, DownloadSectionPDF, SpecificExportView
 from questionnaire.views.home import Home
-from questionnaire.views.locations import ListRegions, ListCountries, RegionsForOrganization
+from questionnaire.views.locations import ListRegions, ListCountries, RegionsForOrganization, CountriesForRegion
 from questionnaire.views.manage import ManageJRF, ManageRegionalJRF, EditQuestionnaireNameView
 from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
 from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection, DeleteSubSection
@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     url(r'^extract/$', ExportToTextView.as_view(), name="export_page"),
     url(r'^extract/country/(?P<country_id>\d+)/version/(?P<version_number>\d+)/$', SpecificExportView.as_view(), name="specific_export_page"),
     url(r'^locations/region/$', ListRegions.as_view(), name='list_region_page'),
+    url(r'^locations/countries/$', CountriesForRegion.as_view()),
     url(r'^locations/organization/(?P<organization_id>\d+)/region/$', RegionsForOrganization.as_view()),
     url(r'^locations/region/(?P<region_id>\d+)/country/$', ListCountries.as_view(), name="list_country_page"),
     url(r'^manage/$', ManageJRF.as_view(), name='manage_jrf_page'),

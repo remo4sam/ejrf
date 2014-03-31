@@ -6,11 +6,12 @@ import urllib
 import urlparse
 
 from django.core.files import File
+from django.db import connection
 from django.http import HttpResponse
 from django.views.generic import TemplateView, View
 
 from braces.views import LoginRequiredMixin
-from questionnaire.models import Questionnaire, Country
+from questionnaire.models import Questionnaire, Country, Region, Theme
 from questionnaire.services.export_data_service import ExportToTextService
 
 
@@ -20,13 +21,42 @@ class ExportToTextView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ExportToTextView, self).get_context_data(**kwargs)
         context['questionnaires'] = Questionnaire.objects.all()
+        context['regions'] = Region.objects.all()
+        context['themes'] = Theme.objects.all()
+        context['years'] = self._get_years()
         return context
 
+    def _get_years(self):
+        cursor = connection.cursor()
+        cursor.execute(("SELECT DISTINCT year FROM %s" % Questionnaire._meta.db_table))
+
+        desc = cursor.description
+        rows = cursor.fetchall()
+        return [
+            row[0]
+            for row in rows
+        ]
+
     def post(self, request, *args, **kwargs):
-        questionnaire = Questionnaire.objects.get(id=request.POST['questionnaire'])
-        formatted_responses = ExportToTextService(questionnaire).get_formatted_responses()
+        years = request.POST.getlist('years')
+        regions = request.POST.getlist('regions')
+        countries = Country.objects.filter(id__in = request.POST.getlist('countries'))
+        themes = Theme.objects.filter(id__in = request.POST.getlist('themes'))
+
+        filter = {}
+        if years:
+            filter.update({'year__in': years})
+
+        if regions:
+            filter.update({'region_id__in': regions})
+
+        questionnaires = Questionnaire.objects.filter(**filter)
+
+        formatted_responses = ExportToTextService(questionnaires=questionnaires,
+                                                  countries=countries, themes=themes).get_formatted_responses()
+
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="%s-%s.txt"'% (questionnaire.name, questionnaire.year)
+        response['Content-Disposition'] = 'attachment; filename="%s-%s.txt"'% ('data', '_'.join(years))
         response.write("\r\n".join(formatted_responses))
         return response
 
