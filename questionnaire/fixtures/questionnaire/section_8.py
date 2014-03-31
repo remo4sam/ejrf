@@ -9,7 +9,8 @@ section_1 = Section.objects.create(order=8, questionnaire=questionnaire, name="S
 
 sub_section = SubSection.objects.create(order=1, section=section_1, title="Conducted during 2013")
 
-question1 = Question.objects.create(text="Vaccine/supplement", UID='C00129', answer_type='Text', export_label='Vaccine or supplement name')
+question1 = Question.objects.create(text="Vaccine/supplement", UID='C00129', answer_type='Text',
+                                    export_label='Vaccine or supplement name', is_primary=True)
 question2 = Question.objects.create(text="Round and type of activity", export_label='Round and type of activity',  UID='C00130', answer_type='Text',
 instructions="Record the name of the activity (for example, NIDs, micronutrition day, child health day, or vaccination week) and the number of the round (for example, first, second or third). If an activity involved more than one vaccine or supplement, use multiple lines to describe it, placing each vaccine or supplement on a separate line.")
 question3 = Question.objects.create(text="Date", UID='C00131', answer_type='Date', export_label='Date')
@@ -23,7 +24,7 @@ question7 = Question.objects.create(text="Total number of persons vaccinated or 
 question8 = Question.objects.create(text="Coverage (%)", UID='C00136', answer_type='Number', export_label='Coverage (%)',
 instructions="Enter the official coverage estimate for the vaccine or supplement (including measles, yellow fever, meningitis, and polio vaccines and Vitamin A). Do NOT complete for tetanus vaccine. These estimates can come from a coverage survey and thus may differ from the administrative calculation.")
 
-group = QuestionGroup.objects.create(subsection=sub_section, order=1, allow_multiples=True,
+group = QuestionGroup.objects.create(subsection=sub_section, order=1, allow_multiples=True, grid=True,
 instructions="Record all supplementary activities related to immunization and nutritional supplementation that were conducted at either the national or sub-national levels in 2013. These could include activities related to polio, yellow fever, measles, rubella, influenza, meningitis, and tetanus toxoid vaccines; vitamin A and iron supplements; deworming; and the distribution of insecticide treated bednets (ITNs).")
 group.question.add(question1, question2, question3, question4, question5, question6, question7, question8)
 
@@ -59,7 +60,7 @@ QuestionGroupOrder.objects.create(question=question14, question_group=group, ord
 
 sub_section2 = SubSection.objects.create(order=2, section=section_1, title="Planned for 2014-2015")
 
-group2 = QuestionGroup.objects.create(subsection=sub_section2, order=1, allow_multiples=True,
+group2 = QuestionGroup.objects.create(subsection=sub_section2, order=1, allow_multiples=True, grid=True,
 instructions="Record any supplementary activities related to immunization and nutritional supplementation, at either the national or sub-national levels, that are planned for 2014 and 2015. These could include activities related to polio, yellow fever, measles, rubella, influenza, meningitis, and tetanus toxoid vaccines; vitamin A and iron supplements; deworming; and the distribution of insecticide-treated bednets (ITNs).")
 group2.question.add(question1, question2, question3, question4, question5, question6)
 

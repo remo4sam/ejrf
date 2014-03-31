@@ -75,7 +75,7 @@ sub_section_4 = SubSection.objects.create(order=2, section=section_2, title="Rou
      """)
 
 
-question14 = Question.objects.create(text='Vaccine', UID='C00014', answer_type='Text', export_label='Vaccine')
+question14 = Question.objects.create(text='Vaccine', UID='C00014', answer_type='Text', export_label='Vaccine',is_primary=True)
 question15 = Question.objects.create(text='Grade/Level', UID='C00015', answer_type='Number', export_label='Grade or level',
 instructions="""
 "Grade / Level" indicates the class or grade that is targeted for

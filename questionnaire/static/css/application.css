@@ -366,7 +366,7 @@ table span.th-instructions{
     font-weight: normal;
     font-style: italic;
 }
-table td input[type='text'], textarea{
+table td input[type='text'], table td textarea, table td select{
     width: 100%;
 }
 
@@ -394,4 +394,23 @@ table td input[type='text'], textarea{
 
 .filter-modal textarea{
     width: inherit !important;
+}
+
+.horizontal-ul{
+    display: inline-flex;
+}
+
+.horizontal-ul li{
+    list-style: none;
+    float: left;
+    margin-right: 10px;
+}
+
+.horizontal-ul li label{
+    display: block !important;
+    text-align: left;
+}
+
+.horizontal-ul textarea, .horizontal-ul input[type='text'], .horizontal-ul select{
+    width: 100%;
 }

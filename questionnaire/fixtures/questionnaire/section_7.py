@@ -231,7 +231,7 @@ QuestionGroupOrder.objects.create(question=question_1, question_group=parent8, o
 ################################################################################################
 sub_section4 = SubSection.objects.create(order=5, section=section_1, title="Vaccine supply for routine services")
 
-question_1 = Question.objects.create(text="Vaccine/Supplies", UID='C00099', answer_type='MultiChoice',
+question_1 = Question.objects.create(text="Vaccine/Supplies", UID='C00099', answer_type='MultiChoice', is_primary=True,
                                      instructions="Please complete separately for each vaccine, even if they were given in combination")
 QuestionOption.objects.create(text="BCG", question=question_1)
 QuestionOption.objects.create(text="DTP vaccines", question=question_1)
@@ -244,7 +244,7 @@ QuestionOption.objects.create(text="Measles-containing vaccines", question=quest
 QuestionOption.objects.create(text="Yellow fever", question=question_1)
 QuestionOption.objects.create(text="Tetanus toxoid", question=question_1)
 
-parent9 = QuestionGroup.objects.create(subsection=sub_section4, order=1, allow_multiples=True)
+parent9 = QuestionGroup.objects.create(subsection=sub_section4, order=1, display_all=True, grid=True)
 parent9.question.add(question_1)
 
 ##################

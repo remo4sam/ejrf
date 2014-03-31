@@ -3,7 +3,7 @@
         {{ section.order }}.{{ subsection.order }}.
     {% endif %}
 
-    {{ subsection.title }}
+    {{ subsection.title | default_if_none:''}}
     {% if perms.auth.can_edit_questionnaire and user.user_profile.region == questionnaire.region %}
         <div class="btn-group pull-right">
             <a href="" id="id-assign-{{ subsection.id }}" class="btn btn-sm btn-default"

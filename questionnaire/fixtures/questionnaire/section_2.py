@@ -12,7 +12,7 @@ sub_section = SubSection.objects.create(order=1, section=section_1,
 description="Use this section to describe the 2013 national immunization schedule and any planned vaccine introductions. Complete the rows for all vaccines and supplements currently in use in the country. ")
 
 question1 = Question.objects.create(text="Vaccine, Supplement, or Injection Equipment",
-                                    UID='C00031', answer_type='MultiChoice',)
+                                    UID='C00031', answer_type='MultiChoice', is_primary=True)
 question1b = Question.objects.create(text="Type",
                                     UID='C0031b', answer_type='MultiChoice',)
 
@@ -107,14 +107,19 @@ QuestionOption.objects.create(text="UNICEF, WHO or PAHO", question=question13)
 QuestionOption.objects.create(text="donating agency", question=question13)
 QuestionOption.objects.create(text="other", question=question13)
 
-parent = QuestionGroup.objects.create(subsection=sub_section, order=1, allow_multiples=True)
-parent.question.add(question1, question1b, question2, question3, question4, question5, question6, question7, question8,
-                    question10, question11)
 
-subgroup = QuestionGroup.objects.create(subsection=sub_section, parent=parent, name="Source of Vaccines, Vitamin A, and AD Syringes")
-parent.question.add(question12, question13, question14)
+parent = QuestionGroup.objects.create(subsection=sub_section, order=1, grid=True, allow_multiples=True, hybrid=True)
+parent.question.add(question1, question1b, question8, question10, question11)
+
+subgroup = QuestionGroup.objects.create(subsection=sub_section, parent=parent, name="Recommended age of admnistration", grid=True)
+subgroup.question.add(question2, question3, question4, question5, question6, question7)
 
 
+subgroup1 = QuestionGroup.objects.create(subsection=sub_section, parent=parent, name="Source of Vaccines, Vitamin A, and AD Syringes",
+                                                     instructions="<p>Record sources of all AD syringes distributed by the Ministry of Health for routine immunizations during the " +
+                                                      "reporting period January 1 - December 31, 2013 </p> <p>If manufacturers or procuring agency were used for the same vaccine, list them all. Use the extra rows at the bottom to accomodate this information.</p>"
+                                                      )
+subgroup1.question.add(question12, question13, question14)
 
 QuestionGroupOrder.objects.create(question=question1, question_group=parent, order=1)
 QuestionGroupOrder.objects.create(question=question1b, question_group=parent, order=2)
@@ -133,7 +138,7 @@ QuestionGroupOrder.objects.create(question=question14, question_group=parent, or
 
 ######################################### next group
 
-question15 = Question.objects.create(text="AD equipment", UID='C00045', answer_type='MultiChoice',)
+question15 = Question.objects.create(text="AD equipment", UID='C00045', answer_type='MultiChoice', is_primary=True)
 
 QuestionOption.objects.create(text="AD - BCG: AD (auto-disable) syringes for BCG", question=question15)
 QuestionOption.objects.create(text="AD - inj: AD syringes", question=question15)
@@ -143,8 +148,14 @@ question16 = Question.objects.create(text="Which agency procured the Syringes?",
 
 question17 = Question.objects.create(text="Total no. of syringes procured at national level", UID='C00047', export_label='Total no. procured at national level', answer_type='Number',)
 
-parent2 = QuestionGroup.objects.create(subsection=sub_section, order=2, allow_multiples=True)
-parent2.question.add(question15, question16, question17, question8, question10, question11, question12)
+parent2 = QuestionGroup.objects.create(subsection=sub_section, order=2, allow_multiples=True, grid=True, hybrid=True)
+parent2.question.add(question15, question8, question10, question11)
+
+subgroup2 = QuestionGroup.objects.create(subsection=sub_section, parent=parent2, name="Source of Vaccines, Vitamin A, and AD Syringes",
+                                         instructions="<p>Record sources of all AD syringes distributed by the Ministry of Health for routine immunizations during the " +
+                                                      "reporting period January 1 - December 31, 2013 </p> <p>If manufacturers or procuring agency were used for the same vaccine, list them all. Use the extra rows at the bottom to accomodate this information.</p>"
+                                                      )
+subgroup2.question.add(question12, question16, question17)
 
 QuestionOption.objects.create(text="government agency", question=question16)
 QuestionOption.objects.create(text="UNICEF, WHO or PAHO", question=question16)
