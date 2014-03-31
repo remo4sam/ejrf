@@ -1,8 +1,8 @@
 Feature: Regional Questions
     Scenario: Regional Admin deleting questions from Question Bank
         Given that I am logged in as a regional admin
-        And I have regional questions in the question bank
         And I have two themes
+        And I have regional questions in the question bank
         When I navigate to the question bank
         Then I should see an option to delete each question
         When I choose to delete a question
@@ -36,3 +36,20 @@ Feature: Regional Questions
         Then I should not see that option field
         And I click save question button
         Then I should see the question created
+
+     Scenario: Regional Admin updating question from question bank
+       Given that I am logged in as a regional admin
+       And I have two themes
+        And I have regional questions in the question bank
+        And that the questions are used in a published questionnaire
+        When I navigate to the question bank
+        Then I should see an option to update a question
+        When I choose to edit a question
+        Then I should see the question details displayed for editing
+        When I update the question with invalid details
+        I should see an error message
+        When I update the question with valid details
+        Then I should see a message that the question was successfully updated
+        And I should see the updated details
+        When I preview the submitted questionnaire where the question was used
+       Then  I should see original question
