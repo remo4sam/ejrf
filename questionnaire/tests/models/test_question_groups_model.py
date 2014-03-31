@@ -16,9 +16,9 @@ class QuestionGroupTest(BaseTest):
     def test_grouped_questions_field(self):
         grouped_question = QuestionGroup()
         fields = [str(item.attname) for item in grouped_question._meta.fields]
-        self.assertEqual(11, len(fields))
+        self.assertEqual(12, len(fields))
         for field in ['id', 'created', 'modified','subsection_id', 'name', 'instructions', 'parent_id', 'order', 'grid',
-                      'display_all',  'allow_multiples']:
+                      'display_all',  'allow_multiples', 'hybrid']:
             self.assertIn(field, fields)
 
     def test_grouped_questions_store(self):
@@ -32,6 +32,10 @@ class QuestionGroupTest(BaseTest):
         self.assertEqual(self.question, all_questions[0])
         self.assertIsNone(grouped_question.name)
         self.assertIsNone(grouped_question.instructions)
+        self.assertFalse(grouped_question.grid)
+        self.assertFalse(grouped_question.display_all)
+        self.assertFalse(grouped_question.allow_multiples)
+        self.assertFalse(grouped_question.hybrid)
 
     def test_grouped_questions_store_parent(self):
         self.assertEqual(self.parent_question_group, self.sub_grouped_question.parent)

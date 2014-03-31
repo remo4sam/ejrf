@@ -13,6 +13,7 @@ class QuestionGroup(BaseModel):
     allow_multiples = models.BooleanField(default=False)
     grid = models.BooleanField(default=False)
     display_all = models.BooleanField(default=False)
+    hybrid = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('order',)
