@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.views.generic import CreateView, DeleteView, View, UpdateView
 from questionnaire.forms.questions import QuestionForm
 from questionnaire.mixins import DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequiredMixin
-from questionnaire.models import Question, Questionnaire
+from questionnaire.models import Question, Questionnaire, Theme
 
 
 class QuestionList(PermissionRequiredMixin, View):
@@ -20,16 +20,27 @@ class QuestionList(PermissionRequiredMixin, View):
 
         if finalized_questionnaire.exists():
             active_questions = finalized_questionnaire.latest('created').get_all_questions()
-        questions = self.get_questions_for_user().filter(child=None)
+
+        theme = None
+        if self.request.GET.get('theme', None):
+            theme = Theme.objects.get(id = self.request.GET.get('theme'))
+
+        questions = self.get_questions_for_user(theme).filter(child=None)
         context = {'request': self.request,
                    'questions': questions,
-                   'active_questions': active_questions}
+                   'active_questions': active_questions,
+                   'themes': Theme.objects.all()}
         return render(self.request, self.template_name, context)
 
-    def get_questions_for_user(self):
+    def get_questions_for_user(self, theme=None):
+        filter={'region': self.request.user.user_profile.region}
+        if theme:
+            filter.update({'theme': theme})
+
         if self.request.user.has_perm('auth.can_view_users'):
-            return self.model.objects.filter(region=None).order_by('created')
-        return self.model.objects.filter(region=self.request.user.user_profile.region)
+            return self.model.objects.filter(**filter).order_by('created')
+
+        return self.model.objects.filter(**filter)
 
 
 class CreateQuestion(PermissionRequiredMixin, CreateView):

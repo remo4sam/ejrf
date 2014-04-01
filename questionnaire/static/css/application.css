@@ -441,3 +441,9 @@ table td input[type='text'], table td textarea, table td select{
 .horizontal-ul textarea, .horizontal-ul input[type='text'], .horizontal-ul select{
     width: 100%;
 }
+
+#question-filter-form {
+    clear:both;
+    display: block;
+    margin-bottom: 10px;
+}

@@ -12,6 +12,16 @@
     <a href="{% url 'new_question_page' %}" class="btn btn-default btn-lg  pull-right" id="id-add-new-question-link">
         <span class="cyan"><i class="glyphicon glyphicon-plus-sign"></i> New Question</span></a>
     <br/>
+    <form class="form-inline" role="form" method="get" id="question-filter-form">
+        <label>Theme</label>
+        <select name="theme" class="form-control">
+            <option value="">None</option>
+            {% for theme in themes %}
+                <option value="{{ theme.id }}">{{ theme.name }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-default cyan" type="submit">Filter</button>
+    </form>
       <table class="table table-hover table-bordered">
           <thead>
           <tr>

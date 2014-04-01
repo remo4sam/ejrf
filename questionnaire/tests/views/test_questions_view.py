@@ -209,6 +209,16 @@ class QuestionViewTest(BaseTest):
         message = "Question was not deleted because it has responses"
         self.assertIn(message, response.cookies['messages'].value)
 
+    def test_questions_list_in_particular_theme(self):
+        data = {'text': 'B. Number of cases tested',
+                'instructions': "Enter the total number of cases",
+                'UID': '00001', 'answer_type': 'Number',
+                'theme': self.theme}
+        question = Question.objects.create(**data)
+        response = self.client.get('/questions/?theme=%d' % self.theme.id)
+        self.failUnless(Question.objects.get(**data))
+        self.assertIn(question, response.context['questions'])
+
 
 class RegionalQuestionsViewTest(BaseTest):
 
