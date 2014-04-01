@@ -1,11 +1,12 @@
-from braces.views import PermissionRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView, View
+
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.mixins import RegionAndPermissionRequiredMixin, DoesNotExistExceptionHandlerMixin, OwnerAndPermissionRequiredMixin
 from questionnaire.models import Section, SubSection
+from questionnaire.services.question_re_indexer import QuestionReIndexer
 from questionnaire.utils.model_utils import reindex_orders_in
 
 
@@ -163,3 +164,11 @@ class DeleteSubSection(OwnerAndPermissionRequiredMixin, DeleteView):
         message = "Subsection successfully deleted."
         messages.success(request, message)
         return response
+
+
+class ReOrderQuestions(View):
+
+    def post(self, *args, **kwargs):
+        sub_section = SubSection.objects.get(id=kwargs.get('subsection_id'))
+        QuestionReIndexer(self.request.POST).reorder_questions()
+        return HttpResponseRedirect(sub_section.get_absolute_url())

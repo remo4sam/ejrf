@@ -1,10 +1,11 @@
+from urllib import quote
+
 from django.core.urlresolvers import reverse
 from django.test import Client
 
 from questionnaire.forms.sections import SectionForm, SubSectionForm
 from questionnaire.models import Questionnaire, Section, SubSection, Region
 from questionnaire.tests.base_test import BaseTest
-from urllib import quote
 
 
 class SectionsViewTest(BaseTest):
@@ -276,7 +277,6 @@ class SubSectionsViewTest(BaseTest):
         subsection = SubSection.objects.filter(order=2, title=form_data['title'])
         self.failUnless(subsection)
         self.assertEqual('', subsection[0].title)
-
 
 class EditSubSectionsViewTest(BaseTest):
     def setUp(self):

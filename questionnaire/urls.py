@@ -5,7 +5,8 @@ from questionnaire.views.home import Home
 from questionnaire.views.locations import ListRegions, ListCountries, RegionsForOrganization, CountriesForRegion
 from questionnaire.views.manage import ManageJRF, ManageRegionalJRF, EditQuestionnaireNameView
 from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
-from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection, DeleteSubSection
+from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection, DeleteSubSection, \
+    ReOrderQuestions
 from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion, EditQuestion
 from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire, FinalizeQuestionnaire, UnfinalizeQuestionnaire, PublishQuestionnaire, ApproveQuestionnaire, DeleteAnswerRow
 from questionnaire.views.theme import Theme, ThemeList, NewTheme, EditTheme, DeleteTheme
@@ -47,6 +48,7 @@ urlpatterns = patterns('',
     url(r'^submit/(?P<questionnaire_id>\d+)$', SubmitQuestionnaire.as_view(), name="submit_questionnaire_page"),
     url(r'^subsection/(?P<subsection_id>\d+)/assign_questions/$', AssignQuestion.as_view(), name="assign_question_to_subsection_page"),
     url(r'^subsection/(?P<subsection_id>\d+)/question/(?P<question_id>\d+)/unassign/$', UnAssignQuestion.as_view(), name="unassign_question_page"),
+    url(r'^subsection/(?P<subsection_id>\d+)/reorder/$', ReOrderQuestions.as_view(), name="reorder_page"),
     url(r'^section/(?P<section_id>\d+)/edit/$', EditSection.as_view(), name="edit_section_page"),
     url(r'^section/(?P<section_id>\d+)/delete/', DeleteSection.as_view(), name="delete_section_page"),
     url(r'^subsection/(?P<subsection_id>\d+)/edit/$', EditSubSection.as_view(), name="edit_subsection_page"),

@@ -1,0 +1,59 @@
+<table>
+<tbody>
+sec
+    {% for group in subsection.question_group.all %}
+        {% for order in group.question_orders %}
+            <tr>
+                <td>
+                    {% load questionnaire_entry_tags %}
+                    {% load generic_tags %}
+
+                    {% if order.question.is_first_in_group %}
+                        <h5>{% spaceless %}
+                            {% if subsection.has_at_least_two_groups and group.has_at_least_two_questions %}
+                                <span>{{ subsection.section.order }}</span>
+                                {% if subsection.section.has_at_least_two_subsections %}
+                                    <span>.{{ subsection.order }}</span>{% endif %}
+                                <span>.{{ group.order }}.</span>{% endif %}
+                            {% endspaceless %}
+                        </h5>
+                        {% if order.question.group.name %}
+                            <span class="group-name-instructions"><h5>{{ order.question.group.name }} </h5>
+                                {% if order.question.group.instructions %}
+                                    <a class="indent" data-toggle="popover" data-html="true"
+                                       data-placement="bottom" data-trigger="hover"
+                                       data-content="{{ order.question.group.instructions }}"><i
+                                            class="glyphicon glyphicon-info-sign cyan"></i> instructions</a>
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                    {% endif %}
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">
+                            {% spaceless %}
+                            <div class="question-number">
+                                {% if order.question.region %}<span>{{ order.question.region.name }} - </span>{% endif %}
+                                <span>{{ section.order }}</span>
+                                {% if section.has_at_least_two_subsections %}
+                                    <span>.{{ subsection.order }}</span>{% endif %}
+                                <span>.</span>
+                                {% if subsection.has_at_least_two_groups %}
+                                    <span>{{ group.order }}.</span>{% endif %}
+                                {% if group.has_at_least_two_questions %}
+                                    <span>{{ forloop.counter }}.</span>{% endif %}
+                            </div>
+                            <div class="question-text">
+                                <span>{{ order.question.text }}</span>
+                            </div>
+                            {% endspaceless %}
+                        </label>
+                </td>
+                    {% for field in order.question|get_form:formsets %}
+                        {{ field }}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+</tbody>
+</table>

@@ -17,8 +17,8 @@ $(document).ready(function() {
     });
 
     $('#first_row').find('input[type=hidden]').each(function(index, element){
-            $(element).val(0);
-        });
+        $(element).val(0);
+    });
 });
 
 function replaceAttributes($el, index) {
@@ -69,7 +69,7 @@ function removeUsedOptions(new_row, $table) {
     new_row_primary_select.append('<option value="">Choose One</option>');
     new_row.find(':input[type!=hidden]').each(function(){
         $(this).val('');
-    });
+        });
 }
 
 function prependHiddenColumnFields(newElement) {
@@ -206,6 +206,13 @@ $('#id-older-jrf').on('click', function(event) {
     event.preventDefault()
 });
 
+function disableInputFields(status) {
+    $(this).find(":input").each(function () {
+        $(this).prop('disabled', status);
+    });
+    $('.add-more').prop('disabled', status);
+}
+
 $('.unassign-question').hover(function(){
     var parent_question = $(this).parents('div[class^="form-group"]');
     $(parent_question).toggleClass('question-form');
@@ -246,3 +253,67 @@ function deleteRowFromServer($row,$table) {
         $.post(url, data, function(){});
     }
 }
+
+
+function getModalWithSubSectionQuestions($element) {
+    var data = $element.parents('div .subsection-content').html(),
+        $modal = $('#reorder_modal_label'),
+        action = $element.attr('data-href');
+        $modal.find('#content').html(data);
+            $modal.find('#re-order-questions-form').attr('action', action);
+    return $modal;
+}
+
+function removeButtons($modal, btnClasses) {
+    btnClasses.forEach(function(btn){
+       $modal.find(btn).remove();
+    });
+}
+
+function highlightOnHover($modal) {
+    $modal.find('table tr').each(function(){
+        $(this).hover(function(){
+            $(this).toggleClass('question-form');
+        });
+    });
+}
+$('.reorder-subsection').on('click', function(){
+    var $element = $(this),
+    $modal = getModalWithSubSectionQuestions($element);
+    removeButtons($modal, ['.add-more', '.btn-group', '.unassign-question']);
+    highlightOnHover($modal);
+    activateSortable($modal);
+    disableInputFields(false)
+    $modal.modal('show');
+});
+
+function callOnDropSuper($item) {
+    $item.removeClass("dragged").removeAttr("style")
+    $("body").removeClass("dragging")
+}
+
+function reIndexOrderFields($item, container) {
+    var $table = $item.parents('table');
+    $table.find('tr').each(function(index, element){
+        var $hiddenOrderField = $(element).find('input[type=hidden]');
+        var orderId = $hiddenOrderField.val().split(",")[0];
+        $hiddenOrderField.val('');
+        $hiddenOrderField.val(orderId +","+ index);
+    });
+}
+
+function activateSortable($modal){
+    $modal.find('table').each(function(){
+        $(this).sortable({
+            containerSelector: 'table',
+            itemPath: '> tbody',
+            itemSelector: '.sortable-tr',
+            placeholder: '<tr class="placeholder"/>',
+            onDrop :function ($item, container, _super) {
+                callOnDropSuper($item);
+                reIndexOrderFields($item, container);
+             }
+        });
+    })
+}
+

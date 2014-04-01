@@ -14,10 +14,14 @@
             {% if perms.auth.can_edit_questionnaire and user.user_profile.region == subsection.region %}
                 <a href="" id="edit-subsection-{{ subsection.id }}" class="btn btn-sm btn-default" data-toggle="modal"
                    data-target="#edit_subsection_{{ subsection.id }}"><span class="cyan"><span
-                        class="glyphicon glyphicon-pencil"></span> Edit</span></a>
+                        class="glyphicon glyphicon-pencil"></span> Edit</span>
+                </a>
                 <a id="delete-subsection-{{ subsection.id }}" href="" class="btn btn-sm btn-default" data-toggle="modal"
                    data-target="#delete-subsection-modal-{{ subsection.id }}"><span class="cyan"><span
                         class="glyphicon glyphicon-trash"></span></span>
+                </a>
+                <a data-href="{% url 'reorder_page' subsection.id %}" id="reorder-{{ subsection.id }}-subsection" href="#" class="btn btn-sm btn-default reorder-subsection" >
+                    <span class="cyan"><span class="glyphicon glyphicon-sort-by-order"></span> ReOrder</span>
                 </a>
             {% endif %}
         </div>

@@ -11,6 +11,8 @@ class QuestionGroupOrder(BaseModel):
         ordering = ('order',)
         app_label = 'questionnaire'
 
+    def __unicode__(self):
+        return "%d" % self.order
     def is_last_answer_type_in_group(self):
         return self.first_by('-order')
 

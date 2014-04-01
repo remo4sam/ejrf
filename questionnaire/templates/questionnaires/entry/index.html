@@ -27,25 +27,36 @@
                 {% endfor %}
 
                 {% for subsection in section.sub_sections.all %}
-                    {% include 'questionnaires/entry/_subsection_title.html' %}
+                    <div class="subsection-content" id="subsection-{{ subsection.id }}-content">
+                        {% include 'questionnaires/entry/_subsection_title.html' %}
+                        {% for group in subsection.parent_question_groups %}
 
-                    {% for group in subsection.parent_question_groups %}
+                            {% if group and group.hybrid %}
+                                {% include 'questionnaires/entry/hybrid.html' %}
+                            {% elif group and group.grid %}
+                                {% include 'questionnaires/entry/grid.html' with a_group=group section=section sub_section=subsection %}
+                            {% else %}
+                                <div class="question-group indent">
+                                    <table class="sortable-table">
+                                        {% for order in group.question_orders %}
+                                            <tr class="sortable-tr">
+                                                <td>
+                                                    {% include 'questionnaires/entry/_questions_n_answers_fields.html' %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                                {% if group.allow_multiples %}
+                                    <button type="button" href="#" class="btn btn-default add-more"><span
+                                            class="cyan bold"><i
+                                            class="glyphicon glyphicon-plus"></i> Add More</span></button>
+                                {% endif %}
+                            {% endif %}
+                            <hr class="group-hr"/>
 
-                        {% if group and group.hybrid %}
-                           {% include 'questionnaires/entry/hybrid.html' %}
-                        {% elif group and group.grid %}
-                            {% include 'questionnaires/entry/grid.html' with a_group=group section=section sub_section=subsection %}
-                        {% else %}
-                            <div class="question-group indent">
-                                {% for order in group.question_orders %}
-                                    {% include 'questionnaires/entry/_questions_n_answers_fields.html' %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <hr class="group-hr"/>
-
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 {% endfor %}
 
                 {% include 'questionnaires/entry/_save_button.html' %}
@@ -54,5 +65,5 @@
     </div>
 
     {% include 'questionnaires/entry/_outside_loop_modals.html' %}
-
+    {% include 'base/modals/_reorder_questions.html' %}
 {% endblock %}
