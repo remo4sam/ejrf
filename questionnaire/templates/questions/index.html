@@ -17,6 +17,7 @@
           <tr>
             <th>UID</th>
             <th>Export Label (Detail)</th>
+            <th>Theme</th>
             <th>Response Type</th>
             <th>Actions</th>
           </tr>
@@ -26,6 +27,7 @@
                 <tr class="{% if question in active_questions %} success {% endif %}">
                     <td>{{ question.UID }} </td>
                     <td id="text-td">{{ question.export_label }}</td>
+                    <td>{{ question.theme.name }}</td>
                     <td>{{ question.answer_type }}</td>
                     <td>
                         <div class="btn-group">
