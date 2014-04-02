@@ -30,6 +30,10 @@ class QuestionList(PermissionRequiredMixin, View):
                    'questions': questions,
                    'active_questions': active_questions,
                    'themes': Theme.objects.all()}
+
+        if theme:
+            context.update({'selected_theme': theme.id})
+
         return render(self.request, self.template_name, context)
 
     def get_questions_for_user(self, theme=None):

@@ -17,7 +17,7 @@
         <select name="theme" class="form-control">
             <option value="">None</option>
             {% for theme in themes %}
-                <option value="{{ theme.id }}">{{ theme.name }}</option>
+                <option value="{{ theme.id }}" {% if selected_theme and selected_theme == theme.id %} selected="selected" {% endif %}>{{ theme.name }}</option>
             {% endfor %}
         </select>
         <button class="btn btn-default cyan" type="submit">Filter</button>
