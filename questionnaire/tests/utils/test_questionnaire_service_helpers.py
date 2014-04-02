@@ -1,5 +1,5 @@
 from questionnaire.tests.base_test import BaseTest
-from questionnaire.utils.questionnaire_entry_helpers import extra_rows, clean_list, clean_data_dict
+from questionnaire.utils.questionnaire_entry_helpers import extra_rows, clean_list, clean_data_dict, primary_answers
 
 
 class QuestionnaireServiceHelperTest(BaseTest):
@@ -86,3 +86,31 @@ class QuestionnaireServiceHelperTest(BaseTest):
 
         int_data = {'haha': 2}
         self.assertEqual(int_data, clean_data_dict(int_data))
+
+    def test_gets_primary_answer_per_row_given_rows(self):
+        data = {
+            u'MultiChoice-MAX_NUM_FORMS': u'4', u'MultiChoice-TOTAL_FORMS': u'4', u'MultiChoice-INITIAL_FORMS': u'4',
+            u'MultiChoice-0-response': ['0,1', 'option1'],
+            u'MultiChoice-1-response': ['1,1', 'option2'],
+            u'MultiChoice-2-response': ['2,1', 'option3'],
+            u'MultiChoice-3-response': [4],
+            u'Number-MAX_NUM_FORMS': u'3', u'Number-TOTAL_FORMS': u'3', u'Number-INITIAL_FORMS': u'3',
+            u'Number-0-response': ['0,1', '22'],
+            u'Number-1-response': ['1,1', '44'],
+            u'Number-2-response': ['2,1', '33'],
+            u'Text-MAX_NUM_FORMS': u'4', u'Text-TOTAL_FORMS': u'4', u'Text-INITIAL_FORMS': u'4',
+            u'Text-0-response': ['0,1', 'row-0-column-0'],
+            u'Text-1-response': ['0,1', 'row-0-column-1'],
+            u'Text-2-response': ['1,1', 'row-1-column-0'],
+            u'Text-3-response': ['1,1', 'row1-column-1'],
+            u'Text-4-response': ['2,1', 'row-2-column-0'],
+            u'Text-5-response': ['2,1', 'row2-column-1'],
+            u'Date-MAX_NUM_FORMS': u'3', u'Date-TOTAL_FORMS': u'3', u'Date-INITIAL_FORMS': u'3',
+            u'Date-0-response': ['0,1', '2014-2-21'],
+            u'Date-1-response': ['1,1', '2014-2-22'],
+            u'Date-2-response': ['2,1', '2014-2-23'],
+        }
+
+        data = clean_data_dict(dict(data))
+        rows = extra_rows(data, "Number", group_id=1)
+        self.assertEqual(['row-0-column-0','row-1-column-0', 'row-2-column-0'], primary_answers(data, rows, 'Text', group_id=1))

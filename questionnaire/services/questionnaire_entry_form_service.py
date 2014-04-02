@@ -2,7 +2,7 @@ import copy
 from django.forms.formsets import formset_factory
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
 from questionnaire.models import AnswerGroup, Answer, NumericalAnswer, TextAnswer, DateAnswer, MultiChoiceAnswer, QuestionOption
-from questionnaire.utils.questionnaire_entry_helpers import extra_rows, clean_data_dict
+from questionnaire.utils.questionnaire_entry_helpers import extra_rows, clean_data_dict, primary_answers
 
 EMPTY_ROW = ['']
 
@@ -114,13 +114,14 @@ class QuestionnaireEntryFormService(object):
             initial.append(self._initial({'option': row_number, 'order': order_dict['order']}))
 
     def get_extra_rows(self, answer_type, group):
+        primary_question = group.primary_question()[0]
+        saved_primary_answers = primary_question.answered_options(questionnaire=self.questionnaire, country=self.country,
+                                                    question_group=group, version=self.version)
         if self.cleaned_data:
             rows = extra_rows(self.cleaned_data, answer_type, group.id)
-            return EMPTY_ROW * len(rows)
-        primary_question = group.primary_question()[0]
-        options = primary_question.answered_options(questionnaire=self.questionnaire, country=self.country,
-                                                    question_group=group, version=self.version)
-        return options or EMPTY_ROW
+            posted_primary_answers = primary_answers(self.cleaned_data, rows, primary_question.answer_type, group.id)
+            saved_primary_answers.extend(posted_primary_answers[len(saved_primary_answers):])
+        return saved_primary_answers or EMPTY_ROW
 
     def is_valid(self):
         formset_checks = [formset.is_valid() for formset in self.formsets.values()]

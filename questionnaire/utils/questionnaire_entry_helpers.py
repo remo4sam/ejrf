@@ -36,3 +36,19 @@ def _get_first_element(dirty_list):
 
 def __field_belong_group(data_value, group_id):
     return len(data_value) > 1 and data_value[1] == str(group_id)
+
+
+def _get_primary_answer_in(row, related_keys, data):
+    for key in related_keys:
+        if data[key][0] == row:
+            return data[key][-1]
+    return None
+
+def primary_answers(data, rows, primary_answer_type, group_id):
+    answers = []
+    related_keys = filter(lambda key: same_group_data_keys(key, primary_answer_type, data, group_id), data.keys())
+    related_keys.sort()
+    for row in rows:
+        primary_answer_in_row = _get_primary_answer_in(row, related_keys, data)
+        answers.append(primary_answer_in_row)
+    return answers
