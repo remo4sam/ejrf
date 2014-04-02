@@ -141,14 +141,11 @@ class QuestionnaireEntrySaveDraftTest(BaseTest):
         answer_2 = NumericalAnswer.objects.get(response=int(data['Number-1-response']), question=self.question3)
 
         answer_group = AnswerGroup.objects.filter(grouped_question=self.question_group)
+
         self.assertEqual(3, answer_group.count())
-        self.assertEqual(3, Answer.objects.select_subclasses().count())
-        answer_group_answers = answer_group[0].answer.all().select_subclasses()
-        self.assertEqual(1, answer_group_answers.count())
-        self.assertNotIn(primary, answer_group_answers)
-        self.assertNotIn(answer_1, answer_group_answers)
-        self.assertIn(answer_2, answer_group_answers)
-        [self.assertIn(answer.id, answer_group.values_list('answer', flat=True)) for answer in Answer.objects.select_subclasses()]
+        self.assertEqual(1, primary.answergroup.count())
+        self.assertEqual(1, answer_1.answergroup.count())
+        self.assertEqual(1, answer_2.answergroup.count())
 
     def test_successful_post_shows_success_message(self):
         data = self.data
@@ -740,3 +737,87 @@ class QuestionnaireCloneViewTest(BaseTest):
     def test_permission_reguired(self):
         self.assert_permission_required("/manage/")
 
+
+class DeleteAnswerGroupViewTest(BaseTest):
+    def setUp(self):
+        self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English", status=Questionnaire.FINALIZED, year=2013)
+        self.section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)", order=1,
+                                                      questionnaire=self.questionnaire, name="Reported Cases")
+
+        self.sub_section1 = SubSection.objects.create(title="Reported cases for the year 2013", order=1, section=self.section_1)
+        self.primary_question = Question.objects.create(text='Disease', UID='C00003', answer_type='Text',
+                                                        is_primary=True)
+
+        self.question1 = Question.objects.create(text='B. Number of cases tested', UID='C00004', answer_type='Number')
+
+        self.question2 = Question.objects.create(text='C. Number of cases positive',
+                                                 UID='C00005', answer_type='Number')
+
+        self.parent10 = QuestionGroup.objects.create(subsection=self.sub_section1, order=1, grid=True)
+        QuestionGroupOrder.objects.create(order=1, question_group=self.parent10, question=self.primary_question)
+        QuestionGroupOrder.objects.create(order=2, question_group=self.parent10, question=self.question1)
+        QuestionGroupOrder.objects.create(order=3, question_group=self.parent10, question=self.question2)
+        self.parent10.question.add( self.question2, self.question1, self.primary_question)
+
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions()
+
+        self.assign('can_submit_responses', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.url = '/questionnaire/entry/%d/section/%d/delete/%d/'%(self.questionnaire.id, self.section_1.id, self.parent10.id)
+
+    def test_post_deletes_answer_group_and_answers_corresponding_to_the_primary_answer(self):
+        answer_data = {'questionnaire': self.questionnaire, 'version': 1, 'country': self.country}
+        primary_answer = TextAnswer.objects.create(response="haha", question=self.primary_question, **answer_data)
+        question1_answer = NumericalAnswer.objects.create(response=1, question=self.primary_question, **answer_data)
+        question2_answer = NumericalAnswer.objects.create(response=2, question=self.primary_question, **answer_data)
+        answer_group = primary_answer.answergroup.create(grouped_question=self.parent10)
+        answer_group.answer.add(question1_answer, question2_answer)
+        data = {'primary_answer': primary_answer.id}
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertEqual(200, response.status_code)
+        self.failIf(AnswerGroup.objects.filter(grouped_question=self.parent10, answer=primary_answer))
+        self.failIf(TextAnswer.objects.filter(response=primary_answer.response))
+        self.failIf(NumericalAnswer.objects.filter(response=question1_answer.response))
+        self.failIf(NumericalAnswer.objects.filter(response=question2_answer.response))
+
+    def test_non_grid_answers_cannot_be_deleted(self):
+        self.parent10.grid = False
+        self.parent10.save()
+        answer_data = {'questionnaire': self.questionnaire, 'version': 1, 'country': self.country}
+        primary_answer = TextAnswer.objects.create(response="haha", question=self.primary_question, **answer_data)
+        question1_answer = NumericalAnswer.objects.create(response=1, question=self.primary_question, **answer_data)
+        question2_answer = NumericalAnswer.objects.create(response=2, question=self.primary_question, **answer_data)
+        answer_group = primary_answer.answergroup.create(grouped_question=self.parent10)
+        answer_group.answer.add(question1_answer, question2_answer)
+        data = {'primary_answer': primary_answer.id}
+
+        response = self.client.post(self.url, data=data)
+
+        self.failUnless(AnswerGroup.objects.filter(grouped_question=self.parent10, answer=primary_answer))
+        self.failUnless(TextAnswer.objects.filter(response=primary_answer.response))
+        self.failUnless(NumericalAnswer.objects.filter(response=question1_answer.response))
+        self.failUnless(NumericalAnswer.objects.filter(response=question2_answer.response))
+
+    def test_only_own_answer_can_be_deleted(self):
+        kenya = Country.objects.create(name="Kenya")
+        answer_data = {'questionnaire': self.questionnaire, 'version': 1, 'country': kenya}
+        primary_answer = TextAnswer.objects.create(response="haha", question=self.primary_question, **answer_data)
+        question1_answer = NumericalAnswer.objects.create(response=1, question=self.primary_question, **answer_data)
+        question2_answer = NumericalAnswer.objects.create(response=2, question=self.primary_question, **answer_data)
+        answer_group = primary_answer.answergroup.create(grouped_question=self.parent10)
+        answer_group.answer.add(question1_answer, question2_answer)
+        data = {'primary_answer': primary_answer.id}
+
+        response = self.client.post(self.url, data=data)
+
+        self.failUnless(AnswerGroup.objects.filter(grouped_question=self.parent10, answer=primary_answer))
+        self.failUnless(TextAnswer.objects.filter(response=primary_answer.response))
+        self.failUnless(NumericalAnswer.objects.filter(response=question1_answer.response))
+        self.failUnless(NumericalAnswer.objects.filter(response=question2_answer.response))
+
+    def test_permission_required(self):
+        self.assert_permission_required(self.url)

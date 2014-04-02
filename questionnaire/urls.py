@@ -7,7 +7,7 @@ from questionnaire.views.manage import ManageJRF, ManageRegionalJRF, EditQuestio
 from questionnaire.views.questionnaire_preview import PreviewQuestionnaire
 from questionnaire.views.sections import NewSection, NewSubSection, EditSection, EditSubSection, DeleteSection, DeleteSubSection
 from questionnaire.views.questions import QuestionList, CreateQuestion, DeleteQuestion, EditQuestion
-from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire, FinalizeQuestionnaire, UnfinalizeQuestionnaire, PublishQuestionnaire, ApproveQuestionnaire
+from questionnaire.views.questionnaires import Entry, SubmitQuestionnaire, DuplicateQuestionnaire, FinalizeQuestionnaire, UnfinalizeQuestionnaire, PublishQuestionnaire, ApproveQuestionnaire, DeleteAnswerRow
 from questionnaire.views.theme import Theme, ThemeList, NewTheme, EditTheme, DeleteTheme
 from questionnaire.views.upload_document import UploadDocument, DownloadDocument, DeleteDocument
 from questionnaire.views.users import UsersList, CreateUser, EditUser
@@ -28,6 +28,7 @@ urlpatterns = patterns('',
     url(r'^manage/questionnaire/(?P<questionnaire_id>\d+)/edit_name/$', EditQuestionnaireNameView.as_view(), name="edit_questionnaire_name"),
     url(r'^manage/region/(?P<region_id>\d+)/$', ManageRegionalJRF.as_view(), name='manage_regional_jrf_page'),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/(?P<section_id>\d+)/$',Entry.as_view(), name="questionnaire_entry_page"),
+    url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/(?P<section_id>\d+)/delete/(?P<group_id>\d+)/$', DeleteAnswerRow.as_view()),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/new/$', NewSection.as_view(), name="new_section_page"),
     url(r'^questionnaire/entry/(?P<questionnaire_id>\d+)/section/(?P<section_id>\d+)/subsection/new/$', NewSubSection.as_view(), name="new_subsection_page"),
     url(r'^questionnaire/(?P<questionnaire_id>\d+)/approve/$', ApproveQuestionnaire.as_view(), name="approve_questionnaire_page"),

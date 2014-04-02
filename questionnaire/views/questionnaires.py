@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic import FormView
 from django.views.generic import View
 from braces.views import LoginRequiredMixin, MultiplePermissionsRequiredMixin, PermissionRequiredMixin
@@ -12,7 +12,7 @@ from questionnaire.mixins import AdvancedMultiplePermissionsRequiredMixin
 from questionnaire.services.questionnaire_cloner import QuestionnaireClonerService
 from questionnaire.services.questionnaire_finalizer import QuestionnaireFinalizeService
 from questionnaire.services.questionnaire_entry_form_service import QuestionnaireEntryFormService
-from questionnaire.models import Questionnaire, Section
+from questionnaire.models import Questionnaire, Section, QuestionGroup, Answer, AnswerGroup
 from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, DateAnswerForm, MultiChoiceAnswerForm
 from questionnaire.services.users import UserQuestionnaireService
 
@@ -207,3 +207,24 @@ class ApproveQuestionnaire(MultiplePermissionsRequiredMixin, View):
         messages.success(self.request, message)
         referer_url = request.META['HTTP_REFERER']
         return HttpResponseRedirect(referer_url)
+
+
+class DeleteAnswerRow(PermissionRequiredMixin, View):
+    permission_required = 'auth.can_submit_responses'
+
+    def post(self, request, *args, **kwargs):
+        group = QuestionGroup.objects.get(id=kwargs['group_id'])
+        primary_answer_id = request.POST.get('primary_answer')
+        primary_answer = Answer.objects.filter(id=primary_answer_id).select_subclasses()
+        country = self.request.user.user_profile.country
+        if self._can_be_deleted(primary_answer, group, country):
+            self._delete_answer_row(primary_answer, group)
+        return HttpResponse()
+
+    def _delete_answer_row(self, primary_answer, group):
+        answergroup_filter = primary_answer[0].answergroup.filter(grouped_question=group)
+        answergroup_filter[0].answer.all().delete()
+        answergroup_filter.delete()
+
+    def _can_be_deleted(self, primary_answer, group, country):
+        return primary_answer and group.grid and country == primary_answer[0].country

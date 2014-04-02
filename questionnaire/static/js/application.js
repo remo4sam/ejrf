@@ -226,10 +226,19 @@ $('.remove-table-row').on('click', function(evt){
     var $row = $(this).parents('tr'),
         $table = $row.parents('table'),
         $grid_rows = $table.find('tr.grid_row');
+
     if ($grid_rows.length > 1){
+        deleteRowFromServer($row, $table);
         $row.remove();
         assignRowNumbers($table);
         reIndexFieldNames();
     }
     evt.preventDefault();
 });
+
+function deleteRowFromServer($row,$table) {
+    var group_id = $table.attr('data-group-id');
+    var url = window.location.pathname + "delete/" + group_id + "/";
+    var $form= $row.find('form');
+    $.post(url, $form.serialize(), function(){});
+}
