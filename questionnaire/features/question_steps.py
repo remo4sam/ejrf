@@ -217,3 +217,43 @@ def when_i_preview_the_submitted_questionnaire_where_the_question_was_used(step)
 @step(u'I should see the earlier question display label')
 def i_should_see_the_earlier_question_display_label(step):
     world.page.is_text_present(world.core_question.text)
+
+@step(u'And I have three questions with two of the questions grouped under one theme and one question under another theme')
+def and_i_have_three_questions_with_two_of_the_questions_grouped_under_one_theme_and_one_question_under_another_theme(step):
+    world.question1 = Question.objects.create(text='First of three questions', export_label='Question 1',
+                                              UID='00026', answer_type='Text', theme=world.theme1)
+    world.question2 = Question.objects.create(text='Second of the three questions', export_label='Question 2', UID='00028',
+                                              answer_type='Text', theme=world.theme1)
+    world.question3 = Question.objects.create(text='Third of the three questions', export_label='Question 3', UID='00029',
+                                              answer_type='Text', theme=world.theme2)
+@step(u'Then I should see the questions listed')
+def then_i_should_see_the_questions_listed(step):
+    world.page.is_text_present(world.question1.export_label)
+    world.page.is_text_present(world.question2.export_label)
+    world.page.is_text_present(world.question3.export_label)
+
+@step(u'And I should see dropdown with themes to filter questions')
+def and_i_should_see_dropdown_with_themes_to_filter_questions(step):
+    assert world.page.is_element_present_by_id('theme_filter_id')
+    assert world.page.is_element_present_by_id('submit_filter_id')
+
+@step(u'When I select a theme from dropdown and click filter')
+def when_i_select_a_theme_from_dropdown_and_click_filter(step):
+    world.page.select('theme', world.theme1.id)
+    world.page.click_by_id('submit_filter_id')
+
+@step(u'Then I should see questions under the selected theme filtered')
+def then_i_should_see_questions_under_the_selected_theme_filtered(step):
+    world.page.is_text_present(world.question1.export_label)
+    world.page.is_text_present(world.question2.export_label)
+
+@step(u'When I select None from dropdown')
+def when_i_select_none_from_dropdown(step):
+    world.page.select('theme', '')
+    world.page.click_by_id('submit_filter_id')
+
+@step(u'Then I should see all the questions listed')
+def then_i_should_see_all_the_questions_listed(step):
+    world.page.is_text_present(world.question1.export_label)
+    world.page.is_text_present(world.question2.export_label)
+    world.page.is_text_present(world.question3.export_label)

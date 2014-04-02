@@ -55,3 +55,15 @@ Feature: Questions feature
         And I should see the updated details
         When I preview the submitted questionnaire where the question was used
         I should see the earlier question display label
+
+        Scenario: Global admin filters
+        Given I am logged in as a global admin
+        And I have two themes
+        And I have three questions with two of the questions grouped under one theme and one question under another theme
+        When I visit the question listing page
+        Then I should see the questions listed
+        And I should see dropdown with themes to filter questions
+        When I select a theme from dropdown and click filter
+        Then I should see questions under the selected theme filtered
+        When I select None from dropdown
+        Then I should see all the questions listed

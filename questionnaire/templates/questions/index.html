@@ -14,13 +14,13 @@
     <br/>
     <form class="form-inline" role="form" method="get" id="question-filter-form">
         <label>Theme</label>
-        <select name="theme" class="form-control">
+        <select name="theme" id="theme_filter_id" class="form-control">
             <option value="">None</option>
             {% for theme in themes %}
                 <option value="{{ theme.id }}" {% if selected_theme and selected_theme == theme.id %} selected="selected" {% endif %}>{{ theme.name }}</option>
             {% endfor %}
         </select>
-        <button class="btn btn-default cyan" type="submit">Filter</button>
+        <button class="btn btn-default cyan" id="submit_filter_id" type="submit">Filter</button>
     </form>
       <table class="table table-hover table-bordered">
           <thead>
