@@ -23,6 +23,13 @@ class Answer(BaseModel):
     def is_draft(self):
         return self.status == self.DRAFT_STATUS
 
+    @classmethod
+    def from_response(cls, response, **kwargs):
+        answers = cls.objects.filter(**kwargs).select_subclasses()
+        answer = filter(lambda ans: ans.response == response or str(ans.response) == response, answers)
+        answer_ids = map(lambda ans: ans.id, answer)
+        return answers.filter(id__in=answer_ids).distinct()
+
 
 class NumericalAnswer(Answer):
     response = models.DecimalField(max_digits=9, decimal_places=2, null=True)

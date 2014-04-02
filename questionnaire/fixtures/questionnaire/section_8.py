@@ -31,7 +31,7 @@ group.question.add(question1, question2, question3, question4, question5, questi
 question11 = Question.objects.create(text="TT1", UID='C00137', answer_type='Number', export_label='Number of persons vaccinated TT1')
 question12 = Question.objects.create(text="TT2", UID='C00138', answer_type='Number', export_label='Number of persons vaccinated TT2')
 question13 = Question.objects.create(text="TT3", UID='C00139', answer_type='Number', export_label='Number of persons vaccinated TT3')
-question14 = Question.objects.create(text="TT4 or more", UID='C00140', answer_type='Number', export_label='Number of persons vaccinated TT4 or more')
+question14 = Question.objects.create(text="TT4+", UID='C00140', answer_type='Number', export_label='Number of persons vaccinated TT4 or more')
 
 subgroup = QuestionGroup.objects.create(subsection=sub_section, parent = group,
 name="Number of persons vaccinated for tetanus",

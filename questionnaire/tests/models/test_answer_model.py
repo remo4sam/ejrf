@@ -37,6 +37,35 @@ class AnswerTest(TestCase):
         self.assertTrue(draft_answer.is_draft())
         self.assertFalse(submitted_answer.is_draft())
 
+    def test_knows_corresponding_answer_given_response(self):
+        data = {
+        'questionnaire': self.questionnaire,
+        'question': Question.objects.create(text='Uganda Revision 2014 what what?', UID='abc123', answer_type='Number'),
+        'country': Country.objects.create(name="Peru"),
+        'version': 1 }
+
+        textanswer = TextAnswer.objects.create(response="text", **data)
+        dateanswer = DateAnswer.objects.create(response="2014-04-08", **data)
+        numberanswer = NumericalAnswer.objects.create(response=1, **data)
+        option = QuestionOption.objects.create(text="haha", question=data['question'])
+        multichoiceanswer = MultiChoiceAnswer.objects.create(response=option, **data)
+
+        text_answers = Answer.from_response("text", **data)
+        self.assertEqual(1, text_answers.count())
+        self.assertIn(textanswer, text_answers)
+
+        numerical_answers = Answer.from_response(1, **data)
+        self.assertEqual(1, numerical_answers.count())
+        self.assertIn(numberanswer, numerical_answers)
+
+        multichoice_answers = Answer.from_response(option, **data)
+        self.assertEqual(1, multichoice_answers.count())
+        self.assertIn(multichoiceanswer, multichoice_answers)
+
+        date_answers = Answer.from_response("2014-04-08", **data)
+        self.assertEqual(1, date_answers.count())
+        self.assertIn(dateanswer, date_answers)
+
 
 class NumericalAnswerTest(TestCase):
 

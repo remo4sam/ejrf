@@ -245,17 +245,35 @@ class QuestionTest(BaseTest):
         self.assertTrue(question1.is_multichoice())
         self.assertFalse(question2.is_multichoice())
 
-    def test_question_can_get_nth_option(self):
+    def test_question_knows_answered_options(self):
         country = Country.objects.create(name="Kenya")
         question = Question.objects.create(text='what do you drink?', UID='C_2013', answer_type='MultiChoice', is_primary=True)
         option1 = QuestionOption.objects.create(text='tusker lager', question=question)
         option2 = QuestionOption.objects.create(text='tusker lite', question=question)
         option3 = QuestionOption.objects.create(text='tusker malt', question=question)
-        MultiChoiceAnswer.objects.create(response=option1, question=question, questionnaire=self.questionnaire, version=1, country=self.country)
+        option1_answer = MultiChoiceAnswer.objects.create(response=option1, question=question, questionnaire=self.questionnaire, version=1, country=self.country)
         MultiChoiceAnswer.objects.create(response=option2, question=question, questionnaire=self.questionnaire, version=1, country=country)
-        self.assertIn(option1, question.answered_options(questionnaire=self.questionnaire, country=self.country))
-        self.assertNotIn(option2, question.answered_options(questionnaire=self.questionnaire, country=self.country))
-        self.assertNotIn(option3, question.answered_options(questionnaire=self.questionnaire, country=self.country))
+        group = question.question_group.create(order=1, subsection=self.sub_section_1)
+        option1_answer.answergroup.create(grouped_question=group)
+        data={'questionnaire': self.questionnaire, 'country': self.country}
+        answered_options = question.answered_options(question_group=group, **data)
+        self.assertEqual([option1], answered_options)
+        self.assertNotIn(option2, answered_options)
+        self.assertNotIn(option3, answered_options)
+
+    def test_answered_options_when_question_is_not_multichoice(self):
+        country = Country.objects.create(name="Kenya")
+        question = Question.objects.create(text='what do you drink?', UID='C_2013', answer_type='text', is_primary=True)
+        data={'questionnaire': self.questionnaire, 'country': self.country, 'version': 1}
+        text1_answer = TextAnswer.objects.create(response="text1", question=question, **data)
+        text2_answer= TextAnswer.objects.create(response="text2", question=question, **data)
+        text3_answer= TextAnswer.objects.create(response="text3", question=question, **data)
+        group = question.question_group.create(order=1, subsection=self.sub_section_1)
+        text1_answer.answergroup.create(grouped_question=group, row=1)
+        text2_answer.answergroup.create(grouped_question=group, row=1)
+        answered_options = question.answered_options(question_group=group, **data)
+        self.assertEquals(["text1", "text2"], answered_options)
+        self.assertNotIn("text3", answered_options)
 
 
 class QuestionOptionTest(BaseTest):

@@ -4,6 +4,7 @@ from questionnaire.forms.answers import NumericalAnswerForm, TextAnswerForm, Dat
 from questionnaire.models import AnswerGroup, Answer, NumericalAnswer, TextAnswer, DateAnswer, MultiChoiceAnswer, QuestionOption
 from questionnaire.utils.questionnaire_entry_helpers import extra_rows, clean_data_dict
 
+EMPTY_ROW = ['']
 
 ANSWER_FORM = {
     'Number': NumericalAnswerForm,
@@ -56,14 +57,13 @@ class QuestionnaireEntryFormService(object):
         order = order_dict.get('order', None)
         question = order.question
         question_group = order.question_group
-
         initial = {'question': question, 'group': question_group, 'country': self.country,
                    'questionnaire': self.questionnaire}
-
         answer = None
         if option:
-            primary_answer = option.answer.filter(version=self.version, country=self.country,
-                                                  questionnaire=self.questionnaire)
+            primary_answer = Answer.from_response(response=option, version=self.version, country=self.country,
+                                              questionnaire=self.questionnaire)
+
             if question.is_primary:
                 if question_group.display_all:
                     initial['option'] = option
@@ -98,25 +98,29 @@ class QuestionnaireEntryFormService(object):
                     row_numbers = self.get_extra_rows(answer_type, group)
                     self.extra_rows[group] = row_numbers
                     questions = group.ordered_questions()
+                    question_orders = filter(lambda order: self._order_in(order['order'], group, questions), orders)
                     for row_number in row_numbers:
-                        self._update(row_number, questions, orders, initial)
+                        self._update(row_number, question_orders, initial)
             else:
                 initial.append(self._initial(order_dict=order_dict))
 
         return initial
 
-    def _update(self, row_number, questions, orders, initial):
-        question_orders = filter(lambda order: order['order'].question in questions, orders)
-        option = row_number if isinstance(row_number, QuestionOption) else ''
+    def _order_in(self, order, group, questions):
+        return order.question_group == group and order.question in questions
+
+    def _update(self, row_number, question_orders, initial):
         for order_dict in question_orders:
-            initial.append(self._initial({'option': option, 'order': order_dict['order']}))
+            initial.append(self._initial({'option': row_number, 'order': order_dict['order']}))
 
     def get_extra_rows(self, answer_type, group):
         if self.cleaned_data:
-            return extra_rows(self.cleaned_data, answer_type, group.id)
+            rows = extra_rows(self.cleaned_data, answer_type, group.id)
+            return EMPTY_ROW * len(rows)
         primary_question = group.primary_question()[0]
-        return primary_question.answered_options(questionnaire=self.questionnaire, country=self.country,
-                                                 version=self.version) or [0]
+        options = primary_question.answered_options(questionnaire=self.questionnaire, country=self.country,
+                                                    question_group=group, version=self.version)
+        return options or EMPTY_ROW
 
     def is_valid(self):
         formset_checks = [formset.is_valid() for formset in self.formsets.values()]

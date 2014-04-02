@@ -10,7 +10,7 @@
                         <th colspan="{{ order.question.group.all_questions.count }}">
                             {{ order.question.group.name }}
                             {% if order.question.group.instructions %}
-                                <hr/>
+{#                                <hr/>#}
                                 <a class="indent" data-toggle="popover" data-html="true" data-placement="bottom"
                                    data-trigger="hover"
                                    data-content="{{ order.question.group.instructions | safe }}">
