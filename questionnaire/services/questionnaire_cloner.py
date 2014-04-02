@@ -45,7 +45,7 @@ class QuestionnaireClonerService(object):
 
     def _clone_question_groups(self):
         question_groups_map = {}
-        fields = ['name', 'instructions', 'parent', 'order', 'allow_multiples', 'grid', 'display_all']
+        fields = ['name', 'instructions', 'parent', 'order', 'allow_multiples', 'grid', 'display_all', 'hybrid']
         for old_sub_section, new_sub_section in self.sub_sections.items():
             question_groups = old_sub_section.all_question_groups()
             question_groups_map.update(create_copies(question_groups, fields, subsection=new_sub_section))

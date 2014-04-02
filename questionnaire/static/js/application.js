@@ -27,7 +27,7 @@ function replaceAttributes($el, index) {
 }
 
 function _replace($el, attr, index){
-    return $el.attr(attr).replace(/-[\d]+-/g, '-'+ index.toString()+'-')
+    return $($el).attr(attr).replace(/-[\d]+-/g, '-'+ index.toString()+'-')
 }
 
 function reIndexFieldNames() {
@@ -85,84 +85,77 @@ function assignRowNumbers($table){
     });
 }
 
+function addDeleteMoreButton(selector) {
+    $(selector).after('<button type="button" class="btn btn-default red delete-more close">×</button>');
+    $(selector).after("<hr class='multiple-hr'/>");
+}
 
 function cloneMore(selector) {
-    $('a[data-toggle=popover]').popover('destroy');
-    $('textarea').trigger('autosize.destroy');
-    $('.datetimepicker').each(function(){
-        $(this).data("DateTimePicker").destroy();
-    });
-
-    var newElement = $(selector).clone(true);
+    var newElement = getClone(selector);
+    $(selector).after(newElement);
+    addDeleteMoreButton(selector);
+    resetClonedInputs(newElement);
     updateFormCounts(newElement);
+}
 
+function resetClonedInputs(newElement){
     newElement.find(':input').each(function() {
-        // Reset cloned inputs
         if($(this).attr('type') != 'radio')
             $(this).val('');
-
         $(this).removeAttr('checked');
         $(this).removeAttr('selected');
     });
-
-    $(selector).after(newElement);
-    $(selector).after('<button type="button" class="btn btn-default red delete-more close">×</button>');
-    $(selector).after("<hr class='multiple-hr'/>");
-
-    $('a[data-toggle=popover]').popover();
-    $('textarea').autosize().trigger('autosize.resize');
-    $('.datetimepicker').datepicker({ pickTime: false, autoclose: true });
 }
 
-function updateGridFormCounts(form_element){
-    form_element.find(':input').each(function() {
-        var inputType = $(this).attr('name').split('-', 1)[0];
-        var $total = $('#id_' + inputType + '-TOTAL_FORMS'),
-            total = $total.val();
-
-        var name = $(this).attr('name').replace(/-[\d]+-/g, '-'+total.toString()+'-');
-        var id = $(this).attr('id').replace(/-[\d]+-/g, '-'+total.toString()+'-');
-        $(this).attr({'name': name, 'id': id})
-        total++;
-
-        $total.val(total);
-        $('#id_' + inputType + '-MAX_NUM_FORMS').val(total);
-    });
+function getClone(selector){
+    return $(selector).clone(true);
 }
 
+function getTotalFieldsOf(inputField) {
+    var inputType = $(inputField).attr('name').split('-', 1)[0];
+    var $inputTypeTotalCounter = $('#id_' + inputType + '-TOTAL_FORMS');
+    return {'field': inputType, 'count':  $inputTypeTotalCounter.val(), 'total': $inputTypeTotalCounter};
+}
 
-function updateFormCounts(form_element){
-    form_element.find(':input').each(function() {
-        var inputType = $(this).attr('name').split('-', 1)[0];
-        var $total = $('#id_' + inputType + '-TOTAL_FORMS'),
-            total = $total.val();
+function updateRadioCount($element) {
+    $element.parents('label').attr({'for': id});
+    var listCount = $element.parents('ul')[0].childElementCount;
+    var totalElements = parseInt(id.substr(id.length - 1)) + 1;
+    if(listCount == totalElements)
+        return 1;
+    return 0;
+}
 
-        var name = $(this).attr('name').replace(/-[\d]+-/g, '-'+total.toString()+'-');
-        var id = $(this).attr('id').replace(/-[\d]+-/g, '-'+total.toString()+'-');
-        $(this).attr({'name': name, 'id': id})
+function updateMaxNumForms($fieldTypePrefix, count, $totalNumFormsField){
+        $totalNumFormsField.val(count);
+       $('#id_' + $fieldTypePrefix + '-MAX_NUM_FORMS').val(count);
+    }
 
-        if($(this).attr('type') == 'radio'){
-            //update the previous label
-            $(this).parents('label').attr({'for': id});
+function updateFormCounts(questionGroupForm){
+    questionGroupForm.find(':input[type!=button]').each(function(index, $inputField) {
+        var totalFieldsOf = getTotalFieldsOf($inputField),
+            $fieldAnswerType = totalFieldsOf.field,
+            $totalNumFormsField = totalFieldsOf.total,
+            count = totalFieldsOf.count,
+            attributeMap = replaceAttributes($inputField, index);
 
-            //update count if gone through all the ul elements
-            var list_count = $(this).parents('ul')[0].childElementCount;
-            var element_count = parseInt(id.substr(id.length - 1)) + 1;
-            if(list_count == element_count)
-                total++;
+        $($inputField).attr({'name': attributeMap.name, 'id': attributeMap.id});
+
+        var $this = $(this);
+
+        if($this.attr('type') == 'radio'){
+            count += updateRadioCount($this);
         }
         else
-            total++;
-
-        $total.val(total);
-        $('#id_' + inputType + '-MAX_NUM_FORMS').val(total);
+            count++;
+        updateMaxNumForms($fieldAnswerType, count, $totalNumFormsField);
     });
 }
 
 $('.add-more').on('click', function(event) {
-    cloneMore($(this).prev('.question-group'));
+    cloneMore($(this).parents('.question-group'));
+    event.preventDefault()
 });
-
 
 $('.add-row').on('click', function(event) {
     var $grid_row = $(this).parents('tr').prev();
@@ -177,7 +170,7 @@ $('.add-row').on('click', function(event) {
     });
 });
 
-$('textarea').on('keyup', function(event){
+$('textarea').on('keyup', function(){
   var maxLength = 256;
   if($(this).val().length >= maxLength)
     $(this).val($(this).val().substring(0, maxLength));
@@ -211,6 +204,7 @@ $('#export-section').on('click', function(event) {
       $('#export-section').toggleClass('active');
       return_file(filename)
     }, 8000);
+    event.preventDefault();
 });
 
 function return_file(filename){
@@ -222,13 +216,6 @@ $('#id-older-jrf').on('click', function(event) {
     $(this).html($(this).html() === "More" ? "Less" : "More");
     event.preventDefault()
 });
-
-function disableInputFields(status) {
-    $(this).find('.form-content :input').each(function () {
-        $(this).prop('disabled', status);
-    });
-    $('.add-more').prop('disabled', status);
-}
 
 $('.unassign-question').hover(function(){
     var parent_question = $(this).parents('div[class^="form-group"]');
