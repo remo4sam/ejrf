@@ -1,6 +1,6 @@
 Feature: Manage JRF
 
-    Scenario: Global admin view
+    Scenario: Global admin viewing and Editing Questionnaires (Names)
         Given I am logged in as a global admin
         Then I should see manage JRF, users, question bank, extract links
         Given I have four finalised questionnaires
@@ -8,6 +8,11 @@ Feature: Manage JRF
         And I visit the manage JRF page
         Then I should see a list of the three most recent finalised questionnaires
         And I should see a list of draft questionnaires
+        When I choose the option to edit the name of a questionnaire
+        Then I should see modal with the questionnaires current name
+        When I update the name of the questionnaire and save my changes
+        Then I should see a message that questionnaire was updated
+        And I should see the questionnaire with its new name
         
     Scenario: Viewing older finalised questionnaires
         Given I am logged in as a global admin
@@ -49,11 +54,11 @@ Feature: Manage JRF
         Then it should open in a preview mode
 
     Scenario: Publish core questionnaire to regional admins
-         Given I am logged in as a global admin
-         And I have two finalised questionnaires
-         When I visit the manage JRF page
-         And I see finalized questionnaires
-         Then I should see an option to send to regions on each of the finalized questionnaires
+        Given I am logged in as a global admin
+        And I have two finalised questionnaires
+        When I visit the manage JRF page
+        And I see finalized questionnaires
+        Then I should see an option to send to regions on each of the finalized questionnaires
 
     Scenario: Send finalized core questionnaire to two regions
         Given I am logged in as a global admin

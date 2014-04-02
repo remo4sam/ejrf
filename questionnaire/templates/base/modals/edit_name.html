@@ -8,13 +8,13 @@
                     <h4 class="modal-title cyan" id="myModalLabel">Edit Name Of Questionnaire</h4>
                 </div>
                 <div class="modal-body">
-                    <input class="form-control" id="questionnaire_name" maxlength="100" name="name" type="text"
+                    <input class="form-control" id="questionnaire_name_{{ questionnaire.id }}" maxlength="100" name="name" type="text"
                            value="{{ questionnaire.name }}">
                     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal"> Close</button>
-                    <button type="submit" class="btn btn-default"><span class="green bold"><i class="glyphicon glyphicon-ok"></i> SAVE</span></button>
+                    <button type="submit" class="btn btn-default" id="save-questionnaire-name-{{ questionnaire.id }}"><span class="green bold"><i class="glyphicon glyphicon-ok"></i> SAVE</span></button>
                 </div>
             </div>
         </div>

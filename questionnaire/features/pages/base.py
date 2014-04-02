@@ -118,3 +118,7 @@ class PageObject(object):
             self.browser.execute_script(ie_hover_script)
         else:
             self.browser.execute_script(other_hover_script)
+
+    def fill_this_element(self, id, data):
+        element = self.browser.find_by_id(id).first
+        element.fill(data)
