@@ -33,25 +33,29 @@ function _replace($el, attr, index){
 function reIndexFieldNames() {
     var fieldTypes = ['MultiChoice', 'Date', 'Number', 'Text'];
     fieldTypes.forEach(function(type){
-        var total = 0;
-        $('#questionnaire_entry').find(":input[name^="+ type +"][type!=hidden]").each(function(index, el){
+        var total = -1;
+        var previous_name = '';
+        $('#questionnaire_entry').find(":input[name^=" + type + "][type!=hidden]").each(function(index, el){
             var $el = $(el),
-                name = $el.attr('name');
-            var attributeMap = replaceAttributes($el, index);
+                name = $el.attr('name'),
+                type = $el.attr('type');
+            if (!(previous_name == name && type == 'radio')){
+                total = total +1;
+            }
+            var attributeMap = replaceAttributes($el, total);
             $el.attr({'name': attributeMap.name, 'id': attributeMap.id});
             var $hidden = $el.prev("input[name="+ name +"]");
             $hidden.attr({'name': attributeMap.name, 'id': attributeMap.id});
-            total = index +1;
+            previous_name = name;
         });
-        $('#id_' + type + '-MAX_NUM_FORMS').val(total);
-        $('#id_' + type + '-INITIAL_FORMS').val(total);
-        $('#id_' + type + '-TOTAL_FORMS').val(total);
+        $('#id_' + type + '-MAX_NUM_FORMS').val(total+1);
+        $('#id_' + type + '-INITIAL_FORMS').val(total+1);
+        $('#id_' + type + '-TOTAL_FORMS').val(total+1);
     });
 }
 
 function removeUsedOptions(new_row, $table) {
     var  new_row_primary_select = new_row.find('select').first();
-
     $table.find('tbody tr').each(function(){
        var used_option = $(this).find("td:eq(1)").find("select").find("option:selected");
        new_row_primary_select.find('option[value='+ used_option.val() + ']').remove();
@@ -62,21 +66,26 @@ function removeUsedOptions(new_row, $table) {
     });
 }
 
-function AddRow(selector) {
-    var $selector = $(selector);
-    var newElement = $selector.clone(true);
-    newElement.find('input[type=hidden]').each(function(){ $(this).remove()});
-    updateFormCounts(newElement);
+function prependHiddenColumnFields(newElement) {
     newElement.find(':input').each(function(){
         var $el = $(this);
         var name = $el.attr('name');
         $el.before('<input type="hidden" name="' + name + '" />')
     });
+}
+
+function AddRow(selector) {
+    var $selector = $(selector);
+    var newElement = $selector.clone(true);
+    newElement.find('input[type=hidden]').each(function(){ $(this).remove()});
+    newElement.find('.primary-question').each(function(){ $(this).removeAttr('data-primary-question')});
+    prependHiddenColumnFields(newElement);
     $selector.after(newElement);
     var $table = $selector.parents('table');
     assignRowNumbers($table);
     removeUsedOptions(newElement, $table);
     reIndexFieldNames();
+    resetDatePicker(newElement);
 }
 
 function assignRowNumbers($table){
@@ -86,8 +95,17 @@ function assignRowNumbers($table){
 }
 
 function addDeleteMoreButton(selector) {
-    $(selector).after('<button type="button" class="btn btn-default red delete-more close">×</button>');
-    $(selector).after("<hr class='multiple-hr'/>");
+    var $selector = $(selector);
+    $selector.after('<button type="button" class="btn btn-default red delete-more close">×</button>');
+    $selector.after("<hr class='multiple-hr'/>");
+}
+
+function resetDatePicker(newElement) {
+    newElement.find('.datetimepicker').each(function(){
+        var $this = $(this);
+        $this.removeData('datepicker').unbind();
+        $this.datepicker({ pickTime: false, autoclose: true });
+    });
 }
 
 function cloneMore(selector) {
@@ -95,7 +113,7 @@ function cloneMore(selector) {
     $(selector).after(newElement);
     addDeleteMoreButton(selector);
     resetClonedInputs(newElement);
-    updateFormCounts(newElement);
+    resetDatePicker(newElement);
 }
 
 function resetClonedInputs(newElement){
@@ -111,63 +129,27 @@ function getClone(selector){
     return $(selector).clone(true);
 }
 
-function getTotalFieldsOf(inputField) {
-    var inputType = $(inputField).attr('name').split('-', 1)[0];
-    var $inputTypeTotalCounter = $('#id_' + inputType + '-TOTAL_FORMS');
-    return {'field': inputType, 'count':  $inputTypeTotalCounter.val(), 'total': $inputTypeTotalCounter};
-}
-
-function updateRadioCount($element) {
-    $element.parents('label').attr({'for': id});
-    var listCount = $element.parents('ul')[0].childElementCount;
-    var totalElements = parseInt(id.substr(id.length - 1)) + 1;
-    if(listCount == totalElements)
-        return 1;
-    return 0;
-}
-
-function updateMaxNumForms($fieldTypePrefix, count, $totalNumFormsField){
-        $totalNumFormsField.val(count);
-       $('#id_' + $fieldTypePrefix + '-MAX_NUM_FORMS').val(count);
-    }
-
-function updateFormCounts(questionGroupForm){
-    questionGroupForm.find(':input[type!=button]').each(function(index, $inputField) {
-        var totalFieldsOf = getTotalFieldsOf($inputField),
-            $fieldAnswerType = totalFieldsOf.field,
-            $totalNumFormsField = totalFieldsOf.total,
-            count = totalFieldsOf.count,
-            attributeMap = replaceAttributes($inputField, index);
-
-        $($inputField).attr({'name': attributeMap.name, 'id': attributeMap.id});
-
-        var $this = $(this);
-
-        if($this.attr('type') == 'radio'){
-            count += updateRadioCount($this);
-        }
-        else
-            count++;
-        updateMaxNumForms($fieldAnswerType, count, $totalNumFormsField);
-    });
-}
-
 $('.add-more').on('click', function(event) {
     cloneMore($(this).parents('.question-group'));
-    event.preventDefault()
+    reIndexFieldNames();
+    event.preventDefault();
 });
 
-$('.add-row').on('click', function(event) {
-    var $grid_row = $(this).parents('tr').prev();
-    AddRow($grid_row);
-    var $table = $(this).parents('table');
-    var group_id = $table.attr('data-group-id');
+function addRowAndColumnHiddenInputs($table, group_id) {
     $table.find('tr').each(function(i, el){
         var $tr = $(this);
         $tr.find('input[type=hidden]').each(function(index, element){
             $(element).val([i, group_id]);
         });
     });
+}
+
+$('.add-row').on('click', function(event) {
+    var $grid_row = $(this).parents('tr').prev();
+    AddRow($grid_row);
+    var $table = $(this).parents('table');
+    var group_id = $table.attr('data-group-id');
+    addRowAndColumnHiddenInputs($table, group_id);
 });
 
 $('textarea').on('keyup', function(){
@@ -239,6 +221,10 @@ $('.remove-table-row').on('click', function(evt){
 function deleteRowFromServer($row,$table) {
     var group_id = $table.attr('data-group-id');
     var url = window.location.pathname + "delete/" + group_id + "/";
-    var $form= $row.find('form');
-    $.post(url, $form.serialize(), function(){});
+    var $primary_answer = $row.find('.primary-question').attr('data-primary-question'),
+        $csrf = $('input[name=csrfmiddlewaretoken]'),
+        data = {'primary_answer': $primary_answer, 'csrfmiddlewaretoken': $csrf.val()};
+    if ($primary_answer){
+        $.post(url, data, function(){});
+    };
 }

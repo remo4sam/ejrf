@@ -17,12 +17,9 @@
                 </div>
             </td>
             {% for field in order.question|get_form:formsets %}
-                <td><input type="hidden" id="id_{{field.html_name }}" name="{{ field.html_name}}" value="{{ row_number }},{{ a_group.id }}" />
+                <td class="primary-question" data-primary-question="{{ field.form.instance.id}}">
+                    <input type="hidden" id="id_{{field.html_name }}" name="{{ field.html_name}}" value="{{ row_number }},{{ a_group.id }}" />
                     {{ field }}
-                    <form  method=post >
-                        {% csrf_token %}
-                        <input type="hidden" name="primary_answer" value={{ field.form.instance.id}} />
-                    </form>
                 </td>
             {% endfor %}
             {% for question in a_group.all_non_primary_questions %}
