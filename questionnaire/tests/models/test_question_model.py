@@ -229,15 +229,6 @@ class QuestionTest(BaseTest):
         Answer.objects.create(question=question, country=country, status="Submitted")
         self.assertFalse(question.can_be_deleted())
 
-    def test_question_can_get_nth_option(self):
-        question = Question.objects.create(text='what do you drink?', UID='C_2013', answer_type='MultiChoice', is_primary=True)
-        option1 = QuestionOption.objects.create(text='tusker lager', question=question)
-        option2 = QuestionOption.objects.create(text='tusker lite', question=question)
-        option3 = QuestionOption.objects.create(text='tusker malt', question=question)
-        self.assertEqual(option1, question.get_option_at(1))
-        self.assertEqual(option2, question.get_option_at(2))
-        self.assertEqual(option3, question.get_option_at(3))
-
     def test_knows_multichoice(self):
         question1 = Question.objects.create(text='ha', UID='C_2013', answer_type='MultiChoice',)
         question2 = Question.objects.create(text='ha', UID='C_2014', answer_type='Number',)

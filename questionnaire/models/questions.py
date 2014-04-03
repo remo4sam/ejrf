@@ -75,11 +75,6 @@ class Question(BaseModel):
     def can_be_deleted(self):
         return not self.all_answers().exists()
 
-    def get_option_at(self, index=1):
-        if self.is_primary:
-            all_options = self.options.order_by('text')
-            return all_options[index - 1]
-
     def question_groups_in(self, questionnaire):
         return self.question_group.filter(subsection__section__questionnaire=questionnaire)
 

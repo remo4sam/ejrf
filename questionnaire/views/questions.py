@@ -37,7 +37,7 @@ class QuestionList(PermissionRequiredMixin, View):
         return render(self.request, self.template_name, context)
 
     def get_questions_for_user(self, theme=None):
-        filter={'region': self.request.user.user_profile.region}
+        filter = {'region': self.request.user.user_profile.region}
         if theme:
             filter.update({'theme': theme})
 

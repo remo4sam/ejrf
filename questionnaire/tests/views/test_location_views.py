@@ -1,3 +1,4 @@
+import json
 from django.test import Client
 from questionnaire.models import Region, Country
 from questionnaire.tests.base_test import BaseTest
@@ -48,3 +49,18 @@ class CountryViewTest(BaseTest):
     def test_login_required(self):
         region = Region.objects.create(name="AFRO")
         self.assert_login_required('/locations/region/%d/country/'%region.id)
+
+    def test_get_json_countries_for_regions(self):
+        region = Region.objects.create(name="AFRO")
+        paho = Region.objects.create(name="PAHO")
+        uganda = Country.objects.create(name="Uganda")
+        congo = Country.objects.create(name="Congo")
+        uganda.regions.add(region)
+        brasil = Country.objects.create(name="Brasil")
+        brasil.regions.add(paho)
+        response = self.client.get('/locations/countries/?regions=%s&regions=%s' % (paho.id, region.id))
+        self.assertEqual(200, response.status_code)
+        countries = json.loads(response.content)
+        self.assertIn(dict(id=uganda.id, name=uganda.name), countries)
+        self.assertIn(dict(id=brasil.id, name=brasil.name), countries)
+        self.assertNotIn(dict(id=congo.id, name=congo.name), countries)

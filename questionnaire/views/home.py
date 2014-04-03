@@ -24,11 +24,6 @@ class Home(MultiplePermissionsRequiredMixin, View):
             return HttpResponseRedirect(reverse('manage_regional_jrf_page', args=(region.id,)))
         return self._render_submitter_view()
 
-    def _render_questionnaire_does_not_exist(self):
-        message = "Sorry, The JRF is not yet published at the moment"
-        messages.error(self.request, message)
-        return render(self.request, self.template_name)
-
     def _render_global_admin_view(self):
         status_map = QuestionnaireStatusService().region_country_status_map()
         return render(self.request, 'home/index.html', {'region_country_status_map': status_map})

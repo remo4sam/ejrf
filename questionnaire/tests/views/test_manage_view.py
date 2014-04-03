@@ -156,6 +156,7 @@ class PublishQuestionnaireToRegionsViewTest(BaseTest):
     def test_permission_reguired(self):
         self.assert_permission_required("/manage/")
 
+
 class ApproveQuestionnaireToDataSubmittersViewTest(BaseTest):
 
     def setUp(self):
@@ -179,6 +180,14 @@ class ApproveQuestionnaireToDataSubmittersViewTest(BaseTest):
         self.assertNotIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.FINALIZED, region=self.region).all())
         self.assertIn(self.questionnaire, Questionnaire.objects.filter(status=Questionnaire.PUBLISHED, region=self.region).all())
         self.assertRedirects(response, referer_url)
+
+    def test_get_approve_questionnaire(self):
+        referer_url = reverse('manage_jrf_page',)
+        response = self.client.get(self.url, HTTP_REFERER=referer_url)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(self.questionnaire, response.context['questionnaire'])
+        self.assertEqual("/manage/", response.context['cancel_url'])
+        self.assertEqual("Approve", response.context['btn_label'])
 
     def test_permission_reguired(self):
         self.assert_permission_required("/manage/")
