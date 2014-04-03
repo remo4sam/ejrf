@@ -1,64 +1,51 @@
 {% extends 'base/layout.html' %}
 
 {% block title %}
-Extract responses data
+    Extract responses data
 {% endblock %}
 
 {% block content %}
-<h3>EXTRACT RESPONSES DATA</h3>
+    <h3>EXTRACT RESPONSES DATA</h3>
 
-<hr/>
-<form method="post">
-    {% csrf_token %}
-    <table id="ejrf-extract-table" width="100%">
-        <thead>
-            <tr>
-                <th>Year</th>
-                <th>Region</th>
-                <th>Country</th>
-                <th>Theme</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <div class="ejrf-extract-checklist">
-                        {% for year in years %}
-                            <div>
-                                <input type="checkbox" name="years" value="{{year}}" id="{{year}}"/>
-                                <label for="{{year}}">{{year}}</label>
-                            </div>
-                        {% endfor %}
+    <div class="row">
+        <div class="col-xs-6 col-sm-3">Year</div>
+        <div class="col-xs-6 col-sm-3">Region</div>
+        <div class="col-xs-6 col-sm-3">Country</div>
+        <div class="col-xs-6 col-sm-3">Theme</div>
+    </div>
+    <hr/>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-xs-6 col-sm-3">
+                {% for year in years %}
+                    <div>
+                        <input type="checkbox" name="years" value="{{ year }}" id="{{ year }}"/>
+                        <label for="{{ year }}">{{ year }}</label>
                     </div>
-                </td>
-                <td>
-                    <div class="ejrf-extract-checklist">
-                        {% for region in regions %}
-                            <div>
-                                <input type="checkbox" name="regions" value="{{region.id}}" id="{{region.name}}"/>
-                                <label for="{{region.name}}">{{region.name}}</label>
-                            </div>
-                        {% endfor %}
+                {% endfor %}
+            </div>
+            <div class="col-xs-6 col-sm-3">
+            {% for region in regions %}
+                <div>
+                    <input type="checkbox" name="regions" value="{{ region.id }}" id="{{ region.name }}"/>
+                    <label for="{{ region.name }}">{{ region.name }}</label>
+                </div>
+            {% endfor %}
+            </div>
+            <div class="col-xs-6 col-sm-3" id="extract-countries">
+
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                {% for theme in themes %}
+                    <div>
+                        <input type="checkbox" name="themes" value="{{ theme.id }}" id="{{ theme.name }}"/>
+                        <label for="{{ theme.name }}">{{ theme.name }}</label>
                     </div>
-                </td>
-                <td>
-                    <div id="extract-countries" class="ejrf-extract-checklist">
-                    </div>
-                </td>
-                <td>
-                    <div class="ejrf-extract-checklist">
-                        {% for theme in themes %}
-                            <div>
-                                <input type="checkbox" name="themes" value="{{theme.id}}" id="{{theme.name}}"/>
-                                <label for="{{theme.name}}">{{theme.name}}</label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <br/>
-    <button type="submit" class="btn btn-lg btn-default pull-right cyan glyphicon glyphicon-download" id="export-data">  Download (.txt)</button>
-</form>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-lg btn-default pull-right cyan glyphicon glyphicon-download" id="export-data"> Download (.txt)</button>
+    </form>
 {% endblock %}

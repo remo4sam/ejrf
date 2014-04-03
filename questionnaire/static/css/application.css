@@ -396,33 +396,6 @@ table td input[type='text'], table td textarea, table td select{
     width: inherit !important;
 }
 
-.ejrf-extract-checklist{
-    min-height: 400px;
-    max-height: 400px;
-    overflow: scroll;
-}
-
-.ejrf-extract-checklist label {
-    font-weight: normal;
-    padding-left: 3px;
-}
-
-#ejrf-extract-table {
-    width: 100%
-}
-
-#ejrf-extract-table thead tr th{
-    border-bottom: 1px solid #DDD;
-    text-align: left;
-    padding: 3px 0px;
-    margin-bottom: 5px;
-    text-color: #2a6496 !important;
-    text-transform: upper;
-}
-
-#ejrf-extract-table tr td {
-    width: 25%;
-}
 .horizontal-ul{
     display: inline-flex;
 }
@@ -468,4 +441,8 @@ tr.dragging, tr.dragging * {
 }
 #reorder-content-table{
     width: 100%;
+}
+.countries-extract label{
+    margin-left: 10px;
+    text-transform: uppercase;
 }

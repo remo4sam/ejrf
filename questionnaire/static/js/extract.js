@@ -8,7 +8,7 @@ $(document).ready(function(){
         getCountriesFor(regions, function(data){
             $('#extract-countries').html('');
             for(var index=0; index<data.length; index++){
-                $('#extract-countries').append('<div>'+
+                $('#extract-countries').append("<div class='countries-extract'>"+
                     '<input type="checkbox" name="countries" value="'+ data[index].id +'" id="'+ data[index].name+'"/>'+
                             '<label for="'+data[index].name+'">'+data[index].name+'</label></div>');
             }
