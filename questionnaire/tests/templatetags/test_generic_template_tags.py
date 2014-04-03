@@ -1,7 +1,7 @@
 from questionnaire.forms.theme import ThemeForm
 from questionnaire.models import Question, QuestionOption, Theme
 from questionnaire.templatetags.generic_tags import display_list, bootstrap_message, get_url_with_ids, divide_to_paginate, ASSIGN_QUESTION_PAGINATION_SIZE, add_string, get_questionnaire_from, \
-    bootstrap_class, packaged_options, custom_options, get_theme_form_with_instance
+    bootstrap_class, packaged_options, custom_options, get_theme_form_with_instance, get_reverse_sort_key
 from questionnaire.tests.base_test import BaseTest
 
 
@@ -59,3 +59,8 @@ class GeneralTemplateTagTest(BaseTest):
 
         self.assertIsInstance(get_theme_form_with_instance(theme), ThemeForm)
         self.assertEqual(get_theme_form_with_instance(theme).instance, theme)
+
+    def test_get_reverse_sort_key(self):
+        self.assertEqual('-uid', get_reverse_sort_key('uid', 'uid'))
+        self.assertEqual('uid', get_reverse_sort_key('', 'uid'))
+        self.assertEqual('label', get_reverse_sort_key('uid', 'label'))

@@ -219,6 +219,65 @@ class QuestionViewTest(BaseTest):
         self.failUnless(Question.objects.get(**data))
         self.assertIn(question, response.context['questions'])
 
+class QuestionViewSortTest(BaseTest):
+    def setUp(self):
+        self.client = Client()
+        self.user, self.country, self.region = self.create_user_with_no_permissions(region_name=None)
+
+        self.assign('can_edit_questionnaire', self.user)
+        self.client.login(username=self.user.username, password='pass')
+
+        self.url = '/questions/'
+        self.theme1 = Theme.objects.create(name="Theme1")
+        self.theme = Theme.objects.create(name="Another theme")
+        self.theme2 = Theme.objects.create(name="Theme2")
+
+        self.question_1 = Question.objects.create(text='Question1. Number of cases tested',
+                instructions="Enter the total number of cases",
+                UID= '00001', answer_type = 'Number', theme = self.theme1)
+
+        self.question_2 = Question.objects.create(text='Question2. Number of cases tested',
+                instructions="Enter the total number of cases",
+                UID= '00002', answer_type = 'Text', theme = self.theme2)
+
+        self.question_3 = Question.objects.create(text='Question3. Number of cases tested',
+                instructions="Enter the total number of cases",
+                UID= '00003', answer_type = 'Date', theme = self.theme)
+
+        self.FIRST_ELEMENT = 0
+        self.LAST_ELEMENT = 2
+
+    def test_question_list_sort_by_id_asc(self):
+        response = self.client.get('/questions/?sort=%s' % 'uid')
+        self.assertEqual(self.question_1, response.context['questions'][self.FIRST_ELEMENT])
+        self.assertEqual(self.question_3, response.context['questions'][self.LAST_ELEMENT])
+
+    def test_question_list_sort_by_id_desc(self):
+        response = self.client.get('/questions/?sort=%s' % '-uid')
+        self.assertEqual(self.question_3, response.context['questions'][self.FIRST_ELEMENT])
+        self.assertEqual(self.question_1, response.context['questions'][self.LAST_ELEMENT])
+
+    def test_question_list_sort_by_theme_asc(self):
+        response = self.client.get('/questions/?sort=%s' % 'theme')
+        self.assertEqual(self.question_3, response.context['questions'][self.FIRST_ELEMENT])
+        self.assertEqual(self.question_2, response.context['questions'][self.LAST_ELEMENT])
+
+    def test_question_list_sort_by_theme_desc(self):
+        response = self.client.get('/questions/?sort=%s' % '-theme')
+        self.assertEqual(self.question_2, response.context['questions'][self.FIRST_ELEMENT])
+        self.assertEqual(self.question_3, response.context['questions'][self.LAST_ELEMENT])
+
+    def test_question_list_sort_by_response_type_asc(self):
+        response = self.client.get('/questions/?sort=%s' % 'response_type')
+        self.assertEqual(self.question_3, response.context['questions'][self.FIRST_ELEMENT])
+        self.assertEqual(self.question_2, response.context['questions'][self.LAST_ELEMENT])
+
+    def test_question_list_sort_by_response_type_desc(self):
+        response = self.client.get('/questions/?sort=%s' % '-response_type')
+        self.assertEqual(self.question_2, response.context['questions'][self.FIRST_ELEMENT])
+        self.assertEqual(self.question_3, response.context['questions'][self.LAST_ELEMENT])
+
+
 
 class RegionalQuestionsViewTest(BaseTest):
 

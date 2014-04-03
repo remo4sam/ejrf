@@ -447,3 +447,8 @@ table td input[type='text'], table td textarea, table td select{
     display: block;
     margin-bottom: 10px;
 }
+
+#tbl-question-list thead tr th a {
+    color: #000000;
+    font-weight:bold;
+}

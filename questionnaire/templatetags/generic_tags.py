@@ -70,3 +70,19 @@ def custom_options(question):
 @register.filter
 def get_theme_form_with_instance(theme):
     return ThemeForm(instance=theme)
+
+@register.filter
+def get_reverse_sort_key(key, default):
+    if key:
+        if key.startswith('-'):
+            reverse_key = key.replace('-', '', 1)
+
+            if reverse_key <> default:
+                return default
+
+            return reverse_key
+        else:
+            if key == default:
+                return '-' + key
+
+    return default

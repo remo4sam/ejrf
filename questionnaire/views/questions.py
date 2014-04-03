@@ -25,7 +25,9 @@ class QuestionList(PermissionRequiredMixin, View):
         if self.request.GET.get('theme', None):
             theme = Theme.objects.get(id = self.request.GET.get('theme'))
 
-        questions = self.get_questions_for_user(theme).filter(child=None)
+        order_by = self._get_sort_field(self.request.GET.get('sort'))
+
+        questions = self.get_questions_for_user(theme, order_by).filter(child=None)
         context = {'request': self.request,
                    'questions': questions,
                    'active_questions': active_questions,
@@ -36,16 +38,34 @@ class QuestionList(PermissionRequiredMixin, View):
 
         return render(self.request, self.template_name, context)
 
-    def get_questions_for_user(self, theme=None):
+    def get_questions_for_user(self, theme=None, order_by='created'):
         filter = {'region': self.request.user.user_profile.region}
         if theme:
             filter.update({'theme': theme})
 
         if self.request.user.has_perm('auth.can_view_users'):
-            return self.model.objects.filter(**filter).order_by('created')
+            return self.model.objects.filter(**filter).order_by(order_by)
 
-        return self.model.objects.filter(**filter)
+        return self.model.objects.filter(**filter).order_by(order_by)
 
+    def _get_sort_field(self, request_param):
+        sort_req_param_to_field_dict = {
+            'uid':'id',
+            '-uid': '-id',
+            'theme': 'theme__name',
+            '-theme': '-theme__name',
+            'response_type': 'answer_type',
+            '-response_type': '-answer_type',
+            'label' : 'export_label',
+            '-label':'-export_label'
+        }
+
+        if request_param:
+            field = sort_req_param_to_field_dict.get(request_param, None)
+            if field:
+                return field
+
+        return 'created'
 
 class CreateQuestion(PermissionRequiredMixin, CreateView):
     permission_required = 'auth.can_edit_questionnaire'

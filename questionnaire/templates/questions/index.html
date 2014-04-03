@@ -22,13 +22,33 @@
         </select>
         <button class="btn btn-default cyan" id="submit_filter_id" type="submit">Filter</button>
     </form>
-      <table class="table table-hover table-bordered">
+      <table id="tbl-question-list" class="table table-hover table-bordered">
           <thead>
           <tr>
-            <th>UID</th>
-            <th>Export Label (Detail)</th>
-            <th>Theme</th>
-            <th>Response Type</th>
+            <th>
+                <a href="?sort={{ request.GET.sort|get_reverse_sort_key:'uid' }}">
+                    <span>UID</span>
+                    <span class="glyphicon glyphicon-sort"></span>
+                </a>
+            </th>
+            <th>
+                <a href="?sort={{ request.GET.sort|get_reverse_sort_key:'label' }}">
+                    <span>Export Label (Detail)</span>
+                    <span class="glyphicon glyphicon-sort"></span>
+                </a>
+            </th>
+            <th>
+                <a href="?sort={{ request.GET.sort|get_reverse_sort_key:'theme' }}">
+                    <span>Theme</span>
+                    <span class="glyphicon glyphicon-sort"></span>
+                </a>
+            </th>
+            <th>
+                <a href="?sort={{ request.GET.sort|get_reverse_sort_key:'response_type' }}">
+                    <span>Response Type</span>
+                    <span class="glyphicon glyphicon-sort"></span>
+                </a>
+            </th>
             <th>Actions</th>
           </tr>
           </thead>
