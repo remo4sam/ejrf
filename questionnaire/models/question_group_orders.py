@@ -10,6 +10,7 @@ class QuestionGroupOrder(BaseModel):
     class Meta:
         ordering = ('order',)
         app_label = 'questionnaire'
+        unique_together = ('order', 'question_group', 'question')
 
     def __unicode__(self):
         return "%d" % self.order

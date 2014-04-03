@@ -37,15 +37,9 @@
                                 {% include 'questionnaires/entry/grid.html' with a_group=group section=section sub_section=subsection %}
                             {% else %}
                                 <div class="question-group indent">
-                                    <table class="sortable-table">
-                                        {% for order in group.question_orders %}
-                                            <tr class="sortable-tr">
-                                                <td>
-                                                    {% include 'questionnaires/entry/_questions_n_answers_fields.html' %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
+                                    {% for order in group.question_orders %}
+                                        {% include 'questionnaires/entry/_questions_n_answers_fields.html' %}
+                                    {% endfor %}
                                 </div>
                                 {% if group.allow_multiples %}
                                     <button type="button" href="#" class="btn btn-default add-more"><span
@@ -53,7 +47,7 @@
                                             class="glyphicon glyphicon-plus"></i> Add More</span></button>
                                 {% endif %}
                             {% endif %}
-                            <hr class="group-hr"/>
+                            <hr class="group-hr" data-group-id="{{ group.id }}"/>
 
                         {% endfor %}
                     </div>

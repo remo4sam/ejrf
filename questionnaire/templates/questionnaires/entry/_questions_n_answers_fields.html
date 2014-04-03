@@ -47,7 +47,7 @@
                 <div class="field-error">
             {% endif %}
         {{ field }}
-        <input type="hidden" name="{{ field.html_name }}" id="{{ field.html_name }}" value="{{ order.id }}"/>
+        <input type="hidden" name="{{ field.html_name }}-order" id="id-{{ field.html_name }}-order" value="{{ order.question_group.id }},{{ order.id }},{{ order.order }}"/>
         {% if field.errors %}
             </div>
         {% endif %}

@@ -45,9 +45,9 @@ class ReorderSubsectionQuestionsViewTest(BaseTest):
                                                         order=3)
 
     def test_reorder_questions_in_group(self):
-        data = {'Number-0-response': [u'',"%d, 0" % self.order3.id],
-                'Text-1-response': [u'',"%d, 1" % self.order2.id],
-                'Text-0-response': [u'', u"%d, 2" % self.order1.id]}
+        data = {'Number-0-response-order': [u"%d,%d, 0" % (self.question_group.id, self.order3.id)],
+                'Text-1-response-order': [u"%d,%d, 1" % (self.question_group.id, self.order2.id)],
+                'Text-0-response-order': [u"%d,%d, 2" % (self.question_group.id, self.order1.id)]}
         response = self.client.post('/subsection/%d/reorder/' % self.sub_section.id, data=data)
         self.assertRedirects(response, expected_url=self.sub_section.get_absolute_url())
         updated_orders = self.question_group.question_orders()

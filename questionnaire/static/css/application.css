@@ -446,7 +446,7 @@ table td input[type='text'], table td textarea, table td select{
     clear:both;
     display: block;
     margin-bottom: 10px;
-
+}
 .sortable-table {
     width: 100%;
 }
@@ -465,4 +465,7 @@ tr.dragging, tr.dragging * {
 #tbl-question-list thead tr th a {
     color: #000000;
     font-weight:bold;
+}
+#reorder-content-table{
+    width: 100%;
 }

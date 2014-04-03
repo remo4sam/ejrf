@@ -255,12 +255,36 @@ function deleteRowFromServer($row,$table) {
 }
 
 
+$('.reorder-subsection').on('click', function(){
+    var $element = $(this),
+    $modal = getModalWithSubSectionQuestions($element);
+    removeButtons($modal, ['.add-more', '.btn-group', '.unassign-question']);
+    highlightOnHover($modal);
+    activateSortable($modal);
+    disableInputFields(false)
+    $modal.modal('show');
+});
+
+
+function getTableRow($questionForm) {
+    if($($questionForm).hasClass('group-hr')){
+        return "<tr class='group-tr' " +
+               "data-group-id='"+ $($questionForm).attr('data-group-id') +"'>" +
+               "<td><hr class='group-hr'/></td></tr>";
+    }
+    return "<tr class='sortable-tr'><td>" + $($questionForm).html() + "</td></tr>"
+}
+
 function getModalWithSubSectionQuestions($element) {
     var data = $element.parents('div .subsection-content').html(),
         $modal = $('#reorder_modal_label'),
-        action = $element.attr('data-href');
-        $modal.find('#content').html(data);
-            $modal.find('#re-order-questions-form').attr('action', action);
+        action = $element.attr('data-href'),
+        questionFormsAsTableRows = "";
+        getQuestionsInSubsection($element).each(function(index, $questionForm){
+            questionFormsAsTableRows += getTableRow($questionForm);
+        });
+        $modal.find('#reorder-content-table').html(questionFormsAsTableRows);
+        $modal.find('#re-order-questions-form').attr('action', action);
     return $modal;
 }
 
@@ -277,36 +301,33 @@ function highlightOnHover($modal) {
         });
     });
 }
-$('.reorder-subsection').on('click', function(){
-    var $element = $(this),
-    $modal = getModalWithSubSectionQuestions($element);
-    removeButtons($modal, ['.add-more', '.btn-group', '.unassign-question']);
-    highlightOnHover($modal);
-    activateSortable($modal);
-    disableInputFields(false)
-    $modal.modal('show');
-});
 
 function callOnDropSuper($item) {
-    $item.removeClass("dragged").removeAttr("style")
-    $("body").removeClass("dragging")
+    $item.removeClass("dragged").removeAttr("style");
+    $("body").removeClass("dragging");
 }
 
 function reIndexOrderFields($item, container) {
     var $table = $item.parents('table');
-    $table.find('tr').each(function(index, element){
-        var $hiddenOrderField = $(element).find('input[type=hidden]');
-        var orderId = $hiddenOrderField.val().split(",")[0];
-        $hiddenOrderField.val('');
-        $hiddenOrderField.val(orderId +","+ index);
-    });
+    var groupTableRows = $table.find('tr.group-tr');
+    for(var i=0; i < groupTableRows.length; i++){
+        var $sameGroupRows = $(groupTableRows[i]).prevUntil('tr.group-tr');
+        var totalQuestionRows = $sameGroupRows.length;
+        $sameGroupRows.each(function(index, questionTableRow){
+            var reverseIndex =  parseInt(totalQuestionRows) - parseInt(index),
+                $hiddenOrderField = $(questionTableRow).find('input[type=hidden]'),
+                orderId = $hiddenOrderField.val().split(",")[1];
+            $hiddenOrderField.val('');
+            $hiddenOrderField.val($(groupTableRows[i]).attr('data-group-id') + "," + orderId +","+ reverseIndex);
+        });
+    }
 }
 
 function activateSortable($modal){
     $modal.find('table').each(function(){
         $(this).sortable({
             containerSelector: 'table',
-            itemPath: '> tbody',
+            itemPath: '>tbody',
             itemSelector: '.sortable-tr',
             placeholder: '<tr class="placeholder"/>',
             onDrop :function ($item, container, _super) {
@@ -317,3 +338,8 @@ function activateSortable($modal){
     })
 }
 
+
+function getQuestionsInSubsection($element){
+    var $subsectionContainer = $element.parents('div .subsection-content');
+    return  $subsectionContainer.find('.form-group, .group-hr');
+}
