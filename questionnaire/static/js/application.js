@@ -67,25 +67,31 @@ function removeUsedOptions(new_row, $table) {
 }
 
 function prependHiddenColumnFields(newElement) {
+    var previous_name = '';
     newElement.find(':input').each(function(){
         var $el = $(this);
-        var name = $el.attr('name');
-        $el.before('<input type="hidden" name="' + name + '" />')
+        var name = $el.attr('name'),
+            type = $el.attr('type');
+        if (!(previous_name == name && type == 'radio')){
+            $el.before('<input type="hidden" name="' + name + '" />')
+        }
+        previous_name = name;
     });
 }
 
-function AddRow(selector) {
+function duplicateRow(selector, $table) {
     var $selector = $(selector);
     var newElement = $selector.clone(true);
     newElement.find('input[type=hidden]').each(function(){ $(this).remove()});
     newElement.find('.primary-question').each(function(){ $(this).removeAttr('data-primary-question')});
+    resetClonedInputs(newElement);
     prependHiddenColumnFields(newElement);
     $selector.after(newElement);
-    var $table = $selector.parents('table');
     assignRowNumbers($table);
     removeUsedOptions(newElement, $table);
     reIndexFieldNames();
     resetDatePicker(newElement);
+    return newElement;
 }
 
 function assignRowNumbers($table){
@@ -94,10 +100,10 @@ function assignRowNumbers($table){
     });
 }
 
-function addDeleteMoreButton(selector) {
-    var $selector = $(selector);
-    $selector.after('<button type="button" class="btn btn-default red delete-more close">×</button>');
-    $selector.after("<hr class='multiple-hr'/>");
+function showSeparator($selector) {
+    var separator = $selector.find('.separator');
+    separator.removeClass('hide');
+    separator.show();
 }
 
 function resetDatePicker(newElement) {
@@ -106,14 +112,6 @@ function resetDatePicker(newElement) {
         $this.removeData('datepicker').unbind();
         $this.datepicker({ pickTime: false, autoclose: true });
     });
-}
-
-function cloneMore(selector) {
-    var newElement = getClone(selector);
-    $(selector).after(newElement);
-    addDeleteMoreButton(selector);
-    resetClonedInputs(newElement);
-    resetDatePicker(newElement);
 }
 
 function resetClonedInputs(newElement){
@@ -125,18 +123,8 @@ function resetClonedInputs(newElement){
     });
 }
 
-function getClone(selector){
-    return $(selector).clone(true);
-}
-
-$('.add-more').on('click', function(event) {
-    cloneMore($(this).parents('.question-group'));
-    reIndexFieldNames();
-    event.preventDefault();
-});
-
-function addRowAndColumnHiddenInputs($table, group_id) {
-    $table.find('tr').each(function(i, el){
+function addRowAndColumnHiddenInputs($table, group_id, row_selector) {
+    $table.find(row_selector).each(function(i, el){
         var $tr = $(this);
         $tr.find('input[type=hidden]').each(function(index, element){
             $(element).val([i, group_id]);
@@ -144,12 +132,26 @@ function addRowAndColumnHiddenInputs($table, group_id) {
     });
 }
 
-$('.add-row').on('click', function(event) {
-    var $grid_row = $(this).parents('tr').prev();
-    AddRow($grid_row);
-    var $table = $(this).parents('table');
+function addRowOn($el, row_selector, table_selector) {
+    var $grid_row = $el.parents(row_selector).prev();
+    var $table = $el.parents(table_selector);
+    var $new_row = duplicateRow($grid_row, $table);
     var group_id = $table.attr('data-group-id');
-    addRowAndColumnHiddenInputs($table, group_id);
+    addRowAndColumnHiddenInputs($table, group_id, row_selector);
+    return $new_row;
+}
+
+$('.add-row').on('click', function(event) {
+    var $el = $(this);
+    addRowOn($el, 'tr', 'table');
+    event.preventDefault();
+});
+
+$('.add-more').on('click', function(event) {
+    var $el = $(this);
+    var $new_row = addRowOn($el, '.hybrid-group-row', '.question-group');
+    showSeparator($new_row);
+    event.preventDefault();
 });
 
 $('textarea').on('keyup', function(){
@@ -157,17 +159,6 @@ $('textarea').on('keyup', function(){
   if($(this).val().length >= maxLength)
     $(this).val($(this).val().substring(0, maxLength));
 });
-
-$(document).on('click', '.delete-more', function() {
-    $('a[data-toggle=popover]').popover('destroy');
-
-    $(this).next('.question-group').remove();
-    $(this).prev('.multiple-hr').remove();
-    $(this).remove();
-
-    $('a[data-toggle=popover]').popover();
-});
-
 
 $('#export-section').on('click', function(event) {
     $(this).toggleClass('active');
@@ -208,15 +199,26 @@ $('.remove-table-row').on('click', function(evt){
     var $row = $(this).parents('tr'),
         $table = $row.parents('table'),
         $grid_rows = $table.find('tr.grid_row');
+    deleteRow($row, $table, $grid_rows);
+    evt.preventDefault();
+});
 
+$('.remove-hybrid-row').on('click', function(evt){
+    var $row = $(this).parents('.hybrid-group-row'),
+        $table = $row.parents('.question-group'),
+        $grid_rows = $table.find('.hybrid-group-row');
+    deleteRow($row, $table, $grid_rows);
+    evt.preventDefault();
+});
+
+function deleteRow($row, $table, $grid_rows) {
     if ($grid_rows.length > 1){
         deleteRowFromServer($row, $table);
         $row.remove();
         assignRowNumbers($table);
         reIndexFieldNames();
     }
-    evt.preventDefault();
-});
+}
 
 function deleteRowFromServer($row,$table) {
     var group_id = $table.attr('data-group-id');
