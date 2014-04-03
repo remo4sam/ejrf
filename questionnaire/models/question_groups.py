@@ -43,10 +43,17 @@ class QuestionGroup(BaseModel):
         return self.question.count() > 1
 
     def primary_question(self):
-        return self.question.filter(is_primary=True)
+        by_attribute = self.question.filter(is_primary=True)
+        if by_attribute.exists():
+            return by_attribute[0]
+        by_order = self.orders.order_by('order')
+        if by_order.exists():
+            return by_order[0].question
+        return None
 
     def all_non_primary_questions(self):
-        non_primary_questions = filter(lambda question: not question.is_primary, self.ordered_questions())
+        non_primary_questions = self.ordered_questions()
+        non_primary_questions.remove(self.primary_question())
         return non_primary_questions
 
     def has_subgroups(self):
@@ -61,7 +68,7 @@ class QuestionGroup(BaseModel):
     def map_orders_with_answer_type(self, mapped_orders):
         orders = self.orders.order_by('order').select_related()
         if self.primary_question() and self.grid and self.display_all:
-            for option in self.primary_question()[0].options.all():
+            for option in self.primary_question().options.all():
                 map_question_type_with(orders, mapped_orders, option)
         else:
             map_question_type_with(orders, mapped_orders)

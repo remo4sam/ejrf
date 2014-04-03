@@ -46,6 +46,12 @@ function reIndexFieldNames() {
             $el.attr({'name': attributeMap.name, 'id': attributeMap.id});
             var $hidden = $el.prev("input[name="+ name +"]");
             $hidden.attr({'name': attributeMap.name, 'id': attributeMap.id});
+            if(previous_name !=name && type == 'radio'){
+                var $radio_extra_hidden = $el.prev().prev("input[name="+ name +"]");
+                $radio_extra_hidden.attr({'name': attributeMap.name, 'id': attributeMap.id});
+            }
+            var $label = $el.parents("label");
+            $label.attr('for', attributeMap.id);
             previous_name = name;
         });
         $('#id_' + type + '-MAX_NUM_FORMS').val(total+1);
@@ -74,6 +80,9 @@ function prependHiddenColumnFields(newElement) {
             type = $el.attr('type');
         if (!(previous_name == name && type == 'radio')){
             $el.before('<input type="hidden" name="' + name + '" />')
+        }
+        if(previous_name !=name && type == 'radio'){
+            $el.before('<input type="hidden" exclude="true" value="" name="' + name + '" />')
         }
         previous_name = name;
     });
@@ -126,7 +135,7 @@ function resetClonedInputs(newElement){
 function addRowAndColumnHiddenInputs($table, group_id, row_selector) {
     $table.find(row_selector).each(function(i, el){
         var $tr = $(this);
-        $tr.find('input[type=hidden]').each(function(index, element){
+        $tr.find('input[type=hidden][exclude!=true]').each(function(index, element){
             $(element).val([i, group_id]);
         });
     });
@@ -140,6 +149,13 @@ function addRowOn($el, row_selector, table_selector) {
     addRowAndColumnHiddenInputs($table, group_id, row_selector);
     return $new_row;
 }
+
+$('input[type=radio]').on('click', function(){
+    var $el = $(this),
+        name = $el.attr('name'),
+        $redundant_hidden_radio = $el.parents('.form-group').find('input[name='+ name +'][exclude=true]');
+    $redundant_hidden_radio.remove();
+});
 
 $('.add-row').on('click', function(event) {
     var $el = $(this);

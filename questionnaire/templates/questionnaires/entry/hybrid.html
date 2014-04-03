@@ -35,6 +35,9 @@
                                             <div class="field-error">
                                         {% endif %}
                                         <input type="hidden" id="id_{{field.html_name }}" name="{{ field.html_name}}" value="{{ row_number }},{{ group.id }}" />
+                                        {% if 'radio' in field.as_widget %}
+                                            <input type="hidden" id="id_{{field.html_name }}" name="{{ field.html_name}}" value="" exclude="true" />
+                                        {% endif %}
                                         {{ field }}
                                         {% if field.errors %}
                                             </div>
@@ -71,6 +74,9 @@
                                         <div class="field-error">
                                     {% endif %}
                                 <input type="hidden" id="id_{{field.html_name }}" name="{{ field.html_name}}" value="{{ row_number }},{{ group.id }}" />
+                                {% if 'radio' in field.as_widget %}
+                                    <input type="hidden" id="id_{{field.html_name }}" name="{{ field.html_name}}" value="" exclude="true" />
+                                {% endif %}
                                 {{ field }}
                                 <span {% if order.question.is_primary %}class="primary-question"  data-primary-question="{{ field.form.instance.id }}"{% endif %} ></span>
                                 {% if field.errors %}

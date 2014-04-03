@@ -114,7 +114,7 @@ class QuestionnaireEntryFormService(object):
             initial.append(self._initial({'option': row_number, 'order': order_dict['order']}))
 
     def get_extra_rows(self, answer_type, group):
-        primary_question = group.primary_question()[0]
+        primary_question = group.primary_question()
         saved_primary_answers = primary_question.answered_options(questionnaire=self.questionnaire, country=self.country,
                                                     question_group=group, version=self.version)
         if self.cleaned_data:

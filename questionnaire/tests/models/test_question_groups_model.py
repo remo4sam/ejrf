@@ -164,11 +164,35 @@ class QuestionGroupTest(BaseTest):
         question2 = Question.objects.create(text='question2', UID='c00001', answer_type='Text')
         sub_group.question.add(question, question2)
 
-        self.assertTrue(1, sub_group.primary_question().count())
-        self.assertTrue(question, sub_group.primary_question())
+        self.assertEqual(question, sub_group.primary_question())
+
+    def test_smallest_order_question_is_primary_if_no_primary_is_set(self):
+        sub_group = QuestionGroup.objects.create(subsection=self.sub_section, order=1)
+        question = Question.objects.create(text='question', UID='ab3123', answer_type='Text')
+        question2 = Question.objects.create(text='question2', UID='c00001', answer_type='Text')
+        sub_group.question.add(question, question2)
+        sub_group.orders.create(order=1, question=question)
+        sub_group.orders.create(order=2, question=question2)
+
+        self.assertEqual(question, sub_group.primary_question())
 
     def test_group_knows_its_non_primary_questions(self):
         question1 = Question.objects.create(text='question', UID='ab3123', answer_type='Text', is_primary=True)
+        question2 = Question.objects.create(text='question1', UID='c00w01', answer_type='Text')
+        question3 = Question.objects.create(text='question2', UID='c00s01', answer_type='Text')
+        question4 = Question.objects.create(text='question3', UID='c00a01', answer_type='Text')
+        self.parent_question_group.question.add(question1, question2, question3, question4)
+        QuestionGroupOrder.objects.create(question=question1, question_group=self.parent_question_group, order=1)
+        QuestionGroupOrder.objects.create(question=question2, question_group=self.parent_question_group, order=2)
+        QuestionGroupOrder.objects.create(question=question3, question_group=self.parent_question_group, order=3)
+        QuestionGroupOrder.objects.create(question=question4, question_group=self.parent_question_group, order=4)
+        self.assertEqual(3, len(self.parent_question_group.all_non_primary_questions()))
+        self.assertNotIn(question1, self.parent_question_group.all_non_primary_questions())
+        for i in range(2, 3):
+            self.assertIn(eval("question%d" % i), self.parent_question_group.all_non_primary_questions())
+
+    def test_group_knows_its_non_primary_questions_when_primary_is_not_explicitly_specified(self):
+        question1 = Question.objects.create(text='question', UID='ab3123', answer_type='Text')
         question2 = Question.objects.create(text='question1', UID='c00w01', answer_type='Text')
         question3 = Question.objects.create(text='question2', UID='c00s01', answer_type='Text')
         question4 = Question.objects.create(text='question3', UID='c00a01', answer_type='Text')

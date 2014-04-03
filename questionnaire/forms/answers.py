@@ -99,7 +99,7 @@ class MultiChoiceAnswerSelectWidget(forms.Select):
 
 
 class MultiChoiceAnswerForm(AnswerForm):
-    response = ModelChoiceField(queryset=None, widget=forms.Select())
+    response = ModelChoiceField(queryset=None, widget=forms.Select(), required=False)
 
     def __init__(self, *args, **kwargs):
         super(MultiChoiceAnswerForm, self).__init__(*args, **kwargs)
