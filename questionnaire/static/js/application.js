@@ -199,7 +199,7 @@ $('.remove-table-row').on('click', function(evt){
     var $row = $(this).parents('tr'),
         $table = $row.parents('table'),
         $grid_rows = $table.find('tr.grid_row');
-    deleteRow($row, $table, $grid_rows);
+    deleteRow($row, $table, $grid_rows, 1);
     evt.preventDefault();
 });
 
@@ -207,12 +207,12 @@ $('.remove-hybrid-row').on('click', function(evt){
     var $row = $(this).parents('.hybrid-group-row'),
         $table = $row.parents('.question-group'),
         $grid_rows = $table.find('.hybrid-group-row');
-    deleteRow($row, $table, $grid_rows);
+    deleteRow($row, $table, $grid_rows, 2);
     evt.preventDefault();
 });
 
-function deleteRow($row, $table, $grid_rows) {
-    if ($grid_rows.length > 1){
+function deleteRow($row, $table, $grid_rows, min_number_of_rows) {
+    if ($grid_rows.length > min_number_of_rows){
         deleteRowFromServer($row, $table);
         $row.remove();
         assignRowNumbers($table);
@@ -228,5 +228,5 @@ function deleteRowFromServer($row,$table) {
         data = {'primary_answer': $primary_answer, 'csrfmiddlewaretoken': $csrf.val()};
     if ($primary_answer){
         $.post(url, data, function(){});
-    };
+    }
 }
