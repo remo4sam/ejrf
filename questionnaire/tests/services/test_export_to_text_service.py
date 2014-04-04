@@ -36,11 +36,14 @@ class ExportToTextServiceTest(BaseTest):
         self.primary_question_answer = MultiChoiceAnswer.objects.create(question=self.primary_question,
                                                                         country=self.country,
                                                                         status=Answer.SUBMITTED_STATUS,
-                                                                        response=self.option)
+                                                                        response=self.option,
+                                                                        questionnaire=self.questionnaire)
         self.question1_answer = NumericalAnswer.objects.create(question=self.question1, country=self.country,
-                                                               status=Answer.SUBMITTED_STATUS, response=23)
+                                                               status=Answer.SUBMITTED_STATUS, response=23,
+                                                               questionnaire=self.questionnaire)
         self.question2_answer = NumericalAnswer.objects.create(question=self.question2, country=self.country,
-                                                               status=Answer.SUBMITTED_STATUS, response=1)
+                                                               status=Answer.SUBMITTED_STATUS, response=1,
+                                                               questionnaire=self.questionnaire)
         self.answer_group1 = self.primary_question_answer.answergroup.create(grouped_question=self.parent, row=1)
         self.answer_group_1 = self.question1_answer.answergroup.create(grouped_question=self.parent, row=1)
         self.answer_group_2 = self.question2_answer.answergroup.create(grouped_question=self.parent, row=1)
@@ -74,11 +77,14 @@ class ExportToTextServiceTest(BaseTest):
         primary_question_answer2 = MultiChoiceAnswer.objects.create(question=self.primary_question,
                                                                     country=self.country,
                                                                     status=Answer.SUBMITTED_STATUS,
-                                                                    response=self.option2)
+                                                                    response=self.option2,
+                                                                    questionnaire=self.questionnaire)
         question1_answer2 = NumericalAnswer.objects.create(question=self.question1, country=self.country,
-                                                           status=Answer.SUBMITTED_STATUS, response=4)
+                                                           status=Answer.SUBMITTED_STATUS, response=4,
+                                                           questionnaire=self.questionnaire)
         question2_answer2 = NumericalAnswer.objects.create(question=self.question2, country=self.country,
-                                                           status=Answer.SUBMITTED_STATUS, response=55)
+                                                           status=Answer.SUBMITTED_STATUS, response=55,
+                                                           questionnaire=self.questionnaire)
         answer_group2 = primary_question_answer2.answergroup.create(grouped_question=self.parent, row=2)
         answer_group2_1 = question1_answer2.answergroup.create(grouped_question=self.parent, row=2)
         answer_group2_2 = question2_answer2.answergroup.create(grouped_question=self.parent, row=2)
@@ -121,11 +127,11 @@ class ExportToTextServiceTest(BaseTest):
         primary_question_answer2 = MultiChoiceAnswer.objects.create(question=self.primary_question,
                                                                     country=self.country,
                                                                     status=Answer.SUBMITTED_STATUS,
-                                                                    response=self.option2, version=2)
+                                                                    response=self.option2, version=2, questionnaire=self.questionnaire)
         question1_answer2 = NumericalAnswer.objects.create(question=self.question1, country=self.country,
-                                                           status=Answer.SUBMITTED_STATUS, response=4, version=2)
+                                                           status=Answer.SUBMITTED_STATUS, response=4, version=2, questionnaire=self.questionnaire)
         question2_answer2 = NumericalAnswer.objects.create(question=self.question2, country=self.country,
-                                                           status=Answer.SUBMITTED_STATUS, response=55, version=2)
+                                                           status=Answer.SUBMITTED_STATUS, response=55, version=2, questionnaire=self.questionnaire)
         answer_group2 = primary_question_answer2.answergroup.create(grouped_question=self.parent, row=2)
         answer_group2_1 = question1_answer2.answergroup.create(grouped_question=self.parent, row=2)
         answer_group2_2 = question2_answer2.answergroup.create(grouped_question=self.parent, row=2)
@@ -155,11 +161,14 @@ class ExportToTextServiceTest(BaseTest):
         ghana = Country.objects.create(name="Ghana", code="GH")
         primary_question_answer2 = MultiChoiceAnswer.objects.create(question=self.primary_question, country=ghana,
                                                                     status=Answer.SUBMITTED_STATUS,
-                                                                    response=self.option2, version=2)
+                                                                    response=self.option2, version=2,
+                                                                    questionnaire=self.questionnaire)
         question1_answer2 = NumericalAnswer.objects.create(question=self.question1, country=ghana,
-                                                           status=Answer.SUBMITTED_STATUS, response=4, version=2)
+                                                           status=Answer.SUBMITTED_STATUS, response=4, version=2,
+                                                           questionnaire=self.questionnaire)
         question2_answer2 = NumericalAnswer.objects.create(question=self.question2, country=ghana,
-                                                           status=Answer.SUBMITTED_STATUS, response=55, version=2)
+                                                           status=Answer.SUBMITTED_STATUS, response=55, version=2,
+                                                           questionnaire=self.questionnaire)
         answer_group2 = primary_question_answer2.answergroup.create(grouped_question=self.parent, row=2)
         answer_group2_1 = question1_answer2.answergroup.create(grouped_question=self.parent, row=2)
         answer_group2_2 = question2_answer2.answergroup.create(grouped_question=self.parent, row=2)
@@ -195,7 +204,8 @@ class ExportToTextServiceTest(BaseTest):
 
         country = Country.objects.create(name="Uganda", code="UGX")
         answer1 = TextAnswer.objects.create(question=question, country=country, response="tusker lager",
-                                            status=Answer.SUBMITTED_STATUS)
+                                            status=Answer.SUBMITTED_STATUS,
+                                            questionnaire=self.questionnaire)
 
         answer_group1 = AnswerGroup.objects.create(grouped_question=parent, row=1)
         answer_group1.answer.add(answer1)
@@ -222,7 +232,8 @@ class ExportToTextServiceTest(BaseTest):
 
         country = Country.objects.create(name="Uganda", code="UGX")
         answer1 = TextAnswer.objects.create(question=question, country=country, response="tusker lager",
-                                            status=Answer.DRAFT_STATUS)
+                                            status=Answer.DRAFT_STATUS,
+                                            questionnaire=self.questionnaire)
 
         answer_group1 = AnswerGroup.objects.create(grouped_question=parent, row=1)
         answer_group1.answer.add(answer1)
@@ -271,22 +282,22 @@ class GRIDQuestionsExportTest(BaseTest):
         self.primary_question_answer = MultiChoiceAnswer.objects.create(question=self.primary_question,
                                                                         country=self.country,
                                                                         status=Answer.SUBMITTED_STATUS,
-                                                                        response=self.option)
+                                                                        response=self.option,questionnaire=self.questionnaire)
         self.question1_answer = NumericalAnswer.objects.create(question=self.question1, country=self.country,
-                                                               status=Answer.SUBMITTED_STATUS, response=23)
+                                                               status=Answer.SUBMITTED_STATUS, response=23, questionnaire=self.questionnaire)
         self.question2_answer = NumericalAnswer.objects.create(question=self.question2, country=self.country,
-                                                               status=Answer.SUBMITTED_STATUS, response=1)
+                                                               status=Answer.SUBMITTED_STATUS, response=1, questionnaire=self.questionnaire)
         self.answer_group1 = self.primary_question_answer.answergroup.create(grouped_question=self.parent, row=1)
         self.answer_group1.answer.add(self.question1_answer, self.question2_answer)
 
         self.primary_question_answer2 = MultiChoiceAnswer.objects.create(question=self.primary_question,
                                                                          country=self.country,
                                                                          status=Answer.SUBMITTED_STATUS,
-                                                                         response=self.option2)
+                                                                         response=self.option2, questionnaire=self.questionnaire)
         self.question1_answer2 = NumericalAnswer.objects.create(question=self.question1, country=self.country,
-                                                                status=Answer.SUBMITTED_STATUS, response=3)
+                                                                status=Answer.SUBMITTED_STATUS, response=3, questionnaire=self.questionnaire)
         self.question2_answer2 = NumericalAnswer.objects.create(question=self.question2, country=self.country,
-                                                                status=Answer.SUBMITTED_STATUS, response=12)
+                                                                status=Answer.SUBMITTED_STATUS, response=12, questionnaire=self.questionnaire)
         self.answer_group2 = self.primary_question_answer2.answergroup.create(grouped_question=self.parent, row=2)
         self.answer_group2.answer.add(self.question1_answer2, self.question2_answer2)
 
@@ -346,42 +357,27 @@ class MultipleQuestionnaireFilterAndExportToTextServiceTest(BaseTest):
                                                               year=2014, theme=self.theme1, country=self.country_2)
 
     def setup_create_questionnaire_and_answers(self, name, year, theme=None, country=None):
-        questionnaire = Questionnaire.objects.create(name=name,
-                                                    description="Description",
-                                                    year=year)
-        section_1 = Section.objects.create(title="section_1",
-                                                order=1,
-                                                questionnaire=questionnaire, name="Reported Cases")
-        sub_section = SubSection.objects.create(title="sun section one", order=1,
-                                                     section=section_1)
+        questionnaire = Questionnaire.objects.create(name=name, description="Description", year=year)
+        section_1 = Section.objects.create(title="section_1", order=1, questionnaire=questionnaire, name="Reported Cases")
+        sub_section = SubSection.objects.create(title="sun section one", order=1, section=section_1)
 
-        question1 = Question.objects.create(text='B. Number of cases tested', UID='C5' + str(year),
-                                                 answer_type='Number',
-                                                 theme=theme)
-        question2 = Question.objects.create(text='C. Number of cases positive',
-                                                 instructions="Include only those cases found positive for the infectious agent.",
-                                                 UID='C6' + str(year), answer_type='Number', theme=theme)
-
-        question3 = Question.objects.create(text='primary_question', UID='C4' + str(year), answer_type='MultiChoice',
-                                                        is_primary=True, theme=theme)
+        question1 = Question.objects.create(text='B. Number of cases tested', UID='C5' + str(year), answer_type='Number', theme=theme)
+        question2 = Question.objects.create(text='C. Number of cases positive', UID='C6' + str(year), answer_type='Number', theme=theme)
+        question3 = Question.objects.create(text='primary_question', UID='C4' + str(year), answer_type='MultiChoice', is_primary=True, theme=theme)
         option = QuestionOption.objects.create(text="Measles", question=question3, UID="Q3" + str(year))
         option2 = QuestionOption.objects.create(text="TB", question=question3, UID="Q4" + str(year))
 
         question_group = QuestionGroup.objects.create(subsection=sub_section, order=1)
         question_group.question.add(question1, question2, question3)
 
-
         def setup_create_answers():
             question1_answer = NumericalAnswer.objects.create(question=question1, country=country,
-                                                              status=Answer.SUBMITTED_STATUS, response=23)
+                                                              status=Answer.SUBMITTED_STATUS, response=23, questionnaire=questionnaire)
 
             question2_answer = NumericalAnswer.objects.create(question=question2, country=country,
-                                                              status=Answer.SUBMITTED_STATUS, response=1)
+                                                              status=Answer.SUBMITTED_STATUS, response=1, questionnaire=questionnaire)
 
-            question3_answer = MultiChoiceAnswer.objects.create(question=question3,
-                                                                       country=country,
-                                                                       status=Answer.SUBMITTED_STATUS,
-                                                                       response=option)
+            question3_answer = MultiChoiceAnswer.objects.create(question=question3, country=country, status=Answer.SUBMITTED_STATUS, response=option, questionnaire=questionnaire)
             answer_group_1 = question1_answer.answergroup.create(grouped_question=question_group, row=1)
             answer_group_2 = question2_answer.answergroup.create(grouped_question=question_group, row=1)
             answer_group1 = question3_answer.answergroup.create(grouped_question=question_group, row=1)

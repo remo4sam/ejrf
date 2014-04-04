@@ -1,5 +1,6 @@
 from questionnaire.models import AnswerGroup, Answer, Questionnaire, Country, Theme
 
+
 class ExportToTextService:
     HEADERS = "ISO\tCountry\tYear\tField code\tQuestion text\tValue"
 
@@ -78,7 +79,7 @@ class ExportToTextService:
                 question_option = answer.response.UID
             answer_id = "%s_%s_%s_%s" % (question_prefix, primary_question_uid, question.UID, question_option)
         question_text_format = "%s | %s | %s" % (group.subsection.section.title, group.subsection.title, question.text)
-        answer_format = (answer.country.code, answer.country.name, questionnaire.year, answer_id.encode('base64').strip(),
+        answer_format = (answer.country.code, answer.country.name, answer.questionnaire.year, answer_id.encode('base64').strip(),
                          question_text_format, str(answer.response))
         return "%s\t%s\t%s\t%s\t%s\t%s" % answer_format
 

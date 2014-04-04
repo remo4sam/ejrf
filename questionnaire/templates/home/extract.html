@@ -6,46 +6,37 @@
 
 {% block content %}
     <h3>EXTRACT RESPONSES DATA</h3>
-
     <div class="row">
-        <div class="col-xs-6 col-sm-3">Year</div>
-        <div class="col-xs-6 col-sm-3">Region</div>
-        <div class="col-xs-6 col-sm-3">Country</div>
-        <div class="col-xs-6 col-sm-3">Theme</div>
+        <div class="col-xs-6 col-sm-3 text-center">{{ filter_form.year.label }}</div>
+        <div class="col-xs-6 col-sm-3 text-center">{{ filter_form.regions.label }}</div>
+        <div class="col-xs-6 col-sm-3 text-center">{{ filter_form.countries.label }}</div>
+        <div class="col-xs-6 col-sm-3 text-center">{{ filter_form.themes.label }}</div>
     </div>
     <hr/>
-
-    <form method="post">
-        {% csrf_token %}
+    <form method="post" id="export-filter-form" action="{% url 'export_page' %}">
         <div class="row">
-            <div class="col-xs-6 col-sm-3">
-                {% for year in years %}
-                    <div>
-                        <input type="checkbox" name="years" value="{{ year }}" id="{{ year }}"/>
-                        <label for="{{ year }}">{{ year }}</label>
-                    </div>
-                {% endfor %}
-            </div>
-            <div class="col-xs-6 col-sm-3">
-            {% for region in regions %}
-                <div>
-                    <input type="checkbox" name="regions" value="{{ region.id }}" id="{{ region.name }}"/>
-                    <label for="{{ region.name }}">{{ region.name }}</label>
+            {% csrf_token %}
+                <div class="col-xs-6 col-sm-3">
+                    {{ filter_form.year }}
                 </div>
-            {% endfor %}
-            </div>
-            <div class="col-xs-6 col-sm-3" id="extract-countries">
+                <div class="col-xs-6 col-sm-3">
+                    {{ filter_form.regions }}
+                </div>
+                <div class="col-xs-6 col-sm-3">
+                    <ul id="extract-countries">
 
-            </div>
-            <div class="col-xs-6 col-sm-3">
-                {% for theme in themes %}
-                    <div>
-                        <input type="checkbox" name="themes" value="{{ theme.id }}" id="{{ theme.name }}"/>
-                        <label for="{{ theme.name }}">{{ theme.name }}</label>
-                    </div>
-                {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-xs-6 col-sm-3">
+                    {{ filter_form.themes }}
+                </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 text-center">
+                <button type="submit" class="btn btn-lg btn-default pull-right cyan glyphicon glyphicon-download"
+                    id="export-data"> Download (.txt)
+                </button>
             </div>
         </div>
-        <button type="submit" class="btn btn-lg btn-default pull-right cyan glyphicon glyphicon-download" id="export-data"> Download (.txt)</button>
     </form>
 {% endblock %}

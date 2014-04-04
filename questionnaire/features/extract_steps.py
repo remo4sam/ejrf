@@ -22,9 +22,9 @@ def and_i_visit_the_extract_page(step):
 @step(u'I should see a list of filter options')
 def then_i_should_see_a_list_of_questionnaires(step):
     world.page.is_text_present('Year')
-    world.page.is_text_present('Region')
-    world.page.is_text_present('Country')
-    world.page.is_text_present('Theme')
+    world.page.is_text_present('Regions')
+    world.page.is_text_present('Countries')
+    world.page.is_text_present('Themes')
 
 @step(u'And I have a questionnaires')
 def and_i_have_two_questionnaires(step):

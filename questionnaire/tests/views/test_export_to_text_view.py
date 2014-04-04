@@ -1,5 +1,6 @@
 from urllib import quote
 from django.test import Client
+from questionnaire.forms.filter import ExportFilterForm
 from questionnaire.models import Questionnaire, Section, SubSection, Question, QuestionGroup, Organization, Region, Country, NumericalAnswer, Answer, QuestionGroupOrder, AnswerGroup, \
     MultiChoiceAnswer, QuestionOption, Theme
 from questionnaire.tests.base_test import BaseTest
@@ -17,8 +18,10 @@ class ExportToTextViewTest(BaseTest):
         self.regions.countries.add(self.country)
 
         self.questionnaire = Questionnaire.objects.create(name="JRF 2013 Core English",
-                                                          description="From dropbox as given by Rouslan",
-                                                          year=2013, region = self.regions)
+                                                          year=2013, region=self.regions)
+        self.questionnaire2 = Questionnaire.objects.create(name="JRF 2013 Core English",
+                                                           year=2014, region=self.regions)
+
         self.section_1 = Section.objects.create(title="Reported Cases of Selected Vaccine Preventable Diseases (VPDs)",
                                                 order=1,
                                                 questionnaire=self.questionnaire, name="Reported Cases")
@@ -26,24 +29,21 @@ class ExportToTextViewTest(BaseTest):
         self.sub_section = SubSection.objects.create(title="Reported cases for the year 2013", order=1,
                                                      section=self.section_1)
 
-        self.theme = Theme.objects.create(name = "Theme1", description="Some Theme")
+        self.theme = Theme.objects.create(name="Theme1", description="Some Theme")
 
-        self.question1 = Question.objects.create(text='B. Number of cases tested',
-                                                 instructions="Enter the total number of cases for which specimens were collected, and tested in laboratory",
-                                                 UID='C00003', answer_type='Number', theme=self.theme)
+        self.question1 = Question.objects.create(text='B. Number of cases tested', UID='C00003', answer_type='Number', theme=self.theme)
 
-        self.question2 = Question.objects.create(text='C. Number of cases positive',
-                                                 instructions="Include only those cases found positive for the infectious agent.",
-                                                 UID='C00004', answer_type='Number', theme=self.theme)
+        self.question2 = Question.objects.create(text='C. Number of cases positive', UID='C00004', answer_type='Number', theme=self.theme)
 
         self.parent = QuestionGroup.objects.create(subsection=self.sub_section, order=1)
         self.parent.question.add(self.question1, self.question2)
 
-
         self.question1_answer = NumericalAnswer.objects.create(question=self.question1, country=self.country,
-                                                               status=Answer.SUBMITTED_STATUS, response=23)
+                                                               status=Answer.SUBMITTED_STATUS, response=23,
+                                                               questionnaire=self.questionnaire)
         self.question2_answer = NumericalAnswer.objects.create(question=self.question2, country=self.country,
-                                                               status=Answer.SUBMITTED_STATUS, response=1)
+                                                               status=Answer.SUBMITTED_STATUS, response=1,
+                                                               questionnaire=self.questionnaire)
 
         self.answer_group1 = AnswerGroup.objects.create(grouped_question=self.parent, row=1)
         self.answer_group1.answer.add(self.question1_answer, self.question2_answer)
@@ -56,7 +56,7 @@ class ExportToTextViewTest(BaseTest):
         self.assertEqual(200, response.status_code)
         templates = [template.name for template in response.templates]
         self.assertIn('home/extract.html', templates)
-        self.assertIn(self.questionnaire, response.context['questionnaires'])
+        self.assertIsInstance(response.context['filter_form'], ExportFilterForm)
 
     def test_login_required_for_home_get(self):
         self.client.logout()
@@ -64,10 +64,10 @@ class ExportToTextViewTest(BaseTest):
         self.assertRedirects(response, expected_url='accounts/login/?next=%s' % quote('/extract/'), status_code=302)
 
     def test_post_export(self):
-        form_data = {'questionnaire': self.questionnaire.id, 'years': {'2013', '2014'}, 'regions': self.regions.id,
-                     'countries': self.country.id, 'themes': self.theme.id}
+        form_data = {'questionnaire': self.questionnaire.id, 'year': ['2013', '2014'], 'regions': [self.regions.id],
+                     'countries': [self.country.id], 'themes': [self.theme.id]}
 
-        file_name = "%s-%s.txt" % ('data', '2014_2013')
+        file_name = "%s-%s.txt" % ('data', '2013_2014')
         response = self.client.post('/extract/', data=form_data)
         self.assertEquals(200, response.status_code)
         self.assertEquals(response.get('Content-Type'), 'text/csv')
@@ -81,7 +81,6 @@ class ExportToTextViewTest(BaseTest):
         row1 = "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_1.encode('base64').strip(), question_text1, '23.00')
         row2 = "UGX\t%s\t2013\t%s\t%s\t%s" % (self.country.name, answer_id_2.encode('base64').strip(), question_text_2, '1.00')
         contents = "%s\r\n%s\r\n%s" % ("".join(headings), "".join(row1), "".join(row2))
-
         self.assertEqual(contents, response.content)
 
 
@@ -134,11 +133,14 @@ class SpecificExportViewTest(BaseTest):
         ghana = Country.objects.create(name="Ghana", code="GH")
         self.region.countries.add(ghana)
         primary_question_answer2 = MultiChoiceAnswer.objects.create(question=self.primary_question, country=ghana,
-                                                                    status=Answer.SUBMITTED_STATUS,  response=self.option2, version=2)
+                                                                    status=Answer.SUBMITTED_STATUS,
+                                                                    response=self.option2, version=2, questionnaire=self.questionnaire)
         question1_answer2 = NumericalAnswer.objects.create(question=self.question1, country=ghana,
-                                                           status=Answer.SUBMITTED_STATUS,  response=4, version=2)
+                                                           status=Answer.SUBMITTED_STATUS,  response=4, version=2,
+                                                           questionnaire=self.questionnaire)
         question2_answer2 = NumericalAnswer.objects.create(question=self.question2, country=ghana,
-                                                           status=Answer.SUBMITTED_STATUS, response=55, version=2)
+                                                           status=Answer.SUBMITTED_STATUS, response=55, version=2,
+                                                           questionnaire=self.questionnaire)
         answer_group2 = primary_question_answer2.answergroup.create(grouped_question=self.parent, row=2)
         answer_group2_1 = question1_answer2.answergroup.create(grouped_question=self.parent, row=2)
         answer_group2_2 = question2_answer2.answergroup.create(grouped_question=self.parent, row=2)

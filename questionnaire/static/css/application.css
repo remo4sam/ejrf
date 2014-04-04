@@ -446,3 +446,11 @@ tr.dragging, tr.dragging * {
     margin-left: 10px;
     text-transform: uppercase;
 }
+
+#export-filter-form ul li
+{
+    display:table-row;
+    height: 30px;
+    list-style-type: none;
+    vertical-align: middle;
+}
