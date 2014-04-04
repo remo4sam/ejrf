@@ -82,11 +82,15 @@ class ExportSectionPDF(LoginRequiredMixin, View):
         domain = str(self.request.META['HTTP_HOST']).split(':')[0]
         phantomjs_script = 'questionnaire/static/js/export-section.js'
         command = "phantomjs %s %s %s %s %s" % (phantomjs_script, export_url, export_file, session_id, domain)
+        print command
         if os.system(command) == 0:
+            print "done"
             return HttpResponse(json.dumps({'filename': file_name}))
         else:
+            print "sleeoping"
             time.sleep(20)
             if os.system(command) == 0:
+                print "stil waiting"
                 return HttpResponse(json.dumps({'filename': file_name}))
 
 
