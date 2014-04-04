@@ -67,7 +67,7 @@ class ExportToTextServiceTest(BaseTest):
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (
                          self.country.name, answer_id_2.encode('base64').strip(), question_text_2, '1.00')]
 
-        export_to_text_service = ExportToTextService(self.questionnaire)
+        export_to_text_service = ExportToTextService([self.questionnaire])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -112,7 +112,7 @@ class ExportToTextServiceTest(BaseTest):
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (
                          self.country.name, answer_id_21.encode('base64').strip(), question_text_2, '55.00')]
 
-        export_to_text_service = ExportToTextService(self.questionnaire)
+        export_to_text_service = ExportToTextService([self.questionnaire])
         actual_data = export_to_text_service.get_formatted_responses()
 
         self.assertEqual(len(expected_data), len(actual_data))
@@ -151,7 +151,7 @@ class ExportToTextServiceTest(BaseTest):
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (
                          self.country.name, answer_id_2.encode('base64').strip(), question_text_2, '55.00')]
 
-        export_to_text_service = ExportToTextService(self.questionnaire, version=2)
+        export_to_text_service = ExportToTextService([self.questionnaire], version=2)
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -188,7 +188,7 @@ class ExportToTextServiceTest(BaseTest):
                          "%s\t%s\t2013\t%s\t%s\t%s" % (
                          ghana.code, ghana.name, answer_id_2.encode('base64').strip(), question_text_2, '55.00')]
 
-        export_to_text_service = ExportToTextService(self.questionnaire, countries=ghana)
+        export_to_text_service = ExportToTextService([self.questionnaire], countries=[ghana])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -217,7 +217,7 @@ class ExportToTextServiceTest(BaseTest):
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (
                          self.country.name, answer_id.encode('base64').strip(), question_text, 'tusker lager')]
 
-        export_to_text_service = ExportToTextService(self.questionnaire)
+        export_to_text_service = ExportToTextService([self.questionnaire])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -240,7 +240,7 @@ class ExportToTextServiceTest(BaseTest):
 
         expected_data = [self.headings, ]
 
-        export_to_text_service = ExportToTextService(self.questionnaire)
+        export_to_text_service = ExportToTextService([self.questionnaire])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -325,7 +325,7 @@ class GRIDQuestionsExportTest(BaseTest):
                          "UGX\t%s\t2013\t%s\t%s\t%s" % (
                          self.country.name, answer_id_21.encode('base64').strip(), question_text_2, '12.00')]
 
-        export_to_text_service = ExportToTextService(self.questionnaire)
+        export_to_text_service = ExportToTextService([self.questionnaire])
         actual_data = export_to_text_service.get_formatted_responses()
 
         self.assertEqual(len(expected_data), len(actual_data))
@@ -423,7 +423,7 @@ class MultipleQuestionnaireFilterAndExportToTextServiceTest(BaseTest):
             answer_id = "C_%s_%s_1" % (question.UID, question.UID)
             expected_data.append(line_format % (self.country.name, answer_id.encode('base64').strip(), question_text, '23'))
 
-        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], themes=self.theme)
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], themes=[self.theme])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -439,7 +439,7 @@ class MultipleQuestionnaireFilterAndExportToTextServiceTest(BaseTest):
             answer_id = "C_%s_%s_1" % (question.UID, question.UID)
             expected_data.append(line_format % (self.country.name, answer_id.encode('base64').strip(), question_text, '23'))
 
-        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], countries=self.country)
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], countries=[self.country])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -455,7 +455,7 @@ class MultipleQuestionnaireFilterAndExportToTextServiceTest(BaseTest):
             answer_id = "C_%s_%s_1" % (question.UID, question.UID)
             expected_data.append(line_format % (self.country.name, answer_id.encode('base64').strip(), question_text, '23'))
 
-        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], countries=self.country, themes=self.theme)
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire,self.questionnaire2], countries=[self.country], themes=[self.theme])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -464,7 +464,7 @@ class MultipleQuestionnaireFilterAndExportToTextServiceTest(BaseTest):
         expected_data = [self.headings]
         line_format = "UGX\t%s\t2013\t%s\t%s\t%s"
 
-        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire], countries=self.country, themes=self.theme1)
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire], countries=[self.country], themes=[self.theme1])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)
@@ -473,7 +473,7 @@ class MultipleQuestionnaireFilterAndExportToTextServiceTest(BaseTest):
         expected_data = [self.headings]
         line_format = "UGX\t%s\t2013\t%s\t%s\t%s"
 
-        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire], countries=self.country_2, themes=self.theme)
+        export_to_text_service = ExportToTextService(questionnaires=[self.questionnaire], countries=[self.country_2], themes=[self.theme])
         actual_data = export_to_text_service.get_formatted_responses()
         self.assertEqual(len(expected_data), len(actual_data))
         self.assertIn(expected_data[0], actual_data)

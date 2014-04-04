@@ -1,43 +1,28 @@
-from questionnaire.models import AnswerGroup, Answer, Questionnaire, Country, Theme
+from questionnaire.models import AnswerGroup, Answer
 
 
 class ExportToTextService:
     HEADERS = "ISO\tCountry\tYear\tField code\tQuestion text\tValue"
 
     def __init__(self, questionnaires, version=None, countries=None, themes=None):
-        self.questionnaires = []
-        if questionnaires and isinstance(questionnaires, Questionnaire):
-            self.questionnaires.append(questionnaires)
-        else:
-            self.questionnaires = questionnaires
-
+        self.questionnaires = questionnaires
         self.version = version
-
-        self.countries = []
-        if countries and isinstance(countries, Country):
-            self.countries.append(countries)
-        else:
-            self.countries = countries
-
-        self.themes=[]
-        if themes and isinstance(themes, Theme):
-            self.themes.append(themes)
-        else:
-            self.themes = themes
+        self.countries = countries
+        self.themes = themes
 
     def get_formatted_responses(self):
         formatted_response = [self.HEADERS]
         for questionnaire in self.questionnaires:
             for subsection in questionnaire.sub_sections():
-                subsection_answers = self._answers(questionnaire, subsection)
+                subsection_answers = self._answers(subsection)
                 formatted_response.extend(subsection_answers)
 
         return formatted_response
 
-    def _answers(self, questionnaire, subsection):
+    def _answers(self, subsection):
         formatted_response = []
         for group in subsection.parent_question_groups():
-            answers_in_group = self._answers_in(questionnaire, group)
+            answers_in_group = self._answers_in(group)
             formatted_response.extend(answers_in_group)
         return formatted_response
 
@@ -53,7 +38,7 @@ class ExportToTextService:
 
         return filter_dict
 
-    def _answers_in(self, questionnaire, group):
+    def _answers_in(self, group):
         formatted_response = []
         ordered_questions = group.ordered_questions()
         primary_question = ordered_questions[0]
@@ -65,11 +50,11 @@ class ExportToTextService:
                 answer = answers.filter(**filter_dict)
                 if answer.exists():
                     for answer_ in answer:
-                        response_row = self._format_response(questionnaire, answer_, question, primary_question.UID, group, int(answer_group.row))
+                        response_row = self._format_response(answer_, question, primary_question.UID, group, int(answer_group.row))
                         formatted_response.append(response_row)
         return formatted_response
 
-    def _format_response(self, questionnaire, answer, question, primary_question_uid, group, row):
+    def _format_response(self, answer, question, primary_question_uid, group, row):
         question_prefix = 'C' if question.is_core else 'R'
         answer_id = "%s_%s_%s_%d" % (question_prefix, primary_question_uid, question.UID, row)
         if question.is_primary:

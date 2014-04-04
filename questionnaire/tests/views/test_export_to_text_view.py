@@ -146,7 +146,7 @@ class SpecificExportViewTest(BaseTest):
         answer_group2_2 = question2_answer2.answergroup.create(grouped_question=self.parent, row=2)
 
         file_name = "%s-%s-%s-%s.txt" % (self.questionnaire.name, self.questionnaire.year, ghana.name, 2)
-        response = self.client.post('/extract/country/%d/version/%d/'%(ghana.id, 2))
+        response = self.client.post('/extract/country/%d/version/%d/' % (ghana.id, 2))
         self.assertEquals(200, response.status_code)
         self.assertEquals(response.get('Content-Type'), 'text/csv')
         self.assertEquals(response.get('Content-Disposition'), 'attachment; filename="%s"' % file_name)

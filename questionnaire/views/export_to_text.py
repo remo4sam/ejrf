@@ -56,8 +56,8 @@ class SpecificExportView(LoginRequiredMixin, TemplateView):
         country = Country.objects.get(id=kwargs['country_id'])
         questionnaire = Questionnaire.objects.filter(region__countries=country, status=Questionnaire.PUBLISHED).latest('modified')
         version = kwargs.get('version_number', None)
-        formatted_responses = ExportToTextService(questionnaire, countries=country,
-                                                  version=version).get_formatted_responses()
+        export_service = ExportToTextService([questionnaire], countries=[country], version=version)
+        formatted_responses = export_service.get_formatted_responses()
         response = HttpResponse(content_type='text/csv')
         filename_parts = (questionnaire.name, questionnaire.year, country.name, version)
         response['Content-Disposition'] = 'attachment; filename="%s-%s-%s-%s.txt"' % filename_parts
@@ -67,19 +67,19 @@ class SpecificExportView(LoginRequiredMixin, TemplateView):
 
 class ExportSectionPDF(LoginRequiredMixin, View):
 
-    def get(self, request, *args, **kwargs):
-        session_id = request.COOKIES['sessionid']
+    def get(self, *args, **kwargs):
+        session_id = self.request.COOKIES['sessionid']
         file_name = 'eJRF_export_%s.pdf' % str(time.time())
         export_file = 'export/' + file_name
 
         # In case other get params recreate url string for printable param
-        url_parts = list(urlparse.urlparse(request.META['HTTP_REFERER']))
+        url_parts = list(urlparse.urlparse(self.request.META['HTTP_REFERER']))
         query = dict(urlparse.parse_qsl(url_parts[4]))
         query.update({'printable': '1'})
         url_parts[4] = urllib.urlencode(query)
         export_url = urlparse.urlunparse(url_parts)
 
-        domain = str(request.META['HTTP_HOST']).split(':')[0]
+        domain = str(self.request.META['HTTP_HOST']).split(':')[0]
         phantomjs_script = 'questionnaire/static/js/export-section.js'
         command = ["phantomjs", phantomjs_script, export_url, export_file, session_id, domain, "&> /dev/null &"]
         subprocess.Popen(command)
