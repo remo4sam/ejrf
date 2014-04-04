@@ -85,7 +85,7 @@ class ExportSectionPDF(LoginRequiredMixin, View):
         if os.system(command) == 0:
             return HttpResponse(json.dumps({'filename': file_name}))
         else:
-            time.sleep(10)
+            time.sleep(20)
             if os.system(command) == 0:
                 return HttpResponse(json.dumps({'filename': file_name}))
 
