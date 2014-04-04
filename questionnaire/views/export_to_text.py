@@ -31,15 +31,15 @@ class ExportToTextView(LoginRequiredMixin, TemplateView):
     def post(self, *args, **kwargs):
         years = None
         filter_form = ExportFilterForm(self.request.POST)
-        export_service = ExportToTextService(questionnaires=Questionnaire.objects.all())
+        all_questionnaires = Questionnaire.objects.all()
+        export_service = ExportToTextService(questionnaires=all_questionnaires)
         if filter_form.is_valid():
             years = filter_form.cleaned_data['year']
             countries = filter_form.cleaned_data['countries']
             themes = filter_form.cleaned_data['themes']
-
             export_filter_params = {'year__in': years, 'region__in': filter_form.cleaned_data['regions']}
 
-            questionnaires = Questionnaire.objects.filter(**export_filter_params)
+            questionnaires = all_questionnaires.filter(**export_filter_params)
             export_service = ExportToTextService(questionnaires=questionnaires, countries=countries, themes=themes)
 
         formatted_responses = export_service.get_formatted_responses()
@@ -88,7 +88,7 @@ class ExportSectionPDF(LoginRequiredMixin, View):
 
 class DownloadSectionPDF(LoginRequiredMixin, View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         filename = kwargs.get('filename', '')
         return_file = File(open('export/' + filename, 'r'))
         response = HttpResponse(return_file, mimetype='application/force-download')

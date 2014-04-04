@@ -31,5 +31,5 @@ class ExportFilterForm(forms.Form):
     def _set_year_choices():
         choices = []
         years_with_questionnaires = set(Questionnaire.objects.all().values_list('year', flat=True))
-        choices.extend((year, year) for year in list(years_with_questionnaires))
+        choices.extend((year, year) for year in years_with_questionnaires)
         return choices
