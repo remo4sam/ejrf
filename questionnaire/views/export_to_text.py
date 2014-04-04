@@ -81,9 +81,13 @@ class ExportSectionPDF(LoginRequiredMixin, View):
 
         domain = str(self.request.META['HTTP_HOST']).split(':')[0]
         phantomjs_script = 'questionnaire/static/js/export-section.js'
-        command = ["phantomjs", phantomjs_script, export_url, export_file, session_id, domain, "&> /dev/null &"]
-        subprocess.Popen(command)
-        return HttpResponse(json.dumps({'filename': file_name}))
+        command = "phantomjs %s %s %s %s %s" % (phantomjs_script, export_url, export_file, session_id, domain)
+        if os.system(command) == 0:
+            return HttpResponse(json.dumps({'filename': file_name}))
+        else:
+            time.sleep(10)
+            if os.system(command) == 0:
+                return HttpResponse(json.dumps({'filename': file_name}))
 
 
 class DownloadSectionPDF(LoginRequiredMixin, View):
