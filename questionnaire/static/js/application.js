@@ -192,7 +192,7 @@ $('#export-section').on('click', function(event) {
     setTimeout(function(){
       $('#export-section').toggleClass('active');
       return_file(filename)
-    }, 8000);
+    }, 10000);
     event.preventDefault();
 });
 
