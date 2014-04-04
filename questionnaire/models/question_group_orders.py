@@ -12,15 +12,13 @@ class QuestionGroupOrder(BaseModel):
         app_label = 'questionnaire'
         unique_together = ('order', 'question_group', 'question')
 
-    def __unicode__(self):
-        return "%d" % self.order
     def is_last_answer_type_in_group(self):
         return self.first_by('-order')
 
     def first_by(self, attribute_string):
-        ordered_by_attributes =  QuestionGroupOrder.objects.filter(question_group=self.question_group,
-                                                                   question__answer_type=self.question.answer_type).\
-                                                                    order_by(attribute_string)
+        ordered_by_attributes = QuestionGroupOrder.objects.filter(question_group=self.question_group,
+                                                                  question__answer_type=self.question.answer_type).\
+            order_by(attribute_string)
         return self == ordered_by_attributes[0]
 
     def is_first_answer_type_in_group(self):

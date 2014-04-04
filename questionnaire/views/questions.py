@@ -67,6 +67,7 @@ class QuestionList(PermissionRequiredMixin, View):
 
         return 'created'
 
+
 class CreateQuestion(PermissionRequiredMixin, CreateView):
     permission_required = 'auth.can_edit_questionnaire'
 
