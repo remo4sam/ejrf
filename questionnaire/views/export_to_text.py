@@ -90,8 +90,10 @@ class DownloadSectionPDF(LoginRequiredMixin, View):
 
     def get(self, *args, **kwargs):
         filename = kwargs.get('filename', '')
-        return_file = File(open('export/' + filename, 'r'))
-        response = HttpResponse(return_file, mimetype='application/force-download')
-        response['Content-Disposition'] = 'attachment; filename=%s' % filename
-        os.system("rm -rf export/%s" % filename)
-        return response
+        if os.path.exists(filename):
+            return_file = File(open('export/' + filename, 'r'))
+            response = HttpResponse(return_file, mimetype='application/force-download')
+            response['Content-Disposition'] = 'attachment; filename=%s' % filename
+            os.system("rm -rf export/%s" % filename)
+            return response
+        return HttpResponse("Nothing top download")
